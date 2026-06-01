@@ -1631,6 +1631,9 @@
             <th>Projeto</th>
             <th>Portfólio</th>
             <th>Patrocinador</th>
+            <th>Capacidades</th>
+            <th>Tecnologia</th>
+            <th>Período</th>
             <th>Farol</th>
             <th style="min-width:130px">Progresso</th>
             <th>Próximo Marco</th>
@@ -4664,10 +4667,31 @@ function buildSRProjects() {
       });
     });
     const portfolio = state.portfolios.find(pt => pt.id === p.portfolioId);
+
+    // Calcular data de início e fim do projeto pelas fases
+    const phaseDates = [];
+    (p.phases || []).forEach(ph => {
+      ['plannedStart','replannedStart','actualStart'].forEach(k => {
+        const d = parseDate(ph[k]); if (d) phaseDates.push({ d, type: 'start' });
+      });
+      ['plannedEnd','replannedEnd','actualEnd'].forEach(k => {
+        const d = parseDate(ph[k]); if (d) phaseDates.push({ d, type: 'end' });
+      });
+    });
+    const starts = phaseDates.filter(x => x.type === 'start').map(x => x.d);
+    const ends   = phaseDates.filter(x => x.type === 'end').map(x => x.d);
+    const projStart = starts.length ? new Date(Math.min(...starts)) : null;
+    const projEnd   = ends.length   ? new Date(Math.max(...ends))   : null;
+    const fmtDate = d => d ? d.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' }) : '—';
+
     return {
       id: p.id, name: p.name, portfolioId: p.portfolioId,
       portfolioName: portfolio ? portfolio.name : null,
       sponsor: p.sponsor || '', company: p.company || '',
+      technology: p.technology || '',
+      businessCapabilities: p.businessCapabilities || '',
+      projStart: fmtDate(projStart),
+      projEnd:   fmtDate(projEnd),
       status: p.status || 'gray', statusExplanation: p.statusExplanation || '',
       progress: prog, flags: allFlags, nextMilestone: nextMs,
       srHighlight: p.srHighlight || '',
@@ -4758,6 +4782,12 @@ function renderSRTable(projects, portfolios) {
           <span class="portfolio-tag">${escapeHtml(p.company||'')}</span></td>
       <td style="font-size:11.5px;color:var(--muted)">${escapeHtml(ptName)}</td>
       <td style="font-size:11.5px">${escapeHtml(p.sponsor||'—')}</td>
+      <td style="font-size:11px;color:var(--text);max-width:160px;line-height:1.4">${escapeHtml(p.businessCapabilities||'—')}</td>
+      <td style="font-size:11px;color:var(--muted);max-width:140px;line-height:1.4">${escapeHtml(p.technology||'—')}</td>
+      <td style="font-size:11px;white-space:nowrap">
+        <span style="color:var(--navy);font-weight:600">${escapeHtml(p.projStart)}</span>
+        ${p.projEnd !== '—' ? `<span style="color:var(--muted)"> → </span><span style="color:var(--navy);font-weight:600">${escapeHtml(p.projEnd)}</span>` : ''}
+      </td>
       <td><span class="status-pill ${p.status}" style="cursor:default"><span class="dot"></span>${statusLabel[p.status]||'—'}</span></td>
       <td class="prog-cell">
         <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Prev: <strong>${pred}%</strong> &nbsp; Real: <strong>${real}%</strong></div>
