@@ -82,25 +82,39 @@
   }
   .toolbar .spacer { flex: 1; }
 
-  main { padding: 20px 24px; overflow-x: auto; }
+  main { padding: 20px 24px; }
 
   .timeline-wrap {
     background: var(--card);
     border: 1px solid #dde4ee;
     border-radius: 8px;
-    overflow: hidden;
+    overflow: auto;
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-    min-width: fit-content;
     cursor: grab;
     user-select: none;
+    /* Altura máxima para scroll vertical */
+    max-height: calc(100vh - 180px);
   }
   .timeline-wrap.panning { cursor: grabbing; }
-  .year-row { display: flex; background: #1a3558; }
+
+  /* Linha de anos — sticky no topo */
+  .year-row {
+    display: flex;
+    background: #1a3558;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
   .year-row .col-info {
     width: 280px; flex-shrink: 0;
     border-right: 1px solid var(--navy-soft);
+    position: sticky;
+    left: 0;
+    background: #1a3558;
+    z-index: 6;
   }
   .year-row .years { flex: 1; display: flex; min-width: 1800px; }
+
   .year-mark {
     text-align: center; padding: 5px 4px;
     font-size: 11px; font-weight: 700;
@@ -108,9 +122,14 @@
     border-right: 1px solid var(--navy-soft);
     letter-spacing: 1px;
   }
+
+  /* Header de meses — sticky abaixo do ano */
   .timeline-header {
     display: flex; background: #16304f; color: #e8edf5;
     border-bottom: 2px solid var(--yellow);
+    position: sticky;
+    top: 27px; /* altura do year-row */
+    z-index: 5;
   }
   .timeline-header .col-info {
     width: 280px; padding: 8px 14px;
@@ -120,10 +139,15 @@
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    position: sticky;
+    left: 0;
+    background: #16304f;
+    z-index: 6;
   }
   .timeline-header .col-timeline {
     flex: 1; position: relative; min-width: 1800px;
   }
+  .timeline-header { height: 52px; }
   .month-marks { display: flex; flex-direction: column; height: 100%; }
   .month-marks-row { display: flex; flex: 1; }
 
@@ -176,6 +200,10 @@
     display: flex; flex-direction: column;
     gap: 6px;
     font-size: 11.5px;
+    position: sticky;
+    left: 0;
+    background: #fff;
+    z-index: 2;
   }
 
   /* Compact header (always visible) */
@@ -535,6 +563,9 @@
     cursor: pointer;
     user-select: none;
     border-left: 4px solid var(--yellow);
+    position: sticky;
+    top: 79px; /* year-row (27px) + timeline-header (52px) */
+    z-index: 4;
   }
   .portfolio-header:hover { filter: brightness(1.07); }
   .portfolio-header .toggle-arrow {
@@ -1636,7 +1667,6 @@
             <th>Patrocinador</th>
             <th>Farol</th>
             <th style="min-width:130px">Progresso</th>
-            <th>Flags Ativas</th>
             <th>Próximo Marco</th>
             <th style="min-width:200px">Comentário</th>
           </tr>
@@ -4757,7 +4787,6 @@ function renderSRTable(projects, portfolios) {
           <div class="mini-bar-real" style="width:${real}%"></div>
         </div>
       </td>
-      <td><div class="flag-pills-cell">${flagHtml || '<span style="color:var(--muted);font-size:11px">—</span>'}</div></td>
       <td>${msHtml}</td>
       <td>${comment}</td>
     </tr>`;
@@ -4961,25 +4990,24 @@ async function deleteVersion(versionId) {
 // PAN — arrastar o timeline com o mouse/touch
 // ============================================================
 (function() {
-  const wrap    = document.getElementById('timeline-wrap');
-  const scroller = wrap.closest('main') || wrap.parentElement;
+  const wrap = document.getElementById('timeline-wrap');
   let isPanning = false, startX = 0, startY = 0, scrollLeft = 0, scrollTop = 0;
 
   wrap.addEventListener('mousedown', e => {
     if (e.target.closest('button,input,select,textarea,.phase-bar,.milestone,.flag-pill,.icon-btn,.proj-actions,.ph-name,.project-info')) return;
-    isPanning   = true;
-    startX      = e.clientX;
-    startY      = e.clientY;
-    scrollLeft  = scroller.scrollLeft;
-    scrollTop   = scroller.scrollTop;
+    isPanning  = true;
+    startX     = e.clientX;
+    startY     = e.clientY;
+    scrollLeft = wrap.scrollLeft;
+    scrollTop  = wrap.scrollTop;
     wrap.classList.add('panning');
     e.preventDefault();
   });
 
   document.addEventListener('mousemove', e => {
     if (!isPanning) return;
-    scroller.scrollLeft = scrollLeft - (e.clientX - startX);
-    scroller.scrollTop  = scrollTop  - (e.clientY - startY);
+    wrap.scrollLeft = scrollLeft - (e.clientX - startX);
+    wrap.scrollTop  = scrollTop  - (e.clientY - startY);
   });
 
   document.addEventListener('mouseup', () => {
@@ -4990,17 +5018,17 @@ async function deleteVersion(versionId) {
 
   wrap.addEventListener('touchstart', e => {
     if (e.touches.length !== 1) return;
-    isPanning   = true;
-    startX      = e.touches[0].clientX;
-    startY      = e.touches[0].clientY;
-    scrollLeft  = scroller.scrollLeft;
-    scrollTop   = scroller.scrollTop;
+    isPanning  = true;
+    startX     = e.touches[0].clientX;
+    startY     = e.touches[0].clientY;
+    scrollLeft = wrap.scrollLeft;
+    scrollTop  = wrap.scrollTop;
   }, { passive: true });
 
   wrap.addEventListener('touchmove', e => {
     if (!isPanning || e.touches.length !== 1) return;
-    scroller.scrollLeft = scrollLeft - (e.touches[0].clientX - startX);
-    scroller.scrollTop  = scrollTop  - (e.touches[0].clientY - startY);
+    wrap.scrollLeft = scrollLeft - (e.touches[0].clientX - startX);
+    wrap.scrollTop  = scrollTop  - (e.touches[0].clientY - startY);
   }, { passive: true });
 
   wrap.addEventListener('touchend', () => { isPanning = false; });
