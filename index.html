@@ -2901,6 +2901,7 @@ function renderPhasesModal() {
     <div class="section-title">
       Fases, Marcos e Flags
       <button class="secondary" id="btn-add-phase">+ Adicionar Fase</button>
+      <button class="ghost" id="btn-sort-phases" title="Ordenar fases por data planejada de início">↕ Ordenar por Data</button>
     </div>
     <div class="table-scroll">
       <table class="items" id="phases-table">
@@ -2951,6 +2952,19 @@ function renderPhasesModal() {
     save();
     renderPhasesModal();
     render();
+  };
+
+  document.getElementById('btn-sort-phases').onclick = () => {
+    snapshot();
+    function phaseDate(ph) {
+      const d = ph.plannedStart || ph.replannedStart || ph.actualStart;
+      return d ? new Date(d + 'T00:00:00').getTime() : Infinity;
+    }
+    p.phases.sort((a, b) => phaseDate(a) - phaseDate(b));
+    save();
+    renderPhasesModal();
+    render();
+    toast('Fases ordenadas por data planejada de início ↑');
   };
 }
 
@@ -3097,6 +3111,7 @@ function renderTasksModal() {
     <div class="section-title">
       Tarefas da Fase
       <button class="secondary" id="btn-add-task">+ Adicionar Tarefa</button>
+      <button class="ghost" id="btn-sort-tasks" title="Ordenar tarefas por data planejada de início">↕ Ordenar por Data</button>
     </div>
     <div class="table-scroll">
       <table class="items" id="tasks-table">
@@ -3147,6 +3162,20 @@ function renderTasksModal() {
     renderTasksModal();
     renderPhasesModal();
     updateProjectProgressUI(currentProjectId);
+  };
+
+  document.getElementById('btn-sort-tasks').onclick = () => {
+    snapshot();
+    function taskDate(t) {
+      const d = t.plannedStart || t.replannedStart || t.actualStart;
+      return d ? new Date(d + 'T00:00:00').getTime() : Infinity;
+    }
+    ph.tasks.sort((a, b) => taskDate(a) - taskDate(b));
+    save();
+    renderTasksModal();
+    renderPhasesModal();
+    updateProjectProgressUI(currentProjectId);
+    toast('Tarefas ordenadas por data planejada de início ↑');
   };
 }
 
