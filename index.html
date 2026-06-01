@@ -96,7 +96,7 @@
     width: 280px; flex-shrink: 0;
     border-right: 1px solid var(--navy-soft);
   }
-  .year-row .years { flex: 1; display: flex; min-width: 1200px; }
+  .year-row .years { flex: 1; display: flex; min-width: 4800px; }
   .year-mark {
     text-align: center; padding: 5px 4px;
     font-size: 11px; font-weight: 700;
@@ -127,7 +127,7 @@
     flex: 1;
     text-align: center;
     padding: 5px 4px 3px;
-    font-size: 10.5px; font-weight: 700;
+    font-size: 11px; font-weight: 700;
     border-right: 1px solid var(--navy-soft);
     text-transform: capitalize;
     letter-spacing: 0.3px;
@@ -141,18 +141,18 @@
   .week-group:last-child { border-right: none; }
   .week-cell {
     flex: 1;
-    font-size: 8.5px;
+    font-size: 9px;
     font-weight: 500;
-    color: rgba(200,212,232,0.7);
+    color: rgba(200,212,232,0.8);
     text-align: center;
     padding: 2px 1px;
-    border-right: 1px solid rgba(255,255,255,0.05);
+    border-right: 1px solid rgba(255,255,255,0.06);
     white-space: nowrap;
     overflow: hidden;
   }
   .week-cell:last-child { border-right: none; }
 
-  .timeline-header .col-timeline { flex: 1; position: relative; min-width: 1200px; }
+  .timeline-header .col-timeline { flex: 1; position: relative; min-width: 4800px; }
   .timeline-header { height: 52px; }
 
   /* ===== PROJECT ROW ===== */
@@ -437,10 +437,9 @@
   .project-timeline {
     flex: 1;
     position: relative;
-    min-width: 1200px;
+    min-width: 4800px;
   }
   .project-timeline { min-height: calc(var(--lanes, 1) * 32px + 8px); }
-  /* Grid lines rendered via inline SVG background in JS */
   .phase-bar {
     position: absolute;
     height: 22px;
