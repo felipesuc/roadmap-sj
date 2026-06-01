@@ -88,33 +88,15 @@
     background: var(--card);
     border: 1px solid #dde4ee;
     border-radius: 8px;
-    overflow: auto;
+    overflow: hidden;
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-    cursor: grab;
-    user-select: none;
-    /* Altura máxima para scroll vertical */
-    max-height: calc(100vh - 180px);
   }
-  .timeline-wrap.panning { cursor: grabbing; }
-
-  /* Linha de anos — sticky no topo */
-  .year-row {
-    display: flex;
-    background: #1a3558;
-    position: sticky;
-    top: 0;
-    z-index: 5;
-  }
+  .year-row { display: flex; background: #1a3558; }
   .year-row .col-info {
     width: 280px; flex-shrink: 0;
     border-right: 1px solid var(--navy-soft);
-    position: sticky;
-    left: 0;
-    background: #1a3558;
-    z-index: 6;
   }
   .year-row .years { flex: 1; display: flex; min-width: 1800px; }
-
   .year-mark {
     text-align: center; padding: 5px 4px;
     font-size: 11px; font-weight: 700;
@@ -122,14 +104,9 @@
     border-right: 1px solid var(--navy-soft);
     letter-spacing: 1px;
   }
-
-  /* Header de meses — sticky abaixo do ano */
   .timeline-header {
     display: flex; background: #16304f; color: #e8edf5;
     border-bottom: 2px solid var(--yellow);
-    position: sticky;
-    top: 27px; /* altura do year-row */
-    z-index: 5;
   }
   .timeline-header .col-info {
     width: 280px; padding: 8px 14px;
@@ -139,10 +116,6 @@
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    position: sticky;
-    left: 0;
-    background: #16304f;
-    z-index: 6;
   }
   .timeline-header .col-timeline {
     flex: 1; position: relative; min-width: 1800px;
@@ -200,10 +173,6 @@
     display: flex; flex-direction: column;
     gap: 6px;
     font-size: 11.5px;
-    position: sticky;
-    left: 0;
-    background: #fff;
-    z-index: 2;
   }
 
   /* Compact header (always visible) */
@@ -563,9 +532,6 @@
     cursor: pointer;
     user-select: none;
     border-left: 4px solid var(--yellow);
-    position: sticky;
-    top: 79px; /* year-row (27px) + timeline-header (52px) */
-    z-index: 4;
   }
   .portfolio-header:hover { filter: brightness(1.07); }
   .portfolio-header .toggle-arrow {
@@ -2374,54 +2340,67 @@ function dateToPercent(d, range) {
 // ============================================================
 // PROGRESS COMPUTATION
 // ============================================================
+
+// Progresso previsto de uma fase com base nas datas e no status atual
 function phasePredictedProgress(phase, today) {
   today = today || new Date();
-  const start = parseDate(phase.replannedStart || phase.plannedStart);
-  const end = parseDate(phase.replannedEnd || phase.plannedEnd);
-  if (!start || !end) return 0;
-  if (end.getTime() === start.getTime()) {
-    return today >= start ? 100 : 0;
+
+  // Se tem status explícito, ele é a fonte de verdade para o previsto também
+  // (evita discrepância entre o que o usuário diz e o que a data calcula)
+  if (phase.status === 'done')        return 100;
+  if (phase.status === 'not_started') {
+    // Só retorna 0 se ainda não chegou na data de início
+    const start = parseDate(phase.actualStart || phase.replannedStart || phase.plannedStart);
+    if (!start || today < start) return 0;
+    // Se já passou da data de início mas status é not_started, calcula pela data
   }
-  if (today < start) return 0;
-  if (today > end) return 100;
+
+  // Usa a melhor data disponível: realizada > replanejada > planejada
+  const start = parseDate(phase.actualStart   || phase.replannedStart || phase.plannedStart);
+  const end   = parseDate(phase.actualEnd     || phase.replannedEnd   || phase.plannedEnd);
+
+  if (!start || !end) return 0;
+  if (end <= start) return today >= end ? 100 : 0;
+  if (today <= start) return 0;
+  if (today >= end)   return 100;
   return Math.round(((today - start) / (end - start)) * 100);
 }
 
+// Progresso realizado de uma fase: vem do status ou das tarefas
 function phaseRealizedProgress(phase) {
   if (phase.tasks && phase.tasks.length) {
-    let totalWeight = 0, weighted = 0;
+    // Pesa pelo número de tarefas (sem datas não tem peso significativo)
+    let total = 0, sum = 0;
     phase.tasks.forEach(t => {
-      const w = durationDays(
-        t.replannedStart || t.plannedStart || t.actualStart,
-        t.replannedEnd || t.plannedEnd || t.actualEnd
-      );
-      const p = Number(t.progress) || 0;
-      weighted += w * p;
-      totalWeight += w;
+      // Usa status como fonte primária, progress como fallback
+      const p = t.status ? statusToProgress(t.status) : (Number(t.progress) || 0);
+      sum += p;
+      total++;
     });
-    return totalWeight ? Math.round(weighted / totalWeight) : 0;
+    return total ? Math.round(sum / total) : 0;
   }
+  // Sem tarefas: usa status da fase como fonte primária
+  if (phase.status) return statusToProgress(phase.status);
   return Number(phase.progress) || 0;
 }
 
+// Progresso consolidado do projeto (previsto + realizado)
 function projectProgress(project) {
   const phases = (project.phases || []).filter(ph => !ph.isMilestone);
   if (!phases.length) return { predicted: 0, realized: 0 };
+
   const today = new Date();
-  let pW = 0, pSum = 0, rW = 0, rSum = 0;
+  let pSum = 0, rSum = 0, count = 0;
+
   phases.forEach(ph => {
-    const dur = durationDays(
-      ph.replannedStart || ph.plannedStart,
-      ph.replannedEnd || ph.plannedEnd
-    );
-    pSum += dur * phasePredictedProgress(ph, today);
-    pW += dur;
-    rSum += dur * phaseRealizedProgress(ph);
-    rW += dur;
+    pSum += phasePredictedProgress(ph, today);
+    rSum += phaseRealizedProgress(ph);
+    count++;
   });
+
   return {
-    predicted: pW ? Math.round(pSum / pW) : 0,
-    realized: rW ? Math.round(rSum / rW) : 0
+    predicted: count ? Math.round(pSum / count) : 0,
+    realized:  count ? Math.round(rSum / count) : 0
   };
 }
 
@@ -4985,54 +4964,6 @@ async function deleteVersion(versionId) {
   renderVersionsModal();
   toast('Versão excluída');
 }
-
-// ============================================================
-// PAN — arrastar o timeline com o mouse/touch
-// ============================================================
-(function() {
-  const wrap = document.getElementById('timeline-wrap');
-  let isPanning = false, startX = 0, startY = 0, scrollLeft = 0, scrollTop = 0;
-
-  wrap.addEventListener('mousedown', e => {
-    if (e.target.closest('button,input,select,textarea,.phase-bar,.milestone,.flag-pill,.icon-btn,.proj-actions,.ph-name,.project-info')) return;
-    isPanning  = true;
-    startX     = e.clientX;
-    startY     = e.clientY;
-    scrollLeft = wrap.scrollLeft;
-    scrollTop  = wrap.scrollTop;
-    wrap.classList.add('panning');
-    e.preventDefault();
-  });
-
-  document.addEventListener('mousemove', e => {
-    if (!isPanning) return;
-    wrap.scrollLeft = scrollLeft - (e.clientX - startX);
-    wrap.scrollTop  = scrollTop  - (e.clientY - startY);
-  });
-
-  document.addEventListener('mouseup', () => {
-    if (!isPanning) return;
-    isPanning = false;
-    wrap.classList.remove('panning');
-  });
-
-  wrap.addEventListener('touchstart', e => {
-    if (e.touches.length !== 1) return;
-    isPanning  = true;
-    startX     = e.touches[0].clientX;
-    startY     = e.touches[0].clientY;
-    scrollLeft = wrap.scrollLeft;
-    scrollTop  = wrap.scrollTop;
-  }, { passive: true });
-
-  wrap.addEventListener('touchmove', e => {
-    if (!isPanning || e.touches.length !== 1) return;
-    wrap.scrollLeft = scrollLeft - (e.touches[0].clientX - startX);
-    wrap.scrollTop  = scrollTop  - (e.touches[0].clientY - startY);
-  }, { passive: true });
-
-  wrap.addEventListener('touchend', () => { isPanning = false; });
-})();
 
 // ============================================================
 // INIT
