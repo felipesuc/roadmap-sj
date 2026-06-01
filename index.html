@@ -120,15 +120,40 @@
   .timeline-header .col-timeline {
     flex: 1; position: relative; min-width: 600px;
   }
-  .month-marks { display: flex; height: 100%; }
+  .month-marks { display: flex; flex-direction: column; height: 100%; }
+  .month-marks-row { display: flex; flex: 1; }
+
   .month-mark {
-    flex: 1; text-align: center;
-    padding: 8px 4px;
-    font-size: 10.5px; font-weight: 500;
+    flex: 1;
+    text-align: center;
+    padding: 5px 4px 3px;
+    font-size: 10.5px; font-weight: 700;
     border-right: 1px solid var(--navy-soft);
     text-transform: capitalize;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    overflow: hidden;
   }
   .month-mark:last-child { border-right: none; }
+
+  .week-marks-row { display: flex; flex: 1; border-top: 1px solid rgba(255,255,255,0.08); }
+  .week-group { flex: 1; display: flex; border-right: 1px solid var(--navy-soft); }
+  .week-group:last-child { border-right: none; }
+  .week-cell {
+    flex: 1;
+    font-size: 8.5px;
+    font-weight: 500;
+    color: rgba(200,212,232,0.7);
+    text-align: center;
+    padding: 2px 1px;
+    border-right: 1px solid rgba(255,255,255,0.05);
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .week-cell:last-child { border-right: none; }
+
+  .timeline-header .col-timeline { flex: 1; position: relative; min-width: 600px; }
+  .timeline-header { height: 52px; }
 
   /* ===== PROJECT ROW ===== */
   .project-row {
@@ -413,13 +438,9 @@
     flex: 1;
     position: relative;
     min-width: 600px;
-    background:
-      repeating-linear-gradient(to right,
-        transparent, transparent calc(100%/12 - 1px),
-        #eef1f4 calc(100%/12 - 1px), #eef1f4 calc(100%/12));
   }
-  /* altura dinâmica via CSS var --lanes, default 1 */
   .project-timeline { min-height: calc(var(--lanes, 1) * 32px + 8px); }
+  /* Grid lines rendered via inline SVG background in JS */
   .phase-bar {
     position: absolute;
     height: 22px;
@@ -768,12 +789,12 @@
   /* ===== MODAL ===== */
   .modal-backdrop {
     position: fixed; inset: 0;
-    background: rgba(13, 34, 64, 0.55);
+    background: rgba(13, 34, 64, 0.6);
     display: none;
     align-items: flex-start;
     justify-content: center;
     z-index: 100;
-    padding: 30px 20px;
+    padding: 16px;
     overflow-y: auto;
   }
   .modal-backdrop.open { display: flex; }
@@ -781,11 +802,30 @@
     background: var(--card);
     border-radius: 6px;
     width: 100%;
-    max-width: 1200px;
+    max-width: 98vw;
     border-top: 4px solid var(--yellow);
     box-shadow: 0 20px 50px rgba(0,0,0,0.3);
     margin: auto 0;
   }
+  /* Modal de fases e tarefas: altura quase total da tela */
+  #phases-modal .modal,
+  #tasks-modal .modal {
+    max-width: 98vw;
+    min-height: calc(100vh - 32px);
+    display: flex;
+    flex-direction: column;
+  }
+  #phases-modal .modal .modal-body,
+  #tasks-modal .modal .modal-body {
+    flex: 1;
+    overflow-y: auto;
+  }
+  /* Modais menores (confirm, flags, assign, etc.) mantêm tamanho próprio */
+  #confirm-modal .modal   { max-width: 420px; min-height: unset; }
+  #flag-modal .modal      { max-width: 520px; min-height: unset; }
+  #assign-modal .modal    { max-width: 680px; min-height: unset; }
+  #versions-modal .modal  { max-width: 760px; min-height: unset; }
+  #portfolio-modal .modal { max-width: 780px; min-height: unset; }
   .modal-header {
     background: #16304f; color: #e8edf5;
     padding: 12px 20px;
@@ -1535,6 +1575,7 @@
   <button id="btn-manage-flags" class="ghost">🚩 Flags</button>
   <button id="btn-expand-all" class="ghost" title="Expandir todos os projetos">⊞ Expandir todos</button>
   <button id="btn-collapse-all" class="ghost" title="Recolher todos os projetos">⊟ Recolher todos</button>
+  <button id="btn-sort-date" class="ghost" title="Ordenar projetos por data planejada de início (crescente)">↕ Ordenar por Data</button>
   <button id="btn-undo" class="ghost" title="Desfazer (Ctrl+Z)">↶ Desfazer</button>
   <button id="btn-download" class="secondary">⬇ Baixar Planilha</button>
   <label class="btn-file">⬆ Carregar Planilha
@@ -1634,7 +1675,7 @@
 
 <!-- Versions modal -->
 <div class="modal-backdrop" id="versions-modal">
-  <div class="modal" style="max-width:760px">
+  <div class="modal" id="versions-modal-inner">
     <div class="modal-header">
       <h2>🗂 Versões do Status Report</h2>
       <button class="close" data-close="versions-modal">✕</button>
@@ -1676,7 +1717,7 @@
 
 <!-- Flags modal -->
 <div class="modal-backdrop" id="flags-modal">
-  <div class="modal" style="max-width:680px">
+  <div class="modal">
     <div class="modal-header">
       <h2>🚩 Gerenciar Flags</h2>
       <button class="close" data-close="flags-modal">✕</button>
@@ -1690,7 +1731,7 @@
 
 <!-- Portfolio modal -->
 <div class="modal-backdrop" id="portfolio-modal">
-  <div class="modal" style="max-width:780px">
+  <div class="modal">
     <div class="modal-header">
       <h2 id="pm-title">Portfólio</h2>
       <button class="close" data-close="portfolio-modal">✕</button>
@@ -1704,7 +1745,7 @@
 
 <!-- Assign project modal (portfolio/program) -->
 <div class="modal-backdrop" id="assign-modal">
-  <div class="modal" style="max-width:520px">
+  <div class="modal">
     <div class="modal-header">
       <h2>📁 Atribuir Projeto</h2>
       <button class="close" data-close="assign-modal">✕</button>
@@ -1720,7 +1761,7 @@
 
 <!-- Custom confirm dialog (replaces window.confirm which is blocked in sandboxes) -->
 <div class="modal-backdrop" id="confirm-modal" style="z-index:999">
-  <div class="modal" style="max-width:420px">
+  <div class="modal">
     <div class="modal-header" id="confirm-modal-header">
       <h2 id="confirm-modal-title">Confirmar</h2>
     </div>
@@ -2375,17 +2416,49 @@ function render() {
   const range = getTimeRange();
   const totalMonths = Math.max(1, monthsBetween(range.start, range.end));
   const monthMarks = [];
+  const weekGroups = [];
   const yearGroups = [];
   let curYear = null, curYearStart = 0;
+
   for (let i = 0; i < totalMonths; i++) {
     const d = addMonths(range.start, i);
+    const yr = d.getFullYear();
+    const mo = d.getMonth(); // 0-based
+
+    // Month label
     monthMarks.push(`<div class="month-mark">${fmtMonth(d)}</div>`);
-    if (curYear !== d.getFullYear()) {
+
+    // Year grouping
+    if (curYear !== yr) {
       if (curYear !== null) yearGroups.push({ year: curYear, span: i - curYearStart });
-      curYear = d.getFullYear();
-      curYearStart = i;
+      curYear = yr; curYearStart = i;
     }
+
+    // Compute weeks in this month (Mon-based ISO weeks that start within the month)
+    const weeks = [];
+    const firstDay = new Date(yr, mo, 1);
+    const lastDay  = new Date(yr, mo + 1, 0);
+    // Walk through weeks: find first Monday on or before 1st
+    let weekStart = new Date(firstDay);
+    const dow = weekStart.getDay(); // 0=Sun
+    const offset = dow === 0 ? -6 : 1 - dow; // shift to Monday
+    weekStart.setDate(weekStart.getDate() + offset);
+
+    let weekNum = 1;
+    while (weekStart <= lastDay) {
+      const ws = new Date(weekStart);
+      const we = new Date(weekStart); we.setDate(we.getDate() + 6);
+      // Only include weeks that overlap this month
+      if (we >= firstDay && ws <= lastDay) {
+        const startLabel = Math.max(ws.getDate(), 1);
+        weeks.push(`<div class="week-cell" title="Semana ${weekNum}: ${ws.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}">S${weekNum}</div>`);
+        weekNum++;
+      }
+      weekStart.setDate(weekStart.getDate() + 7);
+    }
+    weekGroups.push(`<div class="week-group">${weeks.join('')}</div>`);
   }
+
   if (curYear !== null) yearGroups.push({ year: curYear, span: totalMonths - curYearStart });
   const yearsHtml = yearGroups.map(g =>
     `<div class="year-mark" style="flex:${g.span}">${g.year}</div>`).join('');
@@ -2398,7 +2471,10 @@ function render() {
     <div class="timeline-header">
       <div class="col-info">Projeto</div>
       <div class="col-timeline">
-        <div class="month-marks">${monthMarks.join('')}</div>
+        <div class="month-marks">
+          <div class="month-marks-row">${monthMarks.join('')}</div>
+          <div class="week-marks-row">${weekGroups.join('')}</div>
+        </div>
       </div>
     </div>
   `;
@@ -2583,9 +2659,29 @@ function getFlag(flagId) {
 }
 
 function renderBars(p, range) {
-  const LANE_H   = 32;   // px por faixa
-  const BAR_H    = 22;   // px altura da barra
-  const PAD_TOP  = 4;    // px padding topo
+  const LANE_H   = 32;
+  const BAR_H    = 22;
+  const PAD_TOP  = 4;
+
+  // ── Build week grid positions ───────────────────────────────
+  const weekLines = [];
+  const totalMs = range.end - range.start;
+  let d = new Date(range.start);
+  // advance to first Monday
+  while (d.getDay() !== 1) d.setDate(d.getDate() + 1);
+  while (d < range.end) {
+    const pct = ((d - range.start) / totalMs) * 100;
+    weekLines.push(pct);
+    d = new Date(d); d.setDate(d.getDate() + 7);
+  }
+  // Month lines (stronger)
+  const monthLines = [];
+  let m = new Date(range.start.getFullYear(), range.start.getMonth(), 1);
+  while (m < range.end) {
+    const pct = ((m - range.start) / totalMs) * 100;
+    if (pct > 0) monthLines.push(pct);
+    m = new Date(m.getFullYear(), m.getMonth() + 1, 1);
+  }
 
   // ── Coleta todos os itens com posição ─────────────────────
   const items = [];
@@ -2649,12 +2745,19 @@ function renderBars(p, range) {
   const totalLanes = Math.max(lanes.length, 1);
   const timelineH  = totalLanes * LANE_H + PAD_TOP * 2;
 
+  // ── Grid lines HTML ────────────────────────────────────────
+  const gridLines = weekLines.map(pct =>
+    `<div style="position:absolute;top:0;bottom:0;left:${pct}%;width:1px;background:#edf0f4;pointer-events:none"></div>`
+  ).join('') + monthLines.map(pct =>
+    `<div style="position:absolute;top:0;bottom:0;left:${pct}%;width:1px;background:#d1d8e2;pointer-events:none"></div>`
+  ).join('');
+
   // ── Gera HTML ──────────────────────────────────────────────
   const parts = [`<style>
     [data-project="${p.id}"] .project-timeline {
       height: ${timelineH}px;
     }
-  </style>`];
+  </style>`, gridLines];
 
   items.forEach(it => {
     const topPx = PAD_TOP + it.lane * LANE_H + (LANE_H - BAR_H) / 2;
@@ -4131,6 +4234,27 @@ document.getElementById('btn-new-project').onclick = newProject;
 document.getElementById('btn-new-portfolio').onclick = () => openPortfolioModal(null);
 document.getElementById('btn-manage-flags').onclick = openFlagsModal;
 document.getElementById('btn-undo').onclick = undo;
+
+document.getElementById('btn-sort-date').onclick = () => {
+  snapshot();
+
+  // Função auxiliar: pega a menor data planejada de início entre todas as fases do projeto
+  function earliestDate(p) {
+    const dates = (p.phases || [])
+      .map(ph => ph.plannedStart || ph.replannedStart || ph.actualStart)
+      .filter(Boolean)
+      .map(d => new Date(d + 'T00:00:00'))
+      .filter(d => !isNaN(d));
+    return dates.length ? Math.min(...dates) : Infinity;
+  }
+
+  // Ordena projetos dentro de cada portfólio e os sem portfólio
+  state.projects.sort((a, b) => earliestDate(a) - earliestDate(b));
+
+  save();
+  render();
+  toast('Projetos reordenados por data planejada de início ↑');
+};
 document.getElementById('btn-expand-all').onclick = () => {
   state.projects.forEach(p => expandedProjects.add(p.id));
   saveExpanded();
