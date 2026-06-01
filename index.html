@@ -418,11 +418,11 @@
         transparent, transparent calc(100%/12 - 1px),
         #eef1f4 calc(100%/12 - 1px), #eef1f4 calc(100%/12));
   }
+  /* altura dinâmica via CSS var --lanes, default 1 */
+  .project-timeline { min-height: calc(var(--lanes, 1) * 32px + 8px); }
   .phase-bar {
     position: absolute;
     height: 22px;
-    top: 50%;
-    transform: translateY(-50%);
     background: var(--navy-soft);
     color: #fff;
     font-size: 11px;
@@ -440,9 +440,9 @@
     z-index: 1;
   }
   .phase-bar:hover {
-    transform: translateY(-50%) scale(1.03);
     z-index: 10;
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    filter: brightness(1.08);
   }
   .phase-bar.dev-start {
     background: var(--yellow); color: var(--navy);
@@ -971,6 +971,22 @@
   body.resizing { cursor: col-resize !important; user-select: none; }
   body.resizing * { cursor: col-resize !important; }
 
+  /* ===== STATUS SELECT ===== */
+  select.ph-status, select.t-status {
+    font-size: 11px;
+    padding: 3px 5px;
+    border-radius: 4px;
+    border-width: 1.5px;
+    border-style: solid;
+    font-weight: 600;
+    background: #fff;
+    cursor: pointer;
+    width: 100%;
+    max-width: 160px;
+    appearance: auto;
+  }
+  select.ph-status:focus, select.t-status:focus { outline: none; box-shadow: 0 0 0 2px var(--yellow-soft); }
+
   /* ===== SYNC INDICATOR ===== */
   .sync-indicator {
     font-size: 11px; font-weight: 600;
@@ -1024,6 +1040,126 @@
     outline: none; background: #fff;
     border-color: var(--yellow);
     box-shadow: 0 0 0 2px var(--yellow-soft);
+  }
+
+  /* ===== KANBAN ===== */
+  .kb-wrap { padding: 16px 20px; min-height: calc(100vh - 110px); }
+  .kb-topbar {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .kb-topbar h2 { font-size: 15px; font-weight: 700; color: var(--navy); flex:1; }
+  .kb-filters { display: flex; gap: 8px; }
+  .kb-filters select {
+    font-size: 12px; padding: 5px 8px; border-radius: 5px;
+    border: 1px solid var(--border); background: #fff; color: var(--text); cursor: pointer;
+  }
+
+  .kb-board {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(200px, 1fr));
+    gap: 12px;
+    align-items: start;
+  }
+
+  .kb-col {
+    background: #f1f4f8;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    min-height: 200px;
+  }
+  .kb-col-header {
+    padding: 10px 13px 9px;
+    font-size: 11px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    display: flex; align-items: center; gap: 7px;
+    border-bottom: 2px solid;
+    position: sticky; top: 0;
+  }
+  .kb-col-header .kb-count {
+    margin-left: auto;
+    background: rgba(0,0,0,0.12);
+    color: inherit;
+    font-size: 10px; font-weight: 700;
+    padding: 1px 6px; border-radius: 10px;
+  }
+  .kb-col[data-status="not_started"]       .kb-col-header { background:#f3f4f6; color:#4b5563; border-color:#9ca3af; }
+  .kb-col[data-status="in_progress"]       .kb-col-header { background:#eff6ff; color:#1d4ed8; border-color:#3b82f6; }
+  .kb-col[data-status="ready_to_validate"] .kb-col-header { background:#fffbeb; color:#92400e; border-color:#f59e0b; }
+  .kb-col[data-status="validating"]        .kb-col-header { background:#f5f3ff; color:#5b21b6; border-color:#8b5cf6; }
+  .kb-col[data-status="done"]              .kb-col-header { background:#f0fdf4; color:#15803d; border-color:#22c55e; }
+
+  .kb-col-body { padding: 8px; display: flex; flex-direction: column; gap: 7px; }
+
+  .kb-card {
+    background: #fff;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    padding: 10px 11px;
+    cursor: pointer;
+    transition: box-shadow 0.15s, transform 0.15s;
+    position: relative;
+    user-select: none;
+  }
+  .kb-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); transform: translateY(-1px); }
+  .kb-card.kb-card-task { border-left: 3px solid #e5e7eb; padding-left: 9px; }
+  .kb-card.kb-card-task.in_progress       { border-left-color: #3b82f6; }
+  .kb-card.kb-card-task.ready_to_validate { border-left-color: #f59e0b; }
+  .kb-card.kb-card-task.validating        { border-left-color: #8b5cf6; }
+  .kb-card.kb-card-task.done              { border-left-color: #22c55e; }
+  .kb-card.kb-card-task.not_started       { border-left-color: #9ca3af; }
+
+  .kb-card-type {
+    font-size: 9.5px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--muted); margin-bottom: 4px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .kb-card-type .kb-phase-dot {
+    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+  }
+  .kb-card-name {
+    font-size: 12.5px; font-weight: 600; color: var(--navy);
+    line-height: 1.35; margin-bottom: 6px;
+  }
+  .kb-card-name.done-text { text-decoration: line-through; color: var(--muted); }
+  .kb-card-meta {
+    display: flex; flex-wrap: wrap; gap: 4px;
+    align-items: center; font-size: 10.5px; color: var(--muted);
+  }
+  .kb-card-proj {
+    font-size: 10px; font-weight: 600; color: var(--navy);
+    background: var(--yellow-soft); border: 1px solid var(--yellow-dark);
+    padding: 1px 6px; border-radius: 8px;
+  }
+  .kb-card-date {
+    display: flex; align-items: center; gap: 3px;
+    font-size: 10px; color: var(--muted);
+  }
+  .kb-card-date.overdue { color: var(--red); font-weight: 600; }
+  .kb-card-date.soon    { color: #d97706; font-weight: 600; }
+
+  .kb-status-sel {
+    margin-top: 8px; width: 100%;
+    font-size: 10.5px; padding: 3px 5px; border-radius: 4px;
+    border: 1.5px solid var(--border); background: #fafafa;
+    cursor: pointer; font-weight: 600; color: var(--muted);
+  }
+  .kb-status-sel:focus { outline: none; border-color: var(--yellow); }
+
+  .kb-empty {
+    padding: 14px 10px;
+    text-align: center;
+    font-size: 11.5px;
+    color: #9ca3af;
+    font-style: italic;
+  }
+
+  .kb-drag-over .kb-col-body { background: rgba(255,193,7,0.08); border-radius: 6px; }
+
+  @media (max-width: 900px) {
+    .kb-board { grid-template-columns: repeat(2, 1fr); }
   }
 
   /* ===== VERSIONS MODAL ===== */
@@ -1389,6 +1525,7 @@
 <nav class="tab-nav">
   <button class="tab-btn active" id="tab-roadmap" onclick="switchTab('roadmap')">📅 Roadmap</button>
   <button class="tab-btn" id="tab-status" onclick="switchTab('status')">📊 Status Report</button>
+  <button class="tab-btn" id="tab-kanban" onclick="switchTab('kanban')">🗂 Kanban</button>
 </nav>
 
 <div class="tab-panel active" id="panel-roadmap">
@@ -1473,6 +1610,27 @@
 
   </div>
 </div><!-- /panel-status -->
+
+<!-- KANBAN PANEL -->
+<div class="tab-panel" id="panel-kanban">
+  <div class="kb-wrap">
+    <div class="kb-topbar">
+      <h2>🗂 Kanban — Fases &amp; Tarefas</h2>
+      <div class="kb-filters">
+        <select id="kb-filter-project" onchange="renderKanban()">
+          <option value="">Todos os projetos</option>
+        </select>
+        <select id="kb-filter-type" onchange="renderKanban()">
+          <option value="">Fases e Tarefas</option>
+          <option value="phase">Só Fases</option>
+          <option value="task">Só Tarefas</option>
+        </select>
+      </div>
+      <button class="ghost" onclick="renderKanban()" style="font-size:11px;padding:5px 10px">↻ Atualizar</button>
+    </div>
+    <div class="kb-board" id="kb-board"></div>
+  </div>
+</div><!-- /panel-kanban -->
 
 <!-- Versions modal -->
 <div class="modal-backdrop" id="versions-modal">
@@ -1743,6 +1901,43 @@ function togglePortfolio(portId) {
   if (block) block.classList.toggle('collapsed', collapsedPortfolios.has(portId));
 }
 const PROGRESS_OPTIONS = [0, 25, 50, 75, 100];
+
+const STATUS_OPTIONS = [
+  { value: 'not_started',      label: 'Não iniciado',          progress: 0,   color: '#9ca3af' },
+  { value: 'in_progress',      label: 'Iniciado',              progress: 25,  color: '#3b82f6' },
+  { value: 'ready_to_validate',label: 'Pronto p/ validação',   progress: 50,  color: '#f59e0b' },
+  { value: 'validating',       label: 'Validando',             progress: 75,  color: '#8b5cf6' },
+  { value: 'done',             label: 'Pronto',                progress: 100, color: '#22c55e' },
+];
+
+function statusToProgress(statusValue) {
+  const s = STATUS_OPTIONS.find(x => x.value === statusValue);
+  return s ? s.progress : 0;
+}
+function progressToStatus(progress) {
+  const p = Number(progress);
+  const s = STATUS_OPTIONS.find(x => x.progress === p);
+  return s ? s.value : 'not_started';
+}
+function statusLabel(statusValue) {
+  const s = STATUS_OPTIONS.find(x => x.value === statusValue);
+  return s ? s.label : 'Não iniciado';
+}
+function statusColor(statusValue) {
+  const s = STATUS_OPTIONS.find(x => x.value === statusValue);
+  return s ? s.color : '#9ca3af';
+}
+function renderStatusSelect(id, currentStatus, cssClass, dataAttr) {
+  const cur = currentStatus || 'not_started';
+  const col = statusColor(cur);
+  return `<select class="${cssClass}" data-${dataAttr}="${id}"
+    style="font-size:11px;padding:3px 4px;border-radius:4px;border:1.5px solid ${col};
+           color:${col};font-weight:600;background:#fff;cursor:pointer;width:100%;max-width:160px">
+    ${STATUS_OPTIONS.map(s =>
+      `<option value="${s.value}" ${s.value === cur ? 'selected' : ''}>${s.label}</option>`
+    ).join('')}
+  </select>`;
+}
 
 // ============================================================
 // SEED
@@ -2202,49 +2397,92 @@ function getFlag(flagId) {
 }
 
 function renderBars(p, range) {
-  const bars = [];
+  const LANE_H   = 32;   // px por faixa
+  const BAR_H    = 22;   // px altura da barra
+  const PAD_TOP  = 4;    // px padding topo
+
+  // ── Coleta todos os itens com posição ─────────────────────
+  const items = [];
   (p.phases||[]).forEach(ph => {
-    const flagIds = ph.flagIds || [];
-    const flags = flagIds.map(getFlag).filter(Boolean);
+    const flagIds   = ph.flagIds || [];
+    const flags     = flagIds.map(getFlag).filter(Boolean);
     const flagIcons = flags.map(f => `<span class="bar-flag" title="${escapeHtml(f.name)}">${f.icon||'🏷'}</span>`).join('');
-    const flagNamesForTitle = flags.length ? `\nFlags: ${flags.map(f=>f.name).join(', ')}` : '';
+    const flagNames = flags.length ? `\nFlags: ${flags.map(f=>f.name).join(', ')}` : '';
 
     if (ph.isMilestone) {
       const d = parseDate(ph.actualStart) || parseDate(ph.replannedStart) || parseDate(ph.plannedStart);
       if (!d) return;
       const pos = dateToPercent(d, range);
-      const title = `${ph.name} (Marco)${flagNamesForTitle}\n` +
-        (ph.plannedStart ? `Planejado: ${ph.plannedStart}\n` : '') +
+      const title = `${ph.name} (Marco)${flagNames}\n` +
+        (ph.plannedStart   ? `Planejado: ${ph.plannedStart}\n`   : '') +
         (ph.replannedStart ? `Replanejado: ${ph.replannedStart}\n` : '') +
-        (ph.actualStart ? `Realizado: ${ph.actualStart}` : '');
-      bars.push(`<div class="milestone" style="left:${pos}%"
-        data-project="${p.id}" data-phase="${ph.id}" title="${escapeHtml(title)}"></div>`);
+        (ph.actualStart    ? `Realizado: ${ph.actualStart}`       : '');
+      items.push({ type:'milestone', pos, ph, title });
     } else {
       const useStart = parseDate(ph.actualStart) || parseDate(ph.replannedStart) || parseDate(ph.plannedStart);
-      const useEnd = parseDate(ph.actualEnd) || parseDate(ph.replannedEnd) || parseDate(ph.plannedEnd);
+      const useEnd   = parseDate(ph.actualEnd)   || parseDate(ph.replannedEnd)   || parseDate(ph.plannedEnd);
       if (!useStart || !useEnd) return;
-      const left = dateToPercent(useStart, range);
+      const left  = dateToPercent(useStart, range);
       const right = dateToPercent(useEnd, range);
       const width = Math.max(right - left, 0.8);
 
       let cls = 'phase-bar';
       if (parseDate(ph.actualStart) || parseDate(ph.actualEnd)) cls += ' actual';
       else if (parseDate(ph.replannedStart) || parseDate(ph.replannedEnd)) cls += ' replanned';
-      // If phase has the "dev" flag, apply the dev-start visual
       if (flagIds.includes('flag-dev')) cls += ' dev-start';
 
-      const rp = phaseRealizedProgress(ph);
-      const title = `${ph.name} (${rp}%)${flagNamesForTitle}\n` +
+      const rp    = phaseRealizedProgress(ph);
+      const title = `${ph.name} (${rp}%)${flagNames}\n` +
         `Planejado: ${ph.plannedStart||'?'} → ${ph.plannedEnd||'?'}` +
         (ph.replannedStart||ph.replannedEnd ? `\nReplanejado: ${ph.replannedStart||'?'} → ${ph.replannedEnd||'?'}` : '') +
-        (ph.actualStart||ph.actualEnd ? `\nRealizado: ${ph.actualStart||'?'} → ${ph.actualEnd||'em curso'}` : '');
+        (ph.actualStart||ph.actualEnd       ? `\nRealizado: ${ph.actualStart||'?'} → ${ph.actualEnd||'em curso'}` : '');
 
-      bars.push(`<div class="${cls}" style="left:${left}%;width:${width}%"
-        data-project="${p.id}" data-phase="${ph.id}"
-        title="${escapeHtml(title)}">${flagIcons}${escapeHtml(ph.name)}</div>`);
+      items.push({ type:'bar', left, width, cls, ph, flagIcons, title });
     }
   });
-  return bars.join('');
+
+  // ── Atribui faixas (lanes) por greedy interval scheduling ──
+  // Milestones ocupam largura 0 — raramente colidem mas entram no algoritmo
+  const lanes = []; // lanes[i] = posição right do último item na faixa i
+
+  items.forEach(it => {
+    const itLeft  = it.type === 'milestone' ? it.pos       : it.left;
+    const itRight = it.type === 'milestone' ? it.pos + 0.5 : it.left + it.width;
+    let assigned  = -1;
+    for (let i = 0; i < lanes.length; i++) {
+      if (itLeft >= lanes[i] + 0.3) { // 0.3% de folga visual
+        assigned = i;
+        break;
+      }
+    }
+    if (assigned === -1) { assigned = lanes.length; lanes.push(0); }
+    lanes[assigned] = itRight;
+    it.lane = assigned;
+  });
+
+  const totalLanes = Math.max(lanes.length, 1);
+  const timelineH  = totalLanes * LANE_H + PAD_TOP * 2;
+
+  // ── Gera HTML ──────────────────────────────────────────────
+  const parts = [`<style>
+    [data-project="${p.id}"] .project-timeline {
+      height: ${timelineH}px;
+    }
+  </style>`];
+
+  items.forEach(it => {
+    const topPx = PAD_TOP + it.lane * LANE_H + (LANE_H - BAR_H) / 2;
+    if (it.type === 'milestone') {
+      parts.push(`<div class="milestone" style="left:${it.pos}%;top:${topPx + BAR_H/2}px"
+        data-project="${p.id}" data-phase="${it.ph.id}" title="${escapeHtml(it.title)}"></div>`);
+    } else {
+      parts.push(`<div class="${it.cls}" style="left:${it.left}%;width:${it.width}%;top:${topPx}px"
+        data-project="${p.id}" data-phase="${it.ph.id}"
+        title="${escapeHtml(it.title)}">${it.flagIcons}${escapeHtml(it.ph.name)}</div>`);
+    }
+  });
+
+  return parts.join('');
 }
 
 // Update progress UI of a project row without full re-render
@@ -2419,7 +2657,7 @@ function renderPhasesModal() {
     p.phases.push({
       id: uid(), name: 'Nova Fase', flagIds: [], isMilestone: false,
       plannedStart:'', plannedEnd:'', replannedStart:'', replannedEnd:'',
-      actualStart:'', actualEnd:'', progress: 0, tasks: []
+      actualStart:'', actualEnd:'', progress: 0, status: 'not_started', tasks: []
     });
     save();
     renderPhasesModal();
@@ -2445,27 +2683,35 @@ function renderFlagPills(target, kind) {
 }
 
 function renderPhaseRow(ph) {
-  const hasTasks = (ph.tasks || []).length > 0;
-  const calculated = hasTasks ? phaseRealizedProgress(ph) : null;
-  const today = new Date();
+  const hasTasks  = (ph.tasks || []).length > 0;
+  const today     = new Date();
   const predicted = phasePredictedProgress(ph, today);
+
+  // Ensure status field exists (migrate from progress if needed)
+  if (!ph.status) ph.status = progressToStatus(ph.progress || 0);
 
   let progressCell;
   if (hasTasks) {
-    progressCell = `<td class="calc-cell" title="Calculado pelas tarefas">${calculated}%</td>`;
-  } else {
-    progressCell = `<td class="progress-cell">
-      <select class="ph-progress" data-phase="${ph.id}">
-        ${PROGRESS_OPTIONS.map(o =>
-          `<option value="${o}" ${Number(ph.progress)===o ? 'selected' : ''}>${o}%</option>`
-        ).join('')}
-      </select>
+    const calculated = phaseRealizedProgress(ph);
+    const derivedStatus = progressToStatus(calculated);
+    progressCell = `<td class="calc-cell" title="Calculado pelas tarefas">
+      <span style="font-size:11px;font-weight:600;color:${statusColor(derivedStatus)}">${statusLabel(derivedStatus)}</span>
+      <span style="color:var(--muted);font-size:10px;display:block">${calculated}%</span>
     </td>`;
+  } else {
+    progressCell = `<td class="progress-cell">${renderStatusSelect(ph.id, ph.status, 'ph-status', 'phase')}</td>`;
   }
+
+  const curStatus = hasTasks ? progressToStatus(phaseRealizedProgress(ph)) : (ph.status || 'not_started');
 
   return `
     <tr data-phase="${ph.id}">
-      <td><textarea class="ph-name" data-phase="${ph.id}" rows="1">${escapeHtml(ph.name)}</textarea></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:5px">
+          <span style="width:8px;height:8px;border-radius:50%;background:${statusColor(curStatus)};flex-shrink:0;display:inline-block"></span>
+          <textarea class="ph-name" data-phase="${ph.id}" rows="1">${escapeHtml(ph.name)}</textarea>
+        </div>
+      </td>
       <td style="text-align:center">
         <input type="checkbox" class="ph-milestone" data-phase="${ph.id}"
                ${ph.isMilestone ? 'checked' : ''}
@@ -2505,12 +2751,18 @@ function wirePhaseRows() {
       save();
       render();
     };
-    const progSel = row.querySelector('.ph-progress');
+    const progSel = row.querySelector('.ph-status');
     if (progSel) progSel.onchange = e => {
       snapshot();
-      ph.progress = Number(e.target.value);
+      ph.status   = e.target.value;
+      ph.progress = statusToProgress(e.target.value);
+      // update select border color
+      const col = statusColor(ph.status);
+      e.target.style.borderColor = col;
+      e.target.style.color       = col;
       save();
       updateProjectProgressUI(currentProjectId);
+      render();
     };
     const dateFields = [
       ['.ph-pstart','plannedStart'],['.ph-pend','plannedEnd'],
@@ -2600,7 +2852,7 @@ function renderTasksModal() {
     ph.tasks.push({
       id: uid(), name: 'Nova tarefa', flagIds: [],
       plannedStart:'', plannedEnd:'', replannedStart:'', replannedEnd:'',
-      actualStart:'', actualEnd:'', progress: 0
+      actualStart:'', actualEnd:'', progress: 0, status: 'not_started'
     });
     save();
     renderTasksModal();
@@ -2612,17 +2864,18 @@ function renderTasksModal() {
 function renderTaskRow(t) {
   const today = new Date();
   const predicted = phasePredictedProgress(t, today);
+  if (!t.status) t.status = progressToStatus(t.progress || 0);
+  const col = statusColor(t.status);
   return `
     <tr data-task="${t.id}">
-      <td><textarea class="t-name" data-task="${t.id}" rows="1">${escapeHtml(t.name)}</textarea></td>
-      <td>${renderFlagPills(t, 'task')}</td>
-      <td class="progress-cell">
-        <select class="t-progress" data-task="${t.id}">
-          ${PROGRESS_OPTIONS.map(o =>
-            `<option value="${o}" ${Number(t.progress)===o ? 'selected' : ''}>${o}%</option>`
-          ).join('')}
-        </select>
+      <td>
+        <div style="display:flex;align-items:center;gap:5px">
+          <span style="width:7px;height:7px;border-radius:50%;background:${col};flex-shrink:0;display:inline-block"></span>
+          <textarea class="t-name" data-task="${t.id}" rows="1">${escapeHtml(t.name)}</textarea>
+        </div>
       </td>
+      <td>${renderFlagPills(t, 'task')}</td>
+      <td class="progress-cell">${renderStatusSelect(t.id, t.status, 't-status', 'task')}</td>
       <td class="calc-cell">${predicted}%</td>
       <td class="dates"><input type="date" class="t-pstart" value="${t.plannedStart||''}"></td>
       <td class="dates"><input type="date" class="t-pend" value="${t.plannedEnd||''}"></td>
@@ -2645,12 +2898,18 @@ function wireTaskRows() {
     if (!t) return;
 
     row.querySelector('.t-name').oninput = e => { t.name = e.target.value; autoGrow(e.target); snapshotDebounced(); save(); };
-    row.querySelector('.t-progress').onchange = e => {
+    const tStatusSel = row.querySelector('.t-status');
+    if (tStatusSel) tStatusSel.onchange = e => {
       snapshot();
-      t.progress = Number(e.target.value);
+      t.status   = e.target.value;
+      t.progress = statusToProgress(e.target.value);
+      const col = statusColor(t.status);
+      e.target.style.borderColor = col;
+      e.target.style.color       = col;
       save();
       renderPhasesModal();
       updateProjectProgressUI(currentProjectId);
+      render();
     };
     const fields = [
       ['.t-pstart','plannedStart'],['.t-pend','plannedEnd'],
@@ -3739,6 +3998,152 @@ function switchTab(tab) {
   document.getElementById('tab-' + tab).classList.add('active');
   document.getElementById('panel-' + tab).classList.add('active');
   if (tab === 'status') renderStatusReport();
+  if (tab === 'kanban') renderKanban();
+}
+
+// ============================================================
+// KANBAN
+// ============================================================
+function renderKanban() {
+  const filterProj = document.getElementById('kb-filter-project')?.value || '';
+  const filterType = document.getElementById('kb-filter-type')?.value   || '';
+
+  // Populate project filter
+  const projSel = document.getElementById('kb-filter-project');
+  if (projSel) {
+    const cur = projSel.value;
+    projSel.innerHTML = '<option value="">Todos os projetos</option>' +
+      state.projects.map(p => `<option value="${p.id}" ${p.id===cur?'selected':''}>${escapeHtml(p.name)}</option>`).join('');
+  }
+
+  // Collect all cards
+  const cards = [];
+  state.projects.forEach(proj => {
+    if (filterProj && proj.portfolioId !== filterProj && proj.id !== filterProj) {
+      if (filterProj && proj.id !== filterProj) return;
+    }
+    (proj.phases || []).forEach(ph => {
+      if (!filterType || filterType === 'phase') {
+        if (!ph.status) ph.status = progressToStatus(ph.progress || 0);
+        const end = ph.replannedEnd || ph.plannedEnd;
+        cards.push({
+          id: ph.id, kind: 'phase', name: ph.name,
+          status: ph.status, projName: proj.name, projId: proj.id,
+          phaseId: ph.id, taskId: null,
+          end, flagIds: ph.flagIds || [],
+          progress: statusToProgress(ph.status),
+        });
+      }
+      if (!filterType || filterType === 'task') {
+        (ph.tasks || []).forEach(t => {
+          if (!t.status) t.status = progressToStatus(t.progress || 0);
+          const end = t.replannedEnd || t.plannedEnd;
+          cards.push({
+            id: t.id, kind: 'task', name: t.name,
+            status: t.status, projName: proj.name, projId: proj.id,
+            phaseId: ph.id, taskId: t.id, phaseName: ph.name,
+            end, flagIds: t.flagIds || [],
+            progress: statusToProgress(t.status),
+          });
+        });
+      }
+    });
+  });
+
+  const today = new Date();
+  const board  = document.getElementById('kb-board');
+
+  board.innerHTML = STATUS_OPTIONS.map(col => {
+    const colCards = cards.filter(c => c.status === col.value);
+    const cardsHtml = colCards.length ? colCards.map(c => {
+      const isDone = c.status === 'done';
+      const endDate = c.end ? new Date(c.end + 'T00:00:00') : null;
+      const diffDays = endDate ? Math.round((endDate - today) / 86400000) : null;
+      let dateBadge = '';
+      if (endDate) {
+        const cls = diffDays < 0 ? 'overdue' : diffDays <= 7 ? 'soon' : '';
+        const lbl = diffDays < 0 ? `Venceu há ${Math.abs(diffDays)}d` : diffDays === 0 ? 'Vence hoje' : `${c.end}`;
+        dateBadge = `<span class="kb-card-date ${cls}">📅 ${lbl}</span>`;
+      }
+      const flags = (c.flagIds || []).map(fid => {
+        const f = getFlag(fid);
+        return f ? `<span title="${escapeHtml(f.name)}">${f.icon||'🏷'}</span>` : '';
+      }).join('');
+
+      const statusOpts = STATUS_OPTIONS.map(s =>
+        `<option value="${s.value}" ${s.value===c.status?'selected':''}>${s.label}</option>`
+      ).join('');
+
+      const typeLabel = c.kind === 'phase'
+        ? `<span class="kb-phase-dot" style="background:${col.color}"></span>FASE`
+        : `<span class="kb-phase-dot" style="background:#9ca3af"></span>TAREFA · ${escapeHtml(c.phaseName||'')}`;
+
+      return `<div class="kb-card kb-card-${c.kind} ${c.status}"
+                   data-card-id="${c.id}" data-kind="${c.kind}"
+                   data-proj="${c.projId}" data-phase="${c.phaseId}" data-task="${c.taskId||''}">
+        <div class="kb-card-type">${typeLabel}</div>
+        <div class="kb-card-name ${isDone?'done-text':''}">${escapeHtml(c.name)}</div>
+        <div class="kb-card-meta">
+          <span class="kb-card-proj">${escapeHtml(c.projName)}</span>
+          ${dateBadge}
+          ${flags ? `<span style="font-size:12px">${flags}</span>` : ''}
+        </div>
+        <select class="kb-status-sel"
+                style="border-color:${col.color};color:${col.color}"
+                data-kind="${c.kind}" data-proj="${c.projId}"
+                data-phase="${c.phaseId}" data-task="${c.taskId||''}">
+          ${statusOpts}
+        </select>
+      </div>`;
+    }).join('') : `<div class="kb-empty">Nenhum item</div>`;
+
+    return `<div class="kb-col" data-status="${col.value}">
+      <div class="kb-col-header">
+        <span style="width:9px;height:9px;border-radius:50%;background:${col.color};flex-shrink:0;display:inline-block"></span>
+        ${col.label}
+        <span class="kb-count">${colCards.length}</span>
+      </div>
+      <div class="kb-col-body">${cardsHtml}</div>
+    </div>`;
+  }).join('');
+
+  // Wire status selects
+  board.querySelectorAll('.kb-status-sel').forEach(sel => {
+    sel.onchange = e => {
+      e.stopPropagation();
+      const newStatus = e.target.value;
+      const kind   = e.target.dataset.kind;
+      const projId = e.target.dataset.proj;
+      const phaseId = e.target.dataset.phase;
+      const taskId  = e.target.dataset.task;
+      const proj = state.projects.find(p => p.id === projId);
+      if (!proj) return;
+      snapshot();
+      if (kind === 'phase') {
+        const ph = proj.phases.find(p => p.id === phaseId);
+        if (ph) { ph.status = newStatus; ph.progress = statusToProgress(newStatus); }
+      } else {
+        const ph = proj.phases.find(p => p.id === phaseId);
+        const t  = ph?.tasks.find(t => t.id === taskId);
+        if (t) { t.status = newStatus; t.progress = statusToProgress(newStatus); }
+      }
+      save();
+      render();
+      renderKanban();
+    };
+  });
+
+  // Wire card click → open modal
+  board.querySelectorAll('.kb-card').forEach(card => {
+    card.addEventListener('click', e => {
+      if (e.target.closest('.kb-status-sel')) return;
+      const projId  = card.dataset.proj;
+      const phaseId = card.dataset.phase;
+      const taskId  = card.dataset.task;
+      openPhasesModal(projId);
+      if (taskId) setTimeout(() => openTasksModal(phaseId), 80);
+    });
+  });
 }
 
 // ============================================================
