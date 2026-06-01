@@ -93,10 +93,10 @@
   }
   .year-row { display: flex; background: #1a3558; }
   .year-row .col-info {
-    width: 360px; flex-shrink: 0;
+    width: 280px; flex-shrink: 0;
     border-right: 1px solid var(--navy-soft);
   }
-  .year-row .years { flex: 1; display: flex; min-width: 600px; }
+  .year-row .years { flex: 1; display: flex; min-width: 1200px; }
   .year-mark {
     text-align: center; padding: 5px 4px;
     font-size: 11px; font-weight: 700;
@@ -109,7 +109,7 @@
     border-bottom: 2px solid var(--yellow);
   }
   .timeline-header .col-info {
-    width: 360px; padding: 8px 14px;
+    width: 280px; padding: 8px 14px;
     font-weight: 600;
     border-right: 1px solid var(--navy-soft);
     flex-shrink: 0;
@@ -118,7 +118,7 @@
     letter-spacing: 0.5px;
   }
   .timeline-header .col-timeline {
-    flex: 1; position: relative; min-width: 600px;
+    flex: 1; position: relative; min-width: 1200px;
   }
   .month-marks { display: flex; flex-direction: column; height: 100%; }
   .month-marks-row { display: flex; flex: 1; }
@@ -152,7 +152,7 @@
   }
   .week-cell:last-child { border-right: none; }
 
-  .timeline-header .col-timeline { flex: 1; position: relative; min-width: 600px; }
+  .timeline-header .col-timeline { flex: 1; position: relative; min-width: 1200px; }
   .timeline-header { height: 52px; }
 
   /* ===== PROJECT ROW ===== */
@@ -166,7 +166,7 @@
   .project-row:last-child { border-bottom: none; }
 
   .project-info {
-    width: 360px; flex-shrink: 0;
+    width: 280px; flex-shrink: 0;
     padding: 10px 12px;
     border-right: 1px solid var(--border);
     display: flex; flex-direction: column;
@@ -437,7 +437,7 @@
   .project-timeline {
     flex: 1;
     position: relative;
-    min-width: 600px;
+    min-width: 1200px;
   }
   .project-timeline { min-height: calc(var(--lanes, 1) * 32px + 8px); }
   /* Grid lines rendered via inline SVG background in JS */
