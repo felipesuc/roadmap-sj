@@ -418,11 +418,11 @@
         transparent, transparent calc(100%/12 - 1px),
         #eef1f4 calc(100%/12 - 1px), #eef1f4 calc(100%/12));
   }
+  /* altura dinâmica via CSS var --lanes, default 1 */
+  .project-timeline { min-height: calc(var(--lanes, 1) * 32px + 8px); }
   .phase-bar {
     position: absolute;
     height: 22px;
-    top: 50%;
-    transform: translateY(-50%);
     background: var(--navy-soft);
     color: #fff;
     font-size: 11px;
@@ -440,9 +440,9 @@
     z-index: 1;
   }
   .phase-bar:hover {
-    transform: translateY(-50%) scale(1.03);
     z-index: 10;
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    filter: brightness(1.08);
   }
   .phase-bar.dev-start {
     background: var(--yellow); color: var(--navy);
@@ -971,6 +971,32 @@
   body.resizing { cursor: col-resize !important; user-select: none; }
   body.resizing * { cursor: col-resize !important; }
 
+  /* ===== STATUS SELECT ===== */
+  select.ph-status, select.t-status {
+    font-size: 11px;
+    padding: 3px 5px;
+    border-radius: 4px;
+    border-width: 1.5px;
+    border-style: solid;
+    font-weight: 600;
+    background: #fff;
+    cursor: pointer;
+    width: 100%;
+    max-width: 160px;
+    appearance: auto;
+  }
+  select.ph-status:focus, select.t-status:focus { outline: none; box-shadow: 0 0 0 2px var(--yellow-soft); }
+
+  /* ===== SYNC INDICATOR ===== */
+  .sync-indicator {
+    font-size: 11px; font-weight: 600;
+    padding: 3px 9px; border-radius: 10px;
+    min-width: 72px; text-align: center;
+  }
+  .sync-indicator.saving { background: rgba(255,193,7,0.2); color: var(--yellow); }
+  .sync-indicator.saved  { background: rgba(34,197,94,0.2); color: #4ade80; }
+  .sync-indicator.error  { background: rgba(239,68,68,0.2); color: #f87171; }
+
   /* ===== SR INLINE FIELDS (inside project card) ===== */
   .sr-inline-fields {
     display: flex;
@@ -1014,6 +1040,126 @@
     outline: none; background: #fff;
     border-color: var(--yellow);
     box-shadow: 0 0 0 2px var(--yellow-soft);
+  }
+
+  /* ===== KANBAN ===== */
+  .kb-wrap { padding: 16px 20px; min-height: calc(100vh - 110px); }
+  .kb-topbar {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .kb-topbar h2 { font-size: 15px; font-weight: 700; color: var(--navy); flex:1; }
+  .kb-filters { display: flex; gap: 8px; }
+  .kb-filters select {
+    font-size: 12px; padding: 5px 8px; border-radius: 5px;
+    border: 1px solid var(--border); background: #fff; color: var(--text); cursor: pointer;
+  }
+
+  .kb-board {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(200px, 1fr));
+    gap: 12px;
+    align-items: start;
+  }
+
+  .kb-col {
+    background: #f1f4f8;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    min-height: 200px;
+  }
+  .kb-col-header {
+    padding: 10px 13px 9px;
+    font-size: 11px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    display: flex; align-items: center; gap: 7px;
+    border-bottom: 2px solid;
+    position: sticky; top: 0;
+  }
+  .kb-col-header .kb-count {
+    margin-left: auto;
+    background: rgba(0,0,0,0.12);
+    color: inherit;
+    font-size: 10px; font-weight: 700;
+    padding: 1px 6px; border-radius: 10px;
+  }
+  .kb-col[data-status="not_started"]       .kb-col-header { background:#f3f4f6; color:#4b5563; border-color:#9ca3af; }
+  .kb-col[data-status="in_progress"]       .kb-col-header { background:#eff6ff; color:#1d4ed8; border-color:#3b82f6; }
+  .kb-col[data-status="ready_to_validate"] .kb-col-header { background:#fffbeb; color:#92400e; border-color:#f59e0b; }
+  .kb-col[data-status="validating"]        .kb-col-header { background:#f5f3ff; color:#5b21b6; border-color:#8b5cf6; }
+  .kb-col[data-status="done"]              .kb-col-header { background:#f0fdf4; color:#15803d; border-color:#22c55e; }
+
+  .kb-col-body { padding: 8px; display: flex; flex-direction: column; gap: 7px; }
+
+  .kb-card {
+    background: #fff;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    padding: 10px 11px;
+    cursor: pointer;
+    transition: box-shadow 0.15s, transform 0.15s;
+    position: relative;
+    user-select: none;
+  }
+  .kb-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); transform: translateY(-1px); }
+  .kb-card.kb-card-task { border-left: 3px solid #e5e7eb; padding-left: 9px; }
+  .kb-card.kb-card-task.in_progress       { border-left-color: #3b82f6; }
+  .kb-card.kb-card-task.ready_to_validate { border-left-color: #f59e0b; }
+  .kb-card.kb-card-task.validating        { border-left-color: #8b5cf6; }
+  .kb-card.kb-card-task.done              { border-left-color: #22c55e; }
+  .kb-card.kb-card-task.not_started       { border-left-color: #9ca3af; }
+
+  .kb-card-type {
+    font-size: 9.5px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--muted); margin-bottom: 4px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .kb-card-type .kb-phase-dot {
+    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+  }
+  .kb-card-name {
+    font-size: 12.5px; font-weight: 600; color: var(--navy);
+    line-height: 1.35; margin-bottom: 6px;
+  }
+  .kb-card-name.done-text { text-decoration: line-through; color: var(--muted); }
+  .kb-card-meta {
+    display: flex; flex-wrap: wrap; gap: 4px;
+    align-items: center; font-size: 10.5px; color: var(--muted);
+  }
+  .kb-card-proj {
+    font-size: 10px; font-weight: 600; color: var(--navy);
+    background: var(--yellow-soft); border: 1px solid var(--yellow-dark);
+    padding: 1px 6px; border-radius: 8px;
+  }
+  .kb-card-date {
+    display: flex; align-items: center; gap: 3px;
+    font-size: 10px; color: var(--muted);
+  }
+  .kb-card-date.overdue { color: var(--red); font-weight: 600; }
+  .kb-card-date.soon    { color: #d97706; font-weight: 600; }
+
+  .kb-status-sel {
+    margin-top: 8px; width: 100%;
+    font-size: 10.5px; padding: 3px 5px; border-radius: 4px;
+    border: 1.5px solid var(--border); background: #fafafa;
+    cursor: pointer; font-weight: 600; color: var(--muted);
+  }
+  .kb-status-sel:focus { outline: none; border-color: var(--yellow); }
+
+  .kb-empty {
+    padding: 14px 10px;
+    text-align: center;
+    font-size: 11.5px;
+    color: #9ca3af;
+    font-style: italic;
+  }
+
+  .kb-drag-over .kb-col-body { background: rgba(255,193,7,0.08); border-radius: 6px; }
+
+  @media (max-width: 900px) {
+    .kb-board { grid-template-columns: repeat(2, 1fr); }
   }
 
   /* ===== VERSIONS MODAL ===== */
@@ -1370,12 +1516,16 @@
 <body>
 <header>
   <h1>📍 Roadmap Empresas SJ</h1>
-  <span class="badge">Gestão de Projetos</span>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span id="sync-indicator" class="sync-indicator"></span>
+    <span class="badge">Gestão de Projetos</span>
+  </div>
 </header>
 
 <nav class="tab-nav">
   <button class="tab-btn active" id="tab-roadmap" onclick="switchTab('roadmap')">📅 Roadmap</button>
   <button class="tab-btn" id="tab-status" onclick="switchTab('status')">📊 Status Report</button>
+  <button class="tab-btn" id="tab-kanban" onclick="switchTab('kanban')">🗂 Kanban</button>
 </nav>
 
 <div class="tab-panel active" id="panel-roadmap">
@@ -1460,6 +1610,27 @@
 
   </div>
 </div><!-- /panel-status -->
+
+<!-- KANBAN PANEL -->
+<div class="tab-panel" id="panel-kanban">
+  <div class="kb-wrap">
+    <div class="kb-topbar">
+      <h2>🗂 Kanban — Fases &amp; Tarefas</h2>
+      <div class="kb-filters">
+        <select id="kb-filter-project" onchange="renderKanban()">
+          <option value="">Todos os projetos</option>
+        </select>
+        <select id="kb-filter-type" onchange="renderKanban()">
+          <option value="">Fases e Tarefas</option>
+          <option value="phase">Só Fases</option>
+          <option value="task">Só Tarefas</option>
+        </select>
+      </div>
+      <button class="ghost" onclick="renderKanban()" style="font-size:11px;padding:5px 10px">↻ Atualizar</button>
+    </div>
+    <div class="kb-board" id="kb-board"></div>
+  </div>
+</div><!-- /panel-kanban -->
 
 <!-- Versions modal -->
 <div class="modal-backdrop" id="versions-modal">
@@ -1580,40 +1751,277 @@ let collapsedPortfolios = new Set();
 let undoStack = [];
 const UNDO_LIMIT = 50;
 
-const STORAGE_KEY = 'roadmap-empresas-sj';
-const COLS_KEY = 'roadmap-empresas-sj-cols';
-const EXPANDED_KEY = 'roadmap-empresas-sj-expanded';
+const STORAGE_KEY      = 'roadmap-empresas-sj';
+const COLS_KEY         = 'roadmap-empresas-sj-cols';
+const EXPANDED_KEY     = 'roadmap-empresas-sj-expanded';
 const COLLAPSED_PT_KEY = 'roadmap-empresas-sj-collapsed-portfolios';
 
+// ── Supabase ─────────────────────────────────────────────────
+const SB_URL = 'https://fwrlyjmxadayjttgurxo.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3cmx5am14YWRheWp0dGd1cnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyOTMxNjAsImV4cCI6MjA5NTg2OTE2MH0.xnOqehr7k3UPAWPi4oXoy1_Q3hFV1bBayIHHITBNExw';
+const SB_H  = { 'Content-Type':'application/json', 'apikey': SB_KEY, 'Authorization':'Bearer '+SB_KEY };
+
+let _syncT = null;
+
+function setSyncStatus(s) {
+  const el = document.getElementById('sync-indicator');
+  if (!el) return;
+  const map = { saving:['⏳ Salvando…','saving'], saved:['☁ Salvo','saved'], error:['⚠ Offline','error'] };
+  const m = map[s];
+  if (m) { el.textContent = m[0]; el.className = 'sync-indicator ' + m[1]; }
+  else   { el.textContent = ''; el.className = 'sync-indicator'; }
+}
+
+// ── UPSERT helpers ───────────────────────────────────────────
+async function sbUpsert(table, rows, onConflict = 'id') {
+  if (!rows.length) return;
+  await fetch(`${SB_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: { ...SB_H, 'Prefer': `resolution=merge-duplicates,return=minimal` },
+    body: JSON.stringify(rows)
+  });
+}
+
+async function sbDelete(table, ids) {
+  if (!ids.length) return;
+  const list = ids.map(i => `"${i}"`).join(',');
+  await fetch(`${SB_URL}/rest/v1/${table}?id=in.(${list})`, {
+    method: 'DELETE', headers: SB_H
+  });
+}
+
+async function sbDeleteJunction(table, col, ids) {
+  if (!ids.length) return;
+  const list = ids.map(i => `"${i}"`).join(',');
+  await fetch(`${SB_URL}/rest/v1/${table}?${col}=in.(${list})`, {
+    method: 'DELETE', headers: SB_H
+  });
+}
+
+async function sbGet(table, select = '*', extra = '') {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?select=${select}${extra}`, { headers: SB_H });
+  if (!r.ok) return [];
+  return r.json();
+}
+
+// ── Null-safe date ───────────────────────────────────────────
+function nd(v) { return v || null; }
+
+// ── SAVE to relational tables (debounced 800ms) ──────────────
+async function sbSave() {
+  try {
+    // 1. Portfolios
+    await sbUpsert('portfolios', state.portfolios.map(pt => ({
+      id: pt.id, name: pt.name || '',
+      justification: pt.justification || '', goals: pt.goals || '',
+      updated_at: new Date().toISOString()
+    })));
+
+    // 2. Flags
+    await sbUpsert('flags', state.flags.map(f => ({
+      id: f.id, name: f.name || '', icon: f.icon || '🏷', color: f.color || '#9ca3af'
+    })));
+
+    // 3. Projects
+    await sbUpsert('projects', state.projects.map((p, i) => ({
+      id: p.id, portfolio_id: p.portfolioId || null,
+      name: p.name || '', company: p.company || '', sponsor: p.sponsor || '',
+      technology: p.technology || '', business_capabilities: p.businessCapabilities || '',
+      status: p.status || 'green', status_explanation: p.statusExplanation || '',
+      sr_highlight: p.srHighlight || '', sr_risk: p.srRisk || '', sr_decision: p.srDecision || '',
+      sort_order: i, updated_at: new Date().toISOString()
+    })));
+
+    // 4. Phases + phase_flags
+    const allPhases = [];
+    state.projects.forEach(p => {
+      (p.phases || []).forEach((ph, i) => {
+        allPhases.push({
+          id: ph.id, project_id: p.id, name: ph.name || '',
+          is_milestone: !!ph.isMilestone,
+          status: ph.status || 'not_started', progress: ph.progress || 0,
+          planned_start: nd(ph.plannedStart), planned_end: nd(ph.plannedEnd),
+          replanned_start: nd(ph.replannedStart), replanned_end: nd(ph.replannedEnd),
+          actual_start: nd(ph.actualStart), actual_end: nd(ph.actualEnd),
+          sort_order: i, updated_at: new Date().toISOString()
+        });
+      });
+    });
+    if (allPhases.length) await sbUpsert('phases', allPhases);
+
+    // phase_flags: delete all for these phases then re-insert
+    const phaseIds = allPhases.map(ph => ph.id);
+    if (phaseIds.length) await sbDeleteJunction('phase_flags', 'phase_id', phaseIds);
+    const phaseFlagRows = [];
+    state.projects.forEach(p => {
+      (p.phases || []).forEach(ph => {
+        (ph.flagIds || []).forEach(fid => phaseFlagRows.push({ phase_id: ph.id, flag_id: fid }));
+      });
+    });
+    if (phaseFlagRows.length) await sbUpsert('phase_flags', phaseFlagRows);
+
+    // 5. Tasks + task_flags
+    const allTasks = [];
+    state.projects.forEach(p => {
+      (p.phases || []).forEach(ph => {
+        (ph.tasks || []).forEach((t, i) => {
+          allTasks.push({
+            id: t.id, phase_id: ph.id, name: t.name || '',
+            status: t.status || 'not_started', progress: t.progress || 0,
+            planned_start: nd(t.plannedStart), planned_end: nd(t.plannedEnd),
+            replanned_start: nd(t.replannedStart), replanned_end: nd(t.replannedEnd),
+            actual_start: nd(t.actualStart), actual_end: nd(t.actualEnd),
+            sort_order: i, updated_at: new Date().toISOString()
+          });
+        });
+      });
+    });
+    if (allTasks.length) await sbUpsert('tasks', allTasks);
+
+    const taskIds = allTasks.map(t => t.id);
+    if (taskIds.length) await sbDeleteJunction('task_flags', 'task_id', taskIds);
+    const taskFlagRows = [];
+    state.projects.forEach(p => {
+      (p.phases || []).forEach(ph => {
+        (ph.tasks || []).forEach(t => {
+          (t.flagIds || []).forEach(fid => taskFlagRows.push({ task_id: t.id, flag_id: fid }));
+        });
+      });
+    });
+    if (taskFlagRows.length) await sbUpsert('task_flags', taskFlagRows);
+
+    setSyncStatus('saved');
+    setTimeout(() => setSyncStatus('idle'), 2500);
+  } catch(e) {
+    console.error('sbSave error', e);
+    setSyncStatus('error');
+  }
+}
+
+// ── LOAD from relational tables ──────────────────────────────
+async function loadFromSupabase() {
+  setSyncStatus('saving');
+  try {
+    const [portfolios, flags, projects, phases, tasks, phaseFlags, taskFlags] = await Promise.all([
+      sbGet('portfolios', '*', '&order=created_at.asc'),
+      sbGet('flags',      '*', '&order=created_at.asc'),
+      sbGet('projects',   '*', '&order=sort_order.asc'),
+      sbGet('phases',     '*', '&order=sort_order.asc'),
+      sbGet('tasks',      '*', '&order=sort_order.asc'),
+      sbGet('phase_flags','*'),
+      sbGet('task_flags', '*'),
+    ]);
+
+    if (!portfolios.length && !projects.length) { setSyncStatus('idle'); return; }
+
+    // Build flag lookup
+    const flagMap = {};
+    (flags||[]).forEach(f => flagMap[f.id] = f);
+
+    // Build phase_flags lookup
+    const pfMap = {};
+    (phaseFlags||[]).forEach(r => {
+      if (!pfMap[r.phase_id]) pfMap[r.phase_id] = [];
+      pfMap[r.phase_id].push(r.flag_id);
+    });
+
+    // Build task_flags lookup
+    const tfMap = {};
+    (taskFlags||[]).forEach(r => {
+      if (!tfMap[r.task_id]) tfMap[r.task_id] = [];
+      tfMap[r.task_id].push(r.flag_id);
+    });
+
+    // Build tasks by phase
+    const tasksByPhase = {};
+    (tasks||[]).forEach(t => {
+      if (!tasksByPhase[t.phase_id]) tasksByPhase[t.phase_id] = [];
+      tasksByPhase[t.phase_id].push({
+        id: t.id, name: t.name,
+        status: t.status, progress: t.progress,
+        plannedStart: t.planned_start||'', plannedEnd: t.planned_end||'',
+        replannedStart: t.replanned_start||'', replannedEnd: t.replanned_end||'',
+        actualStart: t.actual_start||'', actualEnd: t.actual_end||'',
+        flagIds: tfMap[t.id] || []
+      });
+    });
+
+    // Build phases by project
+    const phasesByProject = {};
+    (phases||[]).forEach(ph => {
+      if (!phasesByProject[ph.project_id]) phasesByProject[ph.project_id] = [];
+      phasesByProject[ph.project_id].push({
+        id: ph.id, name: ph.name,
+        isMilestone: ph.is_milestone,
+        status: ph.status, progress: ph.progress,
+        plannedStart: ph.planned_start||'', plannedEnd: ph.planned_end||'',
+        replannedStart: ph.replanned_start||'', replannedEnd: ph.replanned_end||'',
+        actualStart: ph.actual_start||'', actualEnd: ph.actual_end||'',
+        flagIds: pfMap[ph.id] || [],
+        tasks: tasksByPhase[ph.id] || []
+      });
+    });
+
+    // Assemble state
+    state.portfolios = (portfolios||[]).map(pt => ({
+      id: pt.id, name: pt.name,
+      justification: pt.justification, goals: pt.goals
+    }));
+
+    state.flags = (flags||[]).map(f => ({
+      id: f.id, name: f.name, icon: f.icon, color: f.color
+    }));
+
+    state.projects = (projects||[]).map(p => ({
+      id: p.id, portfolioId: p.portfolio_id,
+      name: p.name, company: p.company, sponsor: p.sponsor,
+      technology: p.technology, businessCapabilities: p.business_capabilities,
+      status: p.status, statusExplanation: p.status_explanation,
+      srHighlight: p.sr_highlight, srRisk: p.sr_risk, srDecision: p.sr_decision,
+      phases: phasesByProject[p.id] || []
+    }));
+
+    lsSave();
+    migrateData();
+    render();
+    updateVersionBadge();
+    setSyncStatus('saved');
+    setTimeout(() => setSyncStatus('idle'), 2000);
+  } catch(e) {
+    console.error('loadFromSupabase error', e);
+    setSyncStatus('error');
+  }
+}
+
+// ── localStorage helpers (instantaneous fallback) ────────────
+function lsSave() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {} }
+
 function uid() { return Math.random().toString(36).slice(2, 10); }
-function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {} }
+
+function save() {
+  lsSave();
+  setSyncStatus('saving');
+  clearTimeout(_syncT);
+  _syncT = setTimeout(() => sbSave(), 800);
+}
+
 function load() {
-  try { const s = localStorage.getItem(STORAGE_KEY); if (s) state = JSON.parse(s); }
-  catch(e) {}
-  try { const c = localStorage.getItem(COLS_KEY); if (c) colWidths = JSON.parse(c); }
-  catch(e) {}
-  try {
-    const ex = localStorage.getItem(EXPANDED_KEY);
-    if (ex) expandedProjects = new Set(JSON.parse(ex));
-  } catch(e) {}
-  try {
-    const cp = localStorage.getItem(COLLAPSED_PT_KEY);
-    if (cp) collapsedPortfolios = new Set(JSON.parse(cp));
-  } catch(e) {}
-  // Ensure new fields exist on legacy data
+  try { const s = localStorage.getItem(STORAGE_KEY); if (s) state = JSON.parse(s); } catch(e) {}
+  try { const c = localStorage.getItem(COLS_KEY); if (c) colWidths = JSON.parse(c); } catch(e) {}
+  try { const ex = localStorage.getItem(EXPANDED_KEY); if (ex) expandedProjects = new Set(JSON.parse(ex)); } catch(e) {}
+  try { const cp = localStorage.getItem(COLLAPSED_PT_KEY); if (cp) collapsedPortfolios = new Set(JSON.parse(cp)); } catch(e) {}
+  applyStateDefaults();
+}
+
+function applyStateDefaults() {
   if (!state.portfolios) state.portfolios = [];
-  if (!state.flags) state.flags = [];
-  if (!state.projects) state.projects = [];
+  if (!state.flags)      state.flags = [];
+  if (!state.projects)   state.projects = [];
 }
+
 function saveCols() { try { localStorage.setItem(COLS_KEY, JSON.stringify(colWidths)); } catch(e) {} }
-function saveExpanded() {
-  try { localStorage.setItem(EXPANDED_KEY, JSON.stringify(Array.from(expandedProjects))); }
-  catch(e) {}
-}
-function saveCollapsedPortfolios() {
-  try { localStorage.setItem(COLLAPSED_PT_KEY, JSON.stringify(Array.from(collapsedPortfolios))); }
-  catch(e) {}
-}
+function saveExpanded() { try { localStorage.setItem(EXPANDED_KEY, JSON.stringify(Array.from(expandedProjects))); } catch(e) {} }
+function saveCollapsedPortfolios() { try { localStorage.setItem(COLLAPSED_PT_KEY, JSON.stringify(Array.from(collapsedPortfolios))); } catch(e) {} }
 
 // ============================================================
 // UNDO
@@ -1679,6 +2087,43 @@ function togglePortfolio(portId) {
   if (block) block.classList.toggle('collapsed', collapsedPortfolios.has(portId));
 }
 const PROGRESS_OPTIONS = [0, 25, 50, 75, 100];
+
+const STATUS_OPTIONS = [
+  { value: 'not_started',      label: 'Não iniciado',          progress: 0,   color: '#9ca3af' },
+  { value: 'in_progress',      label: 'Iniciado',              progress: 25,  color: '#3b82f6' },
+  { value: 'ready_to_validate',label: 'Pronto p/ validação',   progress: 50,  color: '#f59e0b' },
+  { value: 'validating',       label: 'Validando',             progress: 75,  color: '#8b5cf6' },
+  { value: 'done',             label: 'Pronto',                progress: 100, color: '#22c55e' },
+];
+
+function statusToProgress(statusValue) {
+  const s = STATUS_OPTIONS.find(x => x.value === statusValue);
+  return s ? s.progress : 0;
+}
+function progressToStatus(progress) {
+  const p = Number(progress);
+  const s = STATUS_OPTIONS.find(x => x.progress === p);
+  return s ? s.value : 'not_started';
+}
+function statusLabel(statusValue) {
+  const s = STATUS_OPTIONS.find(x => x.value === statusValue);
+  return s ? s.label : 'Não iniciado';
+}
+function statusColor(statusValue) {
+  const s = STATUS_OPTIONS.find(x => x.value === statusValue);
+  return s ? s.color : '#9ca3af';
+}
+function renderStatusSelect(id, currentStatus, cssClass, dataAttr) {
+  const cur = currentStatus || 'not_started';
+  const col = statusColor(cur);
+  return `<select class="${cssClass}" data-${dataAttr}="${id}"
+    style="font-size:11px;padding:3px 4px;border-radius:4px;border:1.5px solid ${col};
+           color:${col};font-weight:600;background:#fff;cursor:pointer;width:100%;max-width:160px">
+    ${STATUS_OPTIONS.map(s =>
+      `<option value="${s.value}" ${s.value === cur ? 'selected' : ''}>${s.label}</option>`
+    ).join('')}
+  </select>`;
+}
 
 // ============================================================
 // SEED
@@ -2138,49 +2583,92 @@ function getFlag(flagId) {
 }
 
 function renderBars(p, range) {
-  const bars = [];
+  const LANE_H   = 32;   // px por faixa
+  const BAR_H    = 22;   // px altura da barra
+  const PAD_TOP  = 4;    // px padding topo
+
+  // ── Coleta todos os itens com posição ─────────────────────
+  const items = [];
   (p.phases||[]).forEach(ph => {
-    const flagIds = ph.flagIds || [];
-    const flags = flagIds.map(getFlag).filter(Boolean);
+    const flagIds   = ph.flagIds || [];
+    const flags     = flagIds.map(getFlag).filter(Boolean);
     const flagIcons = flags.map(f => `<span class="bar-flag" title="${escapeHtml(f.name)}">${f.icon||'🏷'}</span>`).join('');
-    const flagNamesForTitle = flags.length ? `\nFlags: ${flags.map(f=>f.name).join(', ')}` : '';
+    const flagNames = flags.length ? `\nFlags: ${flags.map(f=>f.name).join(', ')}` : '';
 
     if (ph.isMilestone) {
       const d = parseDate(ph.actualStart) || parseDate(ph.replannedStart) || parseDate(ph.plannedStart);
       if (!d) return;
       const pos = dateToPercent(d, range);
-      const title = `${ph.name} (Marco)${flagNamesForTitle}\n` +
-        (ph.plannedStart ? `Planejado: ${ph.plannedStart}\n` : '') +
+      const title = `${ph.name} (Marco)${flagNames}\n` +
+        (ph.plannedStart   ? `Planejado: ${ph.plannedStart}\n`   : '') +
         (ph.replannedStart ? `Replanejado: ${ph.replannedStart}\n` : '') +
-        (ph.actualStart ? `Realizado: ${ph.actualStart}` : '');
-      bars.push(`<div class="milestone" style="left:${pos}%"
-        data-project="${p.id}" data-phase="${ph.id}" title="${escapeHtml(title)}"></div>`);
+        (ph.actualStart    ? `Realizado: ${ph.actualStart}`       : '');
+      items.push({ type:'milestone', pos, ph, title });
     } else {
       const useStart = parseDate(ph.actualStart) || parseDate(ph.replannedStart) || parseDate(ph.plannedStart);
-      const useEnd = parseDate(ph.actualEnd) || parseDate(ph.replannedEnd) || parseDate(ph.plannedEnd);
+      const useEnd   = parseDate(ph.actualEnd)   || parseDate(ph.replannedEnd)   || parseDate(ph.plannedEnd);
       if (!useStart || !useEnd) return;
-      const left = dateToPercent(useStart, range);
+      const left  = dateToPercent(useStart, range);
       const right = dateToPercent(useEnd, range);
       const width = Math.max(right - left, 0.8);
 
       let cls = 'phase-bar';
       if (parseDate(ph.actualStart) || parseDate(ph.actualEnd)) cls += ' actual';
       else if (parseDate(ph.replannedStart) || parseDate(ph.replannedEnd)) cls += ' replanned';
-      // If phase has the "dev" flag, apply the dev-start visual
       if (flagIds.includes('flag-dev')) cls += ' dev-start';
 
-      const rp = phaseRealizedProgress(ph);
-      const title = `${ph.name} (${rp}%)${flagNamesForTitle}\n` +
+      const rp    = phaseRealizedProgress(ph);
+      const title = `${ph.name} (${rp}%)${flagNames}\n` +
         `Planejado: ${ph.plannedStart||'?'} → ${ph.plannedEnd||'?'}` +
         (ph.replannedStart||ph.replannedEnd ? `\nReplanejado: ${ph.replannedStart||'?'} → ${ph.replannedEnd||'?'}` : '') +
-        (ph.actualStart||ph.actualEnd ? `\nRealizado: ${ph.actualStart||'?'} → ${ph.actualEnd||'em curso'}` : '');
+        (ph.actualStart||ph.actualEnd       ? `\nRealizado: ${ph.actualStart||'?'} → ${ph.actualEnd||'em curso'}` : '');
 
-      bars.push(`<div class="${cls}" style="left:${left}%;width:${width}%"
-        data-project="${p.id}" data-phase="${ph.id}"
-        title="${escapeHtml(title)}">${flagIcons}${escapeHtml(ph.name)}</div>`);
+      items.push({ type:'bar', left, width, cls, ph, flagIcons, title });
     }
   });
-  return bars.join('');
+
+  // ── Atribui faixas (lanes) por greedy interval scheduling ──
+  // Milestones ocupam largura 0 — raramente colidem mas entram no algoritmo
+  const lanes = []; // lanes[i] = posição right do último item na faixa i
+
+  items.forEach(it => {
+    const itLeft  = it.type === 'milestone' ? it.pos       : it.left;
+    const itRight = it.type === 'milestone' ? it.pos + 0.5 : it.left + it.width;
+    let assigned  = -1;
+    for (let i = 0; i < lanes.length; i++) {
+      if (itLeft >= lanes[i] + 0.3) { // 0.3% de folga visual
+        assigned = i;
+        break;
+      }
+    }
+    if (assigned === -1) { assigned = lanes.length; lanes.push(0); }
+    lanes[assigned] = itRight;
+    it.lane = assigned;
+  });
+
+  const totalLanes = Math.max(lanes.length, 1);
+  const timelineH  = totalLanes * LANE_H + PAD_TOP * 2;
+
+  // ── Gera HTML ──────────────────────────────────────────────
+  const parts = [`<style>
+    [data-project="${p.id}"] .project-timeline {
+      height: ${timelineH}px;
+    }
+  </style>`];
+
+  items.forEach(it => {
+    const topPx = PAD_TOP + it.lane * LANE_H + (LANE_H - BAR_H) / 2;
+    if (it.type === 'milestone') {
+      parts.push(`<div class="milestone" style="left:${it.pos}%;top:${topPx + BAR_H/2}px"
+        data-project="${p.id}" data-phase="${it.ph.id}" title="${escapeHtml(it.title)}"></div>`);
+    } else {
+      parts.push(`<div class="${it.cls}" style="left:${it.left}%;width:${it.width}%;top:${topPx}px"
+        data-project="${p.id}" data-phase="${it.ph.id}"
+        title="${escapeHtml(it.title)}">${it.flagIcons}${escapeHtml(it.ph.name)}</div>`);
+    }
+  });
+
+  return parts.join('');
 }
 
 // Update progress UI of a project row without full re-render
@@ -2355,7 +2843,7 @@ function renderPhasesModal() {
     p.phases.push({
       id: uid(), name: 'Nova Fase', flagIds: [], isMilestone: false,
       plannedStart:'', plannedEnd:'', replannedStart:'', replannedEnd:'',
-      actualStart:'', actualEnd:'', progress: 0, tasks: []
+      actualStart:'', actualEnd:'', progress: 0, status: 'not_started', tasks: []
     });
     save();
     renderPhasesModal();
@@ -2381,27 +2869,35 @@ function renderFlagPills(target, kind) {
 }
 
 function renderPhaseRow(ph) {
-  const hasTasks = (ph.tasks || []).length > 0;
-  const calculated = hasTasks ? phaseRealizedProgress(ph) : null;
-  const today = new Date();
+  const hasTasks  = (ph.tasks || []).length > 0;
+  const today     = new Date();
   const predicted = phasePredictedProgress(ph, today);
+
+  // Ensure status field exists (migrate from progress if needed)
+  if (!ph.status) ph.status = progressToStatus(ph.progress || 0);
 
   let progressCell;
   if (hasTasks) {
-    progressCell = `<td class="calc-cell" title="Calculado pelas tarefas">${calculated}%</td>`;
-  } else {
-    progressCell = `<td class="progress-cell">
-      <select class="ph-progress" data-phase="${ph.id}">
-        ${PROGRESS_OPTIONS.map(o =>
-          `<option value="${o}" ${Number(ph.progress)===o ? 'selected' : ''}>${o}%</option>`
-        ).join('')}
-      </select>
+    const calculated = phaseRealizedProgress(ph);
+    const derivedStatus = progressToStatus(calculated);
+    progressCell = `<td class="calc-cell" title="Calculado pelas tarefas">
+      <span style="font-size:11px;font-weight:600;color:${statusColor(derivedStatus)}">${statusLabel(derivedStatus)}</span>
+      <span style="color:var(--muted);font-size:10px;display:block">${calculated}%</span>
     </td>`;
+  } else {
+    progressCell = `<td class="progress-cell">${renderStatusSelect(ph.id, ph.status, 'ph-status', 'phase')}</td>`;
   }
+
+  const curStatus = hasTasks ? progressToStatus(phaseRealizedProgress(ph)) : (ph.status || 'not_started');
 
   return `
     <tr data-phase="${ph.id}">
-      <td><textarea class="ph-name" data-phase="${ph.id}" rows="1">${escapeHtml(ph.name)}</textarea></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:5px">
+          <span style="width:8px;height:8px;border-radius:50%;background:${statusColor(curStatus)};flex-shrink:0;display:inline-block"></span>
+          <textarea class="ph-name" data-phase="${ph.id}" rows="1">${escapeHtml(ph.name)}</textarea>
+        </div>
+      </td>
       <td style="text-align:center">
         <input type="checkbox" class="ph-milestone" data-phase="${ph.id}"
                ${ph.isMilestone ? 'checked' : ''}
@@ -2441,12 +2937,18 @@ function wirePhaseRows() {
       save();
       render();
     };
-    const progSel = row.querySelector('.ph-progress');
+    const progSel = row.querySelector('.ph-status');
     if (progSel) progSel.onchange = e => {
       snapshot();
-      ph.progress = Number(e.target.value);
+      ph.status   = e.target.value;
+      ph.progress = statusToProgress(e.target.value);
+      // update select border color
+      const col = statusColor(ph.status);
+      e.target.style.borderColor = col;
+      e.target.style.color       = col;
       save();
       updateProjectProgressUI(currentProjectId);
+      render();
     };
     const dateFields = [
       ['.ph-pstart','plannedStart'],['.ph-pend','plannedEnd'],
@@ -2536,7 +3038,7 @@ function renderTasksModal() {
     ph.tasks.push({
       id: uid(), name: 'Nova tarefa', flagIds: [],
       plannedStart:'', plannedEnd:'', replannedStart:'', replannedEnd:'',
-      actualStart:'', actualEnd:'', progress: 0
+      actualStart:'', actualEnd:'', progress: 0, status: 'not_started'
     });
     save();
     renderTasksModal();
@@ -2548,17 +3050,18 @@ function renderTasksModal() {
 function renderTaskRow(t) {
   const today = new Date();
   const predicted = phasePredictedProgress(t, today);
+  if (!t.status) t.status = progressToStatus(t.progress || 0);
+  const col = statusColor(t.status);
   return `
     <tr data-task="${t.id}">
-      <td><textarea class="t-name" data-task="${t.id}" rows="1">${escapeHtml(t.name)}</textarea></td>
-      <td>${renderFlagPills(t, 'task')}</td>
-      <td class="progress-cell">
-        <select class="t-progress" data-task="${t.id}">
-          ${PROGRESS_OPTIONS.map(o =>
-            `<option value="${o}" ${Number(t.progress)===o ? 'selected' : ''}>${o}%</option>`
-          ).join('')}
-        </select>
+      <td>
+        <div style="display:flex;align-items:center;gap:5px">
+          <span style="width:7px;height:7px;border-radius:50%;background:${col};flex-shrink:0;display:inline-block"></span>
+          <textarea class="t-name" data-task="${t.id}" rows="1">${escapeHtml(t.name)}</textarea>
+        </div>
       </td>
+      <td>${renderFlagPills(t, 'task')}</td>
+      <td class="progress-cell">${renderStatusSelect(t.id, t.status, 't-status', 'task')}</td>
       <td class="calc-cell">${predicted}%</td>
       <td class="dates"><input type="date" class="t-pstart" value="${t.plannedStart||''}"></td>
       <td class="dates"><input type="date" class="t-pend" value="${t.plannedEnd||''}"></td>
@@ -2581,12 +3084,18 @@ function wireTaskRows() {
     if (!t) return;
 
     row.querySelector('.t-name').oninput = e => { t.name = e.target.value; autoGrow(e.target); snapshotDebounced(); save(); };
-    row.querySelector('.t-progress').onchange = e => {
+    const tStatusSel = row.querySelector('.t-status');
+    if (tStatusSel) tStatusSel.onchange = e => {
       snapshot();
-      t.progress = Number(e.target.value);
+      t.status   = e.target.value;
+      t.progress = statusToProgress(e.target.value);
+      const col = statusColor(t.status);
+      e.target.style.borderColor = col;
+      e.target.style.color       = col;
       save();
       renderPhasesModal();
       updateProjectProgressUI(currentProjectId);
+      render();
     };
     const fields = [
       ['.t-pstart','plannedStart'],['.t-pend','plannedEnd'],
@@ -3668,141 +4177,6 @@ document.addEventListener('scroll', closeFlagPopup, true);
 window.addEventListener('resize', closeFlagPopup);
 
 // ============================================================
-// VERSIONS
-// ============================================================
-const VERSIONS_KEY = 'roadmap-sj-sr-versions';
-const MAX_VERSIONS = 30;
-
-function loadVersions() {
-  try { const s = localStorage.getItem(VERSIONS_KEY); return s ? JSON.parse(s) : []; }
-  catch(e) { return []; }
-}
-function saveVersions(versions) {
-  try { localStorage.setItem(VERSIONS_KEY, JSON.stringify(versions)); } catch(e) {}
-}
-
-function saveStatusVersion() {
-  const versions = loadVersions();
-  const today = new Date();
-  const months = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
-  const dateLabel = `${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}`;
-  const timeLabel = today.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
-  // Snapshot current state for report
-  const snap = {
-    id: uid(),
-    label: dateLabel,
-    time: timeLabel,
-    savedAt: today.toISOString(),
-    projects: JSON.parse(JSON.stringify(state.projects)),
-    portfolios: JSON.parse(JSON.stringify(state.portfolios)),
-    flags: JSON.parse(JSON.stringify(state.flags)),
-  };
-
-  versions.unshift(snap);
-  if (versions.length > MAX_VERSIONS) versions.splice(MAX_VERSIONS);
-  saveVersions(versions);
-  updateVersionBadge();
-  toast(`Versão salva — ${dateLabel} ${timeLabel}`);
-}
-
-function updateVersionBadge() {
-  const el = document.getElementById('sr-ver-count');
-  if (!el) return;
-  const n = loadVersions().length;
-  el.textContent = `🗂 Versões${n ? ' (' + n + ')' : ''}`;
-}
-
-function openVersionsModal() {
-  renderVersionsModal();
-  document.getElementById('versions-modal').classList.add('open');
-}
-
-function renderVersionsModal() {
-  const versions = loadVersions();
-  const body = document.getElementById('vm-body');
-  if (!versions.length) {
-    body.innerHTML = `<p style="text-align:center;padding:24px;color:var(--muted);font-style:italic">
-      Nenhuma versão salva ainda. Clique em "💾 Salvar Versão" na aba Status Report para criar um snapshot.
-    </p>`;
-    return;
-  }
-
-  const rows = versions.map((v, i) => `
-    <div class="ver-row">
-      <div>
-        <div class="ver-label">${escapeHtml(v.label)}</div>
-        <div class="ver-date">${escapeHtml(v.time)} &nbsp;·&nbsp; ${v.projects ? v.projects.length : 0} projetos</div>
-      </div>
-      <div class="ver-meta">
-        ${(v.projects || []).filter(p => p.status === 'red').length} 🔴 &nbsp;
-        ${(v.projects || []).filter(p => p.status === 'yellow').length} 🟡 &nbsp;
-        ${(v.projects || []).filter(p => p.status === 'green').length} 🟢
-      </div>
-      <div class="ver-actions">
-        <button class="ghost" style="font-size:11px;padding:4px 9px" onclick="previewVersion('${v.id}')">👁 Ver</button>
-        <button class="danger" style="font-size:11px;padding:4px 9px" onclick="deleteVersion('${v.id}')">🗑</button>
-      </div>
-    </div>
-  `).join('');
-
-  body.innerHTML = `
-    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">
-      Versões salvas manualmente. Cada uma é um snapshot completo do estado dos projetos naquele momento.
-    </p>
-    <div>${rows}</div>
-  `;
-}
-
-function previewVersion(versionId) {
-  const versions = loadVersions();
-  const v = versions.find(x => x.id === versionId);
-  if (!v) return;
-  closeModal('versions-modal');
-
-  // Temporarily swap state for rendering
-  const origProjects = state.projects;
-  const origPortfolios = state.portfolios;
-  const origFlags = state.flags;
-  state.projects = v.projects || [];
-  state.portfolios = v.portfolios || [];
-  state.flags = v.flags || [];
-
-  renderStatusReport();
-
-  state.projects = origProjects;
-  state.portfolios = origPortfolios;
-  state.flags = origFlags;
-
-  // Show preview bar
-  const bar = document.getElementById('sr-ver-preview');
-  const lbl = document.getElementById('sr-ver-preview-label');
-  const dt  = document.getElementById('sr-ver-preview-date');
-  if (bar) { bar.style.display = 'flex'; }
-  if (lbl) lbl.textContent = v.label;
-  if (dt)  dt.textContent = v.time;
-
-  toast(`Visualizando versão de ${v.label} ${v.time}`);
-}
-
-function dismissVersionPreview() {
-  const bar = document.getElementById('sr-ver-preview');
-  if (bar) bar.style.display = 'none';
-  renderStatusReport();
-}
-
-async function deleteVersion(versionId) {
-  const ok = await confirmDanger('Excluir esta versão? A ação não pode ser desfeita.', 'Excluir Versão');
-  if (!ok) return;
-  const versions = loadVersions().filter(v => v.id !== versionId);
-  saveVersions(versions);
-  updateVersionBadge();
-  renderVersionsModal();
-  toast('Versão excluída');
-}
-
-// ============================================================
-// TAB NAVIGATION
 // ============================================================
 function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -3810,6 +4184,152 @@ function switchTab(tab) {
   document.getElementById('tab-' + tab).classList.add('active');
   document.getElementById('panel-' + tab).classList.add('active');
   if (tab === 'status') renderStatusReport();
+  if (tab === 'kanban') renderKanban();
+}
+
+// ============================================================
+// KANBAN
+// ============================================================
+function renderKanban() {
+  const filterProj = document.getElementById('kb-filter-project')?.value || '';
+  const filterType = document.getElementById('kb-filter-type')?.value   || '';
+
+  // Populate project filter
+  const projSel = document.getElementById('kb-filter-project');
+  if (projSel) {
+    const cur = projSel.value;
+    projSel.innerHTML = '<option value="">Todos os projetos</option>' +
+      state.projects.map(p => `<option value="${p.id}" ${p.id===cur?'selected':''}>${escapeHtml(p.name)}</option>`).join('');
+  }
+
+  // Collect all cards
+  const cards = [];
+  state.projects.forEach(proj => {
+    if (filterProj && proj.portfolioId !== filterProj && proj.id !== filterProj) {
+      if (filterProj && proj.id !== filterProj) return;
+    }
+    (proj.phases || []).forEach(ph => {
+      if (!filterType || filterType === 'phase') {
+        if (!ph.status) ph.status = progressToStatus(ph.progress || 0);
+        const end = ph.replannedEnd || ph.plannedEnd;
+        cards.push({
+          id: ph.id, kind: 'phase', name: ph.name,
+          status: ph.status, projName: proj.name, projId: proj.id,
+          phaseId: ph.id, taskId: null,
+          end, flagIds: ph.flagIds || [],
+          progress: statusToProgress(ph.status),
+        });
+      }
+      if (!filterType || filterType === 'task') {
+        (ph.tasks || []).forEach(t => {
+          if (!t.status) t.status = progressToStatus(t.progress || 0);
+          const end = t.replannedEnd || t.plannedEnd;
+          cards.push({
+            id: t.id, kind: 'task', name: t.name,
+            status: t.status, projName: proj.name, projId: proj.id,
+            phaseId: ph.id, taskId: t.id, phaseName: ph.name,
+            end, flagIds: t.flagIds || [],
+            progress: statusToProgress(t.status),
+          });
+        });
+      }
+    });
+  });
+
+  const today = new Date();
+  const board  = document.getElementById('kb-board');
+
+  board.innerHTML = STATUS_OPTIONS.map(col => {
+    const colCards = cards.filter(c => c.status === col.value);
+    const cardsHtml = colCards.length ? colCards.map(c => {
+      const isDone = c.status === 'done';
+      const endDate = c.end ? new Date(c.end + 'T00:00:00') : null;
+      const diffDays = endDate ? Math.round((endDate - today) / 86400000) : null;
+      let dateBadge = '';
+      if (endDate) {
+        const cls = diffDays < 0 ? 'overdue' : diffDays <= 7 ? 'soon' : '';
+        const lbl = diffDays < 0 ? `Venceu há ${Math.abs(diffDays)}d` : diffDays === 0 ? 'Vence hoje' : `${c.end}`;
+        dateBadge = `<span class="kb-card-date ${cls}">📅 ${lbl}</span>`;
+      }
+      const flags = (c.flagIds || []).map(fid => {
+        const f = getFlag(fid);
+        return f ? `<span title="${escapeHtml(f.name)}">${f.icon||'🏷'}</span>` : '';
+      }).join('');
+
+      const statusOpts = STATUS_OPTIONS.map(s =>
+        `<option value="${s.value}" ${s.value===c.status?'selected':''}>${s.label}</option>`
+      ).join('');
+
+      const typeLabel = c.kind === 'phase'
+        ? `<span class="kb-phase-dot" style="background:${col.color}"></span>FASE`
+        : `<span class="kb-phase-dot" style="background:#9ca3af"></span>TAREFA · ${escapeHtml(c.phaseName||'')}`;
+
+      return `<div class="kb-card kb-card-${c.kind} ${c.status}"
+                   data-card-id="${c.id}" data-kind="${c.kind}"
+                   data-proj="${c.projId}" data-phase="${c.phaseId}" data-task="${c.taskId||''}">
+        <div class="kb-card-type">${typeLabel}</div>
+        <div class="kb-card-name ${isDone?'done-text':''}">${escapeHtml(c.name)}</div>
+        <div class="kb-card-meta">
+          <span class="kb-card-proj">${escapeHtml(c.projName)}</span>
+          ${dateBadge}
+          ${flags ? `<span style="font-size:12px">${flags}</span>` : ''}
+        </div>
+        <select class="kb-status-sel"
+                style="border-color:${col.color};color:${col.color}"
+                data-kind="${c.kind}" data-proj="${c.projId}"
+                data-phase="${c.phaseId}" data-task="${c.taskId||''}">
+          ${statusOpts}
+        </select>
+      </div>`;
+    }).join('') : `<div class="kb-empty">Nenhum item</div>`;
+
+    return `<div class="kb-col" data-status="${col.value}">
+      <div class="kb-col-header">
+        <span style="width:9px;height:9px;border-radius:50%;background:${col.color};flex-shrink:0;display:inline-block"></span>
+        ${col.label}
+        <span class="kb-count">${colCards.length}</span>
+      </div>
+      <div class="kb-col-body">${cardsHtml}</div>
+    </div>`;
+  }).join('');
+
+  // Wire status selects
+  board.querySelectorAll('.kb-status-sel').forEach(sel => {
+    sel.onchange = e => {
+      e.stopPropagation();
+      const newStatus = e.target.value;
+      const kind   = e.target.dataset.kind;
+      const projId = e.target.dataset.proj;
+      const phaseId = e.target.dataset.phase;
+      const taskId  = e.target.dataset.task;
+      const proj = state.projects.find(p => p.id === projId);
+      if (!proj) return;
+      snapshot();
+      if (kind === 'phase') {
+        const ph = proj.phases.find(p => p.id === phaseId);
+        if (ph) { ph.status = newStatus; ph.progress = statusToProgress(newStatus); }
+      } else {
+        const ph = proj.phases.find(p => p.id === phaseId);
+        const t  = ph?.tasks.find(t => t.id === taskId);
+        if (t) { t.status = newStatus; t.progress = statusToProgress(newStatus); }
+      }
+      save();
+      render();
+      renderKanban();
+    };
+  });
+
+  // Wire card click → open modal
+  board.querySelectorAll('.kb-card').forEach(card => {
+    card.addEventListener('click', e => {
+      if (e.target.closest('.kb-status-sel')) return;
+      const projId  = card.dataset.proj;
+      const phaseId = card.dataset.phase;
+      const taskId  = card.dataset.task;
+      openPhasesModal(projId);
+      if (taskId) setTimeout(() => openTasksModal(phaseId), 80);
+    });
+  });
 }
 
 // ============================================================
@@ -4153,8 +4673,143 @@ function renderSRGrid3(highlights, risks, decisions) {
 load();
 migrateData();
 seedIfEmpty();
+
+// ============================================================
+// VERSIONS — tabela sr_versions
+// ============================================================
+const VERSIONS_KEY = 'roadmap-sj-sr-versions';
+const MAX_VERSIONS = 30;
+
+async function loadVersions() {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/sr_versions?select=*&order=saved_at.desc&limit=${MAX_VERSIONS}`, { headers: SB_H });
+    if (r.ok) {
+      const rows = await r.json();
+      if (rows && rows.length) return rows.map(v => ({
+        id: v.id, label: v.label, time: v.time, savedAt: v.saved_at,
+        projects:   v.snapshot.projects   || [],
+        portfolios: v.snapshot.portfolios || [],
+        flags:      v.snapshot.flags      || [],
+      }));
+    }
+  } catch(e) {}
+  try { const s = localStorage.getItem(VERSIONS_KEY); return s ? JSON.parse(s) : []; } catch(e) { return []; }
+}
+
+async function saveStatusVersion() {
+  const today = new Date();
+  const months = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  const dateLabel = `${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}`;
+  const timeLabel = today.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+  const snap = {
+    id: uid(), label: dateLabel, time: timeLabel,
+    saved_at: today.toISOString(),
+    snapshot: {
+      projects:   JSON.parse(JSON.stringify(state.projects)),
+      portfolios: JSON.parse(JSON.stringify(state.portfolios)),
+      flags:      JSON.parse(JSON.stringify(state.flags)),
+    }
+  };
+  try {
+    await fetch(`${SB_URL}/rest/v1/sr_versions`, {
+      method: 'POST',
+      headers: { ...SB_H, 'Prefer': 'return=minimal' },
+      body: JSON.stringify(snap)
+    });
+  } catch(e) {}
+  updateVersionBadge();
+  toast(`Versão salva — ${dateLabel} ${timeLabel}`);
+}
+
+async function updateVersionBadge() {
+  const el = document.getElementById('sr-ver-count');
+  if (!el) return;
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/sr_versions?select=id`, { headers: SB_H });
+    if (r.ok) {
+      const rows = await r.json();
+      el.textContent = `🗂 Versões${rows.length ? ' (' + rows.length + ')' : ''}`;
+      return;
+    }
+  } catch(e) {}
+  el.textContent = '🗂 Versões';
+}
+
+async function openVersionsModal() {
+  await renderVersionsModal();
+  document.getElementById('versions-modal').classList.add('open');
+}
+
+async function renderVersionsModal() {
+  const versions = await loadVersions();
+  const body = document.getElementById('vm-body');
+  if (!versions.length) {
+    body.innerHTML = '<p style="text-align:center;padding:24px;color:var(--muted);font-style:italic">Nenhuma versão salva ainda. Clique em "💾 Salvar Versão" na aba Status Report.</p>';
+    return;
+  }
+  body.innerHTML = '<p style="font-size:12px;color:var(--muted);margin-bottom:12px">Versões salvas na tabela <code>sr_versions</code> do Supabase.</p><div>' +
+    versions.map(v =>
+      '<div class="ver-row">' +
+        '<div><div class="ver-label">' + escapeHtml(v.label) + '</div>' +
+        '<div class="ver-date">' + escapeHtml(v.time) + ' · ' + (v.projects ? v.projects.length : 0) + ' projetos</div></div>' +
+        '<div class="ver-meta">' +
+          (v.projects||[]).filter(p=>p.status==='red').length + ' 🔴 ' +
+          (v.projects||[]).filter(p=>p.status==='yellow').length + ' 🟡 ' +
+          (v.projects||[]).filter(p=>p.status==='green').length + ' 🟢' +
+        '</div>' +
+        '<div class="ver-actions">' +
+          '<button class="ghost" style="font-size:11px;padding:4px 9px" onclick="previewVersion(\'' + v.id + '\')">👁 Ver</button>' +
+          '<button class="danger" style="font-size:11px;padding:4px 9px" onclick="deleteVersion(\'' + v.id + '\')">🗑</button>' +
+        '</div></div>'
+    ).join('') + '</div>';
+}
+
+async function previewVersion(versionId) {
+  const versions = await loadVersions();
+  const v = versions.find(x => x.id === versionId);
+  if (!v) return;
+  closeModal('versions-modal');
+  const [op, opt, of_] = [state.projects, state.portfolios, state.flags];
+  state.projects = v.projects||[]; state.portfolios = v.portfolios||[]; state.flags = v.flags||[];
+  renderStatusReport();
+  state.projects = op; state.portfolios = opt; state.flags = of_;
+  const bar = document.getElementById('sr-ver-preview');
+  if (bar) bar.style.display = 'flex';
+  const lbl = document.getElementById('sr-ver-preview-label');
+  const dt  = document.getElementById('sr-ver-preview-date');
+  if (lbl) lbl.textContent = v.label;
+  if (dt)  dt.textContent  = v.time;
+  toast(`Visualizando versão de ${v.label} ${v.time}`);
+}
+
+function dismissVersionPreview() {
+  const bar = document.getElementById('sr-ver-preview');
+  if (bar) bar.style.display = 'none';
+  renderStatusReport();
+}
+
+async function deleteVersion(versionId) {
+  const ok = await confirmDanger('Excluir esta versão?', 'Excluir Versão');
+  if (!ok) return;
+  try {
+    await fetch(`${SB_URL}/rest/v1/sr_versions?id=eq.${versionId}`, {
+      method: 'DELETE', headers: SB_H
+    });
+  } catch(e) {}
+  updateVersionBadge();
+  renderVersionsModal();
+  toast('Versão excluída');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+load();
+migrateData();
+seedIfEmpty();
 render();
 updateVersionBadge();
+loadFromSupabase();
 </script>
 </body>
 </html>
