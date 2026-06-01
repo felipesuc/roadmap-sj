@@ -82,7 +82,7 @@
   }
   .toolbar .spacer { flex: 1; }
 
-  main { padding: 20px 24px; }
+  main { padding: 20px 24px; overflow-x: auto; }
 
   .timeline-wrap {
     background: var(--card);
@@ -90,13 +90,17 @@
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    min-width: fit-content;
+    cursor: grab;
+    user-select: none;
   }
+  .timeline-wrap.panning { cursor: grabbing; }
   .year-row { display: flex; background: #1a3558; }
   .year-row .col-info {
     width: 280px; flex-shrink: 0;
     border-right: 1px solid var(--navy-soft);
   }
-  .year-row .years { flex: 1; display: flex; min-width: 4800px; }
+  .year-row .years { flex: 1; display: flex; min-width: 1800px; }
   .year-mark {
     text-align: center; padding: 5px 4px;
     font-size: 11px; font-weight: 700;
@@ -118,7 +122,7 @@
     letter-spacing: 0.5px;
   }
   .timeline-header .col-timeline {
-    flex: 1; position: relative; min-width: 1200px;
+    flex: 1; position: relative; min-width: 1800px;
   }
   .month-marks { display: flex; flex-direction: column; height: 100%; }
   .month-marks-row { display: flex; flex: 1; }
@@ -152,7 +156,7 @@
   }
   .week-cell:last-child { border-right: none; }
 
-  .timeline-header .col-timeline { flex: 1; position: relative; min-width: 4800px; }
+  .timeline-header .col-timeline { flex: 1; position: relative; min-width: 1800px; }
   .timeline-header { height: 52px; }
 
   /* ===== PROJECT ROW ===== */
@@ -437,7 +441,7 @@
   .project-timeline {
     flex: 1;
     position: relative;
-    min-width: 4800px;
+    min-width: 1800px;
   }
   .project-timeline { min-height: calc(var(--lanes, 1) * 32px + 8px); }
   .phase-bar {
@@ -4952,6 +4956,55 @@ async function deleteVersion(versionId) {
   renderVersionsModal();
   toast('Versão excluída');
 }
+
+// ============================================================
+// PAN — arrastar o timeline com o mouse/touch
+// ============================================================
+(function() {
+  const wrap    = document.getElementById('timeline-wrap');
+  const scroller = wrap.closest('main') || wrap.parentElement;
+  let isPanning = false, startX = 0, startY = 0, scrollLeft = 0, scrollTop = 0;
+
+  wrap.addEventListener('mousedown', e => {
+    if (e.target.closest('button,input,select,textarea,.phase-bar,.milestone,.flag-pill,.icon-btn,.proj-actions,.ph-name,.project-info')) return;
+    isPanning   = true;
+    startX      = e.clientX;
+    startY      = e.clientY;
+    scrollLeft  = scroller.scrollLeft;
+    scrollTop   = scroller.scrollTop;
+    wrap.classList.add('panning');
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!isPanning) return;
+    scroller.scrollLeft = scrollLeft - (e.clientX - startX);
+    scroller.scrollTop  = scrollTop  - (e.clientY - startY);
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (!isPanning) return;
+    isPanning = false;
+    wrap.classList.remove('panning');
+  });
+
+  wrap.addEventListener('touchstart', e => {
+    if (e.touches.length !== 1) return;
+    isPanning   = true;
+    startX      = e.touches[0].clientX;
+    startY      = e.touches[0].clientY;
+    scrollLeft  = scroller.scrollLeft;
+    scrollTop   = scroller.scrollTop;
+  }, { passive: true });
+
+  wrap.addEventListener('touchmove', e => {
+    if (!isPanning || e.touches.length !== 1) return;
+    scroller.scrollLeft = scrollLeft - (e.touches[0].clientX - startX);
+    scroller.scrollTop  = scrollTop  - (e.touches[0].clientY - startY);
+  }, { passive: true });
+
+  wrap.addEventListener('touchend', () => { isPanning = false; });
+})();
 
 // ============================================================
 // INIT
