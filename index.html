@@ -207,6 +207,8 @@
     font-size: 10.5px; color: var(--text);
     border-bottom: 1px solid #f1f3f6;
     line-height: 1.3;
+    box-sizing: border-box;
+    overflow: hidden;
   }
   .deliv-item:last-child { border-bottom: none; }
   .deliv-item.is-milestone { color: var(--muted); font-style: italic; }
@@ -584,7 +586,6 @@
   .portfolio-header .name {
     font-size: 14px;
     font-weight: 600;
-    flex: 1;
   }
   .portfolio-header .counts {
     font-size: 10.5px;
@@ -594,6 +595,7 @@
     padding: 3px 8px;
     border-radius: 10px;
     letter-spacing: 0.3px;
+    margin-right: auto;
   }
   .portfolio-header .actions {
     display: flex; gap: 4px;
@@ -2826,23 +2828,20 @@ function buildTodayLine(range) {
 }
 
 function renderBars(p, range) {
-  const LANE_H   = 32;
-  const BAR_H    = 22;
-  const PAD_TOP  = 4;
+  const ROW_H = 28;  // altura de cada linha de entrega (px)
+  const BAR_H = 20;  // altura da barra (px)
+  const PAD   = 4;   // padding topo da barra dentro da linha
 
-  // ── Build week grid positions ───────────────────────────────
-  const weekLines = [];
   const totalMs = range.end - range.start;
+
+  // Grid lines
+  const weekLines = [], monthLines = [];
   let d = new Date(range.start);
-  // advance to first Monday
   while (d.getDay() !== 1) d.setDate(d.getDate() + 1);
   while (d < range.end) {
-    const pct = ((d - range.start) / totalMs) * 100;
-    weekLines.push(pct);
+    weekLines.push(((d - range.start) / totalMs) * 100);
     d = new Date(d); d.setDate(d.getDate() + 7);
   }
-  // Month lines (stronger)
-  const monthLines = [];
   let m = new Date(range.start.getFullYear(), range.start.getMonth(), 1);
   while (m < range.end) {
     const pct = ((m - range.start) / totalMs) * 100;
@@ -2850,11 +2849,25 @@ function renderBars(p, range) {
     m = new Date(m.getFullYear(), m.getMonth() + 1, 1);
   }
 
-  // ── Coleta todos os itens com posição ─────────────────────
-  const items = [];
-  (p.phases||[]).forEach(ph => {
-    const flagIds   = ph.flagIds || [];
-    const flags     = flagIds.map(getFlag).filter(Boolean);
+  const phases = p.phases || [];
+  const totalH = Math.max(phases.length, 1) * ROW_H;
+
+  const gridLines = weekLines.map(pct =>
+    `<div style="position:absolute;top:0;bottom:0;left:${pct}%;width:1px;background:#edf0f4;pointer-events:none"></div>`
+  ).join('') + monthLines.map(pct =>
+    `<div style="position:absolute;top:0;bottom:0;left:${pct}%;width:1px;background:#d1d8e2;pointer-events:none"></div>`
+  ).join('');
+
+  const parts = [`<style>
+    [data-project="${p.id}"] .project-timeline { height: ${totalH}px; }
+    [data-project="${p.id}"] .deliverables-col { min-height: ${totalH}px; }
+    [data-project="${p.id}"] .deliv-item { height: ${ROW_H}px; }
+  </style>`, gridLines];
+
+  phases.forEach((ph, i) => {
+    const topPx = i * ROW_H + PAD;
+    const flagIds = ph.flagIds || [];
+    const flags   = flagIds.map(getFlag).filter(Boolean);
     const flagIcons = flags.map(f => `<span class="bar-flag" title="${escapeHtml(f.name)}">${f.icon||'🏷'}</span>`).join('');
     const flagNames = flags.length ? `\nFlags: ${flags.map(f=>f.name).join(', ')}` : '';
 
@@ -2863,82 +2876,33 @@ function renderBars(p, range) {
       if (!d) return;
       const pos = dateToPercent(d, range);
       const title = `${ph.name} (Marco)${flagNames}\n` +
-        (ph.plannedStart   ? `Planejado: ${fmtDate(ph.plannedStart)}\n`   : '') +
-        (ph.replannedStart ? `Replanejado: ${fmtDate(ph.replannedStart)}\n` : '') +
-        (ph.actualStart    ? `Realizado: ${fmtDate(ph.actualStart)}`       : '');
-      items.push({ type:'milestone', pos, ph, title });
+        (ph.plannedStart ? `Planejado: ${fmtDate(ph.plannedStart)}\n` : '') +
+        (ph.actualStart  ? `Realizado: ${fmtDate(ph.actualStart)}` : '');
+      parts.push(`<div class="milestone" style="left:${pos}%;top:${topPx + BAR_H/2}px"
+        data-project="${p.id}" data-phase="${ph.id}" title="${escapeHtml(title)}"></div>`);
     } else {
       const useStart = parseDate(ph.actualStart) || parseDate(ph.replannedStart) || parseDate(ph.plannedStart);
       const useEnd   = parseDate(ph.actualEnd)   || parseDate(ph.replannedEnd)   || parseDate(ph.plannedEnd);
       if (!useStart || !useEnd) return;
       const left  = dateToPercent(useStart, range);
       const right = dateToPercent(useEnd, range);
-      const width = Math.max(right - left, 0.8);
+      if (right <= 0 || left >= 100) return;
+      const width = Math.max(right - left, 1);
 
-      let cls = 'phase-bar';
-      // Cor baseada no status da entrega
       const phStatus = ph.status || 'not_started';
-      cls += ` status-${phStatus}`;
-      // Flag dev-start sobrescreve a cor
+      let cls = `phase-bar status-${phStatus}`;
       if (flagIds.includes('flag-dev')) cls += ' dev-start';
-      // Replanejado: reduz opacidade
       if (parseDate(ph.replannedStart) || parseDate(ph.replannedEnd)) cls += ' replanned';
 
-      const rp    = phaseRealizedProgress(ph);
+      const rp = phaseRealizedProgress(ph);
       const title = `${ph.name} (${rp}%)${flagNames}\n` +
         `Planejado: ${fmtDate(ph.plannedStart)} → ${fmtDate(ph.plannedEnd)}` +
         (ph.replannedStart||ph.replannedEnd ? `\nReplanejado: ${fmtDate(ph.replannedStart)} → ${fmtDate(ph.replannedEnd)}` : '') +
-        (ph.actualStart||ph.actualEnd       ? `\nRealizado: ${fmtDate(ph.actualStart)} → ${(ph.actualEnd ? fmtDate(ph.actualEnd) : 'em curso')}` : '');
+        (ph.actualStart||ph.actualEnd ? `\nRealizado: ${fmtDate(ph.actualStart)} → ${ph.actualEnd ? fmtDate(ph.actualEnd) : 'em curso'}` : '');
 
-      items.push({ type:'bar', left, width, cls, ph, flagIcons, title });
-    }
-  });
-
-  // ── Atribui faixas (lanes) por greedy interval scheduling ──
-  // Milestones ocupam largura 0 — raramente colidem mas entram no algoritmo
-  const lanes = []; // lanes[i] = posição right do último item na faixa i
-
-  items.forEach(it => {
-    const itLeft  = it.type === 'milestone' ? it.pos       : it.left;
-    const itRight = it.type === 'milestone' ? it.pos + 0.5 : it.left + it.width;
-    let assigned  = -1;
-    for (let i = 0; i < lanes.length; i++) {
-      if (itLeft >= lanes[i] + 0.3) { // 0.3% de folga visual
-        assigned = i;
-        break;
-      }
-    }
-    if (assigned === -1) { assigned = lanes.length; lanes.push(0); }
-    lanes[assigned] = itRight;
-    it.lane = assigned;
-  });
-
-  const totalLanes = Math.max(lanes.length, 1);
-  const timelineH  = totalLanes * LANE_H + PAD_TOP * 2;
-
-  // ── Grid lines HTML ────────────────────────────────────────
-  const gridLines = weekLines.map(pct =>
-    `<div style="position:absolute;top:0;bottom:0;left:${pct}%;width:1px;background:#edf0f4;pointer-events:none"></div>`
-  ).join('') + monthLines.map(pct =>
-    `<div style="position:absolute;top:0;bottom:0;left:${pct}%;width:1px;background:#d1d8e2;pointer-events:none"></div>`
-  ).join('');
-
-  // ── Gera HTML ──────────────────────────────────────────────
-  const parts = [`<style>
-    [data-project="${p.id}"] .project-timeline {
-      height: ${timelineH}px;
-    }
-  </style>`, gridLines];
-
-  items.forEach(it => {
-    const topPx = PAD_TOP + it.lane * LANE_H + (LANE_H - BAR_H) / 2;
-    if (it.type === 'milestone') {
-      parts.push(`<div class="milestone" style="left:${it.pos}%;top:${topPx + BAR_H/2}px"
-        data-project="${p.id}" data-phase="${it.ph.id}" title="${escapeHtml(it.title)}"></div>`);
-    } else {
-      parts.push(`<div class="${it.cls}" style="left:${it.left}%;width:${it.width}%;top:${topPx}px"
-        data-project="${p.id}" data-phase="${it.ph.id}"
-        title="${escapeHtml(it.title)}">${it.flagIcons}${escapeHtml(it.ph.name)}</div>`);
+      parts.push(`<div class="${cls}" style="left:${left}%;width:${width}%;top:${topPx}px;height:${BAR_H}px"
+        data-project="${p.id}" data-phase="${ph.id}"
+        title="${escapeHtml(title)}">${flagIcons}${escapeHtml(ph.name)}</div>`);
     }
   });
 
@@ -3168,10 +3132,9 @@ function renderPhaseRow(ph) {
   if (hasTasks) {
     const calculated = phaseRealizedProgress(ph);
     const derivedStatus = progressToStatus(calculated);
-    // Mostra status calculado pelas tarefas como info, mas mantém select editável
-    progressCell = `<td class="progress-cell">
-      ${renderStatusSelect(ph.id, ph.status, 'ph-status', 'phase')}
-      <span style="font-size:9.5px;color:var(--muted);display:block;margin-top:2px" title="Calculado pelas tarefas">tarefas: ${calculated}%</span>
+    progressCell = `<td class="calc-cell" title="Calculado pelas tarefas">
+      <span style="font-size:11px;font-weight:600;color:${statusColor(derivedStatus)}">${statusLabel(derivedStatus)}</span>
+      <span style="color:var(--muted);font-size:10px;display:block">${calculated}%</span>
     </td>`;
   } else {
     progressCell = `<td class="progress-cell">${renderStatusSelect(ph.id, ph.status, 'ph-status', 'phase')}</td>`;
@@ -4839,7 +4802,7 @@ function buildSRProjects() {
     const ends   = phaseDates.filter(x => x.type === 'end').map(x => x.d);
     const projStart = starts.length ? new Date(Math.min(...starts)) : null;
     const projEnd   = ends.length   ? new Date(Math.max(...ends))   : null;
-    const fmtDate = d => d ? d.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' }) : '—';
+    const fmtPeriod = d => d ? d.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' }) : '—';
 
     return {
       id: p.id, name: p.name, portfolioId: p.portfolioId,
@@ -4847,8 +4810,8 @@ function buildSRProjects() {
       sponsor: p.sponsor || '', company: p.company || '',
       technology: p.technology || '',
       businessCapabilities: p.businessCapabilities || '',
-      projStart: fmtDate(projStart),
-      projEnd:   fmtDate(projEnd),
+      projStart: fmtPeriod(projStart),
+      projEnd:   fmtPeriod(projEnd),
       status: p.status || 'gray', statusExplanation: p.statusExplanation || '',
       progress: prog, flags: allFlags, nextMilestone: nextMs,
       srHighlight: p.srHighlight || '',
