@@ -3168,9 +3168,10 @@ function renderPhaseRow(ph) {
   if (hasTasks) {
     const calculated = phaseRealizedProgress(ph);
     const derivedStatus = progressToStatus(calculated);
-    progressCell = `<td class="calc-cell" title="Calculado pelas tarefas">
-      <span style="font-size:11px;font-weight:600;color:${statusColor(derivedStatus)}">${statusLabel(derivedStatus)}</span>
-      <span style="color:var(--muted);font-size:10px;display:block">${calculated}%</span>
+    // Mostra status calculado pelas tarefas como info, mas mantém select editável
+    progressCell = `<td class="progress-cell">
+      ${renderStatusSelect(ph.id, ph.status, 'ph-status', 'phase')}
+      <span style="font-size:9.5px;color:var(--muted);display:block;margin-top:2px" title="Calculado pelas tarefas">tarefas: ${calculated}%</span>
     </td>`;
   } else {
     progressCell = `<td class="progress-cell">${renderStatusSelect(ph.id, ph.status, 'ph-status', 'phase')}</td>`;
