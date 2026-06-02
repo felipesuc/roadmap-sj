@@ -2946,8 +2946,9 @@ function renderBars(p, range) {
       if (parseDate(ph.replannedStart) || parseDate(ph.replannedEnd)) cls += ' replanned';
 
       const rp = phaseRealizedProgress(ph);
+      const statusMap = { not_started: 'Não iniciado', in_progress: 'Iniciado', ready_to_validate: 'Pronto p/ validação', validating: 'Validando', done: 'Pronto' };
       const tasksList = (ph.tasks||[]).length
-        ? '\n─────────────────\n' + ph.tasks.map(t => '· ' + t.name).join('\n')
+        ? '\n─────────────────\n' + ph.tasks.map(t => `· ${t.name}: ${statusMap[t.status] || 'Não iniciado'}`).join('\n')
         : '';
       const title = `${ph.name} (${rp}%)${flagNames}\n` +
         `Planejado: ${fmtDate(ph.plannedStart)} → ${fmtDate(ph.plannedEnd)}` +
@@ -5384,26 +5385,35 @@ function initBarTooltip() {
 // PAN — arrastar o timeline com mouse/touch
 // ============================================================
 (function() {
-  let wrap, isPanning = false, startX = 0, startY = 0, sl = 0, st = 0;
+  let wrap, isPanning = false, pendingPan = false, startX = 0, startY = 0, sl = 0, st = 0;
+  const PAN_THRESHOLD = 5; // px mínimos para ativar pan
   function init() {
     wrap = document.getElementById('timeline-wrap');
     if (!wrap) return;
     wrap.addEventListener('mousedown', e => {
       if (e.button !== 0) return;
       if (e.target.closest('button,input,select,textarea,.phase-bar,.milestone,.flag-pill,.icon-btn,.proj-header,.proj-actions')) return;
-      isPanning = true;
+      pendingPan = true;
+      isPanning = false;
       startX = e.clientX; startY = e.clientY;
       sl = wrap.scrollLeft; st = wrap.scrollTop;
-      wrap.classList.add('is-panning');
       e.preventDefault();
     });
     document.addEventListener('mousemove', e => {
-      if (!isPanning) return;
-      wrap.scrollLeft = sl - (e.clientX - startX);
-      wrap.scrollTop  = st - (e.clientY - startY);
+      if (!pendingPan && !isPanning) return;
+      const dx = Math.abs(e.clientX - startX);
+      const dy = Math.abs(e.clientY - startY);
+      if (!isPanning && (dx > PAN_THRESHOLD || dy > PAN_THRESHOLD)) {
+        isPanning = true;
+        wrap.classList.add('is-panning');
+      }
+      if (isPanning) {
+        wrap.scrollLeft = sl - (e.clientX - startX);
+        wrap.scrollTop  = st - (e.clientY - startY);
+      }
     });
     document.addEventListener('mouseup', () => {
-      if (!isPanning) return;
+      pendingPan = false;
       isPanning = false;
       wrap.classList.remove('is-panning');
     });
