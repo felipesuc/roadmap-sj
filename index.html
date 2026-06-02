@@ -1792,14 +1792,14 @@
 <div class="tab-panel" id="panel-kanban">
   <div class="kb-wrap">
     <div class="kb-topbar">
-      <h2>🗂 Kanban — Fases &amp; Tarefas</h2>
+      <h2>🗂 Kanban — Entregas &amp; Tarefas</h2>
       <div class="kb-filters">
         <select id="kb-filter-project" onchange="renderKanban()">
           <option value="">Todos os projetos</option>
         </select>
         <select id="kb-filter-type" onchange="renderKanban()">
-          <option value="">Fases e Tarefas</option>
-          <option value="phase">Só Fases</option>
+          <option value="">Entregas e Tarefas</option>
+          <option value="phase">Só Entregas</option>
           <option value="task">Só Tarefas</option>
         </select>
       </div>
@@ -1827,7 +1827,7 @@
 <div class="modal-backdrop" id="phases-modal">
   <div class="modal">
     <div class="modal-header">
-      <h2 id="phm-title">Fases do Projeto</h2>
+      <h2 id="phm-title">Entregas do Projeto</h2>
       <button class="close" data-close="phases-modal">✕</button>
     </div>
     <div class="modal-body" id="phm-body"></div>
@@ -2800,7 +2800,7 @@ function renderProjectRow(p, range) {
           </div>
 
           <div class="proj-actions">
-            <button class="secondary" data-manage-phases="${p.id}">📋 Fases & Tarefas</button>
+            <button class="secondary" data-manage-phases="${p.id}">📋 Entregas & Tarefas</button>
             <button class="ghost" data-assign-project="${p.id}" title="Atribuir a um portfólio/programa">📁 Atribuir</button>
 
           </div>
@@ -3023,7 +3023,7 @@ function newProject() {
 }
 
 async function deleteProject(pid) {
-  const ok = await confirmDanger('Excluir este projeto e todas as suas fases e tarefas? Esta ação não pode ser desfeita.', 'Excluir Projeto');
+  const ok = await confirmDanger('Excluir este projeto e todas as suas entregas e tarefas? Esta ação não pode ser desfeita.', 'Excluir Projeto');
   if (!ok) return;
   snapshot();
   state.projects = state.projects.filter(p => p.id !== pid);
@@ -3077,7 +3077,7 @@ function openPhasesModal(pid) {
   const p = state.projects.find(x => x.id === pid);
   if (!p) return;
   currentProjectId = pid;
-  document.getElementById('phm-title').textContent = 'Fases — ' + (p.name || 'sem nome');
+  document.getElementById('phm-title').textContent = 'Entregas — ' + (p.name || 'sem nome');
   renderPhasesModal();
   document.getElementById('phases-modal').classList.add('open');
 }
@@ -3089,8 +3089,8 @@ function renderPhasesModal() {
 
   body.innerHTML = `
     <div class="section-title">
-      Fases, Marcos e Flags
-      <button class="secondary" id="btn-add-phase">+ Adicionar Fase</button>
+      Entregas, Marcos e Flags
+      <button class="secondary" id="btn-add-phase">+ Adicionar Entrega</button>
       <button class="ghost" id="btn-sort-phases" title="Ordenar fases por data planejada de início">↕ Ordenar por Data</button>
     </div>
     <div class="table-scroll">
@@ -3102,7 +3102,7 @@ function renderPhasesModal() {
         </colgroup>
         <thead>
           <tr>
-            <th rowspan="2">Nome da Fase</th>
+            <th rowspan="2">Nome da Entrega</th>
             <th rowspan="2" title="Marca este item como Marco (◆) no roadmap">Marco</th>
             <th rowspan="2">Flags</th>
             <th rowspan="2" title="0 / 25 / 50 / 75 / 100%">Progresso</th>
@@ -3135,7 +3135,7 @@ function renderPhasesModal() {
   document.getElementById('btn-add-phase').onclick = () => {
     snapshot();
     p.phases.push({
-      id: uid(), name: 'Nova Fase', flagIds: [], isMilestone: false,
+      id: uid(), name: 'Nova Entrega', flagIds: [], isMilestone: false,
       plannedStart:'', plannedEnd:'', replannedStart:'', replannedEnd:'',
       actualStart:'', actualEnd:'', progress: 0, status: 'not_started', tasks: []
     });
@@ -3154,7 +3154,7 @@ function renderPhasesModal() {
     save();
     renderPhasesModal();
     render();
-    toast('Fases ordenadas por data planejada de início ↑');
+    toast('Entregas ordenadas por data planejada de início ↑');
   };
 }
 
@@ -3714,7 +3714,7 @@ function removeFlagFromTarget(targetId, kind, flagId) {
 }
 
 async function deleteFlag(flagId) {
-  const ok = await confirmDanger('Excluir esta flag? Ela será removida de todas as fases e tarefas que a usam.', 'Excluir Flag');
+  const ok = await confirmDanger('Excluir esta flag? Ela será removida de todas as entregas e tarefas que a usam.', 'Excluir Flag');
   if (!ok) return;
   snapshot();
   state.flags = state.flags.filter(f => f.id !== flagId);
@@ -3984,8 +3984,8 @@ function downloadXLSX() {
   state.projects.forEach(p => (p.phases||[]).forEach(ph => {
     phaseRows.push({
       'ID Projeto': p.id,
-      'ID Fase': ph.id,
-      'Nome da Fase': ph.name,
+      'ID Entrega': ph.id,
+      'Nome da Entrega': ph.name,
       'Marco': ph.isMilestone ? 'Sim' : 'Não',
       'Flags': flagNames(ph.flagIds),
       'IDs Flags': (ph.flagIds||[]).join('; '),
@@ -3999,21 +3999,21 @@ function downloadXLSX() {
     });
   }));
   if (!phaseRows.length) phaseRows.push({
-    'ID Projeto':'','ID Fase':'','Nome da Fase':'','Marco':'Não','Flags':'','IDs Flags':'','Progresso %':0,
+    'ID Projeto':'','ID Entrega':'','Nome da Entrega':'','Marco':'Não','Flags':'','IDs Flags':'','Progresso %':0,
     'Início Planejado':'','Fim Planejado':'',
     'Início Replanejado':'','Fim Replanejado':'',
     'Início Realizado':'','Fim Realizado':''
   });
   const ws2 = XLSX.utils.json_to_sheet(phaseRows);
   ws2['!cols'] = [{wch:12},{wch:12},{wch:28},{wch:8},{wch:30},{wch:25},{wch:12},{wch:14},{wch:14},{wch:16},{wch:16},{wch:14},{wch:14}];
-  XLSX.utils.book_append_sheet(wb, ws2, 'Fases');
+  XLSX.utils.book_append_sheet(wb, ws2, 'Entregas');
 
   // --- TAREFAS sheet ---
   const taskRows = [];
   state.projects.forEach(p => (p.phases||[]).forEach(ph => (ph.tasks||[]).forEach(t => {
     taskRows.push({
       'ID Projeto': p.id,
-      'ID Fase': ph.id,
+      'ID Entrega': ph.id,
       'ID Tarefa': t.id,
       'Nome da Tarefa': t.name,
       'Flags': flagNames(t.flagIds),
@@ -4028,7 +4028,7 @@ function downloadXLSX() {
     });
   })));
   if (!taskRows.length) taskRows.push({
-    'ID Projeto':'','ID Fase':'','ID Tarefa':'','Nome da Tarefa':'','Flags':'','IDs Flags':'','Progresso %':0,
+    'ID Projeto':'','ID Entrega':'','ID Tarefa':'','Nome da Tarefa':'','Flags':'','IDs Flags':'','Progresso %':0,
     'Início Planejado':'','Fim Planejado':'',
     'Início Replanejado':'','Fim Replanejado':'',
     'Início Realizado':'','Fim Realizado':''
@@ -4091,7 +4091,7 @@ function uploadXLSX(file) {
       snapshot();
 
       const projRows  = XLSX.utils.sheet_to_json(projSheet, { defval:'' });
-      const phaseRows = wb.Sheets['Fases']      ? XLSX.utils.sheet_to_json(wb.Sheets['Fases'],      { defval:'' }) : [];
+      const phaseRows = wb.Sheets['Entregas']      ? XLSX.utils.sheet_to_json(wb.Sheets['Entregas'],      { defval:'' }) : [];
       const taskRows  = wb.Sheets['Tarefas']    ? XLSX.utils.sheet_to_json(wb.Sheets['Tarefas'],    { defval:'' }) : [];
       const portRows  = wb.Sheets['Portfólios'] ? XLSX.utils.sheet_to_json(wb.Sheets['Portfólios'], { defval:'' }) : [];
       const flagRows  = wb.Sheets['Flags']      ? XLSX.utils.sheet_to_json(wb.Sheets['Flags'],      { defval:'' }) : [];
@@ -4162,7 +4162,7 @@ function uploadXLSX(file) {
       phaseRows.forEach(r => {
         const pid = String(r['ID Projeto']||'');
         if (!projMap[pid]) return;
-        const phid = String(r['ID Fase'] || uid());
+        const phid = String(r['ID Entrega'] || uid());
         // Parse flags: prefer "IDs Flags" (semicolon-separated), else fallback to "Flags" (names)
         let flagIds = [];
         const idsRaw = String(r['IDs Flags']||'').trim();
@@ -4185,7 +4185,7 @@ function uploadXLSX(file) {
 
         const ph = {
           id: phid,
-          name: String(r['Nome da Fase']||''),
+          name: String(r['Nome da Entrega']||''),
           flagIds: flagIds.filter(id => newFlags.find(f => f.id === id)),
           isMilestone: isMarco,
           progress: normalizeProgress(r['Progresso %']),
@@ -4203,7 +4203,7 @@ function uploadXLSX(file) {
 
       // TASKS
       taskRows.forEach(r => {
-        const phid = String(r['ID Fase']||'');
+        const phid = String(r['ID Entrega']||'');
         if (!phaseMap[phid]) return;
         let flagIds = [];
         const idsRaw = String(r['IDs Flags']||'').trim();
@@ -4394,7 +4394,7 @@ document.addEventListener('click', e => {
   if (delPh) {
     e.stopPropagation();
     const phId = delPh.dataset.delPhase;
-    confirmDanger('Excluir esta fase e todas as suas tarefas?', 'Excluir Fase').then(ok => {
+    confirmDanger('Excluir esta entrega e todas as suas tarefas?', 'Excluir Entrega').then(ok => {
       if (!ok) return;
       const p = state.projects.find(x => x.id === currentProjectId);
       if (p) {
