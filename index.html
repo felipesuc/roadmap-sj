@@ -509,14 +509,63 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     filter: brightness(1.08);
   }
+
+  /* ── Tooltip customizado ── */
+  #bar-tooltip {
+    position: fixed;
+    z-index: 9999;
+    background: #1a2e4a;
+    color: #e8edf5;
+    border: 1px solid rgba(255,193,7,0.4);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 11.5px;
+    line-height: 1.5;
+    max-width: 280px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    pointer-events: none;
+    display: none;
+  }
+  #bar-tooltip .tt-title {
+    font-weight: 700;
+    font-size: 12px;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  #bar-tooltip .tt-dates {
+    color: var(--yellow);
+    font-size: 10.5px;
+    margin-bottom: 6px;
+  }
+  #bar-tooltip .tt-tasks-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 4px;
+  }
+  #bar-tooltip .tt-task {
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.85);
+    padding: 2px 0;
+  }
+  #bar-tooltip .tt-task::before {
+    content: '·';
+    color: var(--yellow);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
   /* Status-based bar colors (primary logic) */
   .phase-bar.status-not_started     { background: #9ca3af; border-color: #6b7280; color: #fff; }
   .phase-bar.status-in_progress     { background: #3b82f6; border-color: #1d4ed8; color: #fff; }
   .phase-bar.status-ready_to_validate { background: #f59e0b; border-color: #d97706; color: #fff; }
   .phase-bar.status-validating      { background: #8b5cf6; border-color: #6d28d9; color: #fff; }
   .phase-bar.status-done            { background: #22c55e; border-color: #15803d; color: #fff; }
-  /* Dev-start flag override */
-  .phase-bar.dev-start { background: var(--yellow); color: var(--navy); border-color: var(--yellow-dark); font-weight: 600; }
+  /* Dev-start: apenas ícone na barra, sem override de cor */
+  .phase-bar.dev-start { border-top: 3px solid var(--yellow-dark); }
   /* Replanned: hatched pattern over status color */
   .phase-bar.replanned { opacity: 0.85; }
   .milestone {
@@ -1643,6 +1692,8 @@
     <span class="badge">Gestão de Projetos</span>
   </div>
 </header>
+
+<div id="bar-tooltip"></div>
 
 <nav class="tab-nav">
   <button class="tab-btn active" id="tab-roadmap" onclick="switchTab('roadmap')">📅 Roadmap</button>
@@ -2895,10 +2946,14 @@ function renderBars(p, range) {
       if (parseDate(ph.replannedStart) || parseDate(ph.replannedEnd)) cls += ' replanned';
 
       const rp = phaseRealizedProgress(ph);
+      const tasksList = (ph.tasks||[]).length
+        ? '\n─────────────────\n' + ph.tasks.map(t => '· ' + t.name).join('\n')
+        : '';
       const title = `${ph.name} (${rp}%)${flagNames}\n` +
         `Planejado: ${fmtDate(ph.plannedStart)} → ${fmtDate(ph.plannedEnd)}` +
         (ph.replannedStart||ph.replannedEnd ? `\nReplanejado: ${fmtDate(ph.replannedStart)} → ${fmtDate(ph.replannedEnd)}` : '') +
-        (ph.actualStart||ph.actualEnd ? `\nRealizado: ${fmtDate(ph.actualStart)} → ${ph.actualEnd ? fmtDate(ph.actualEnd) : 'em curso'}` : '');
+        (ph.actualStart||ph.actualEnd ? `\nRealizado: ${fmtDate(ph.actualStart)} → ${ph.actualEnd ? fmtDate(ph.actualEnd) : 'em curso'}` : '') +
+        tasksList;
 
       parts.push(`<div class="${cls}" style="left:${left}%;width:${width}%;top:${topPx}px;height:${BAR_H}px"
         data-project="${p.id}" data-phase="${ph.id}"
@@ -5257,6 +5312,75 @@ function openIconPicker(btn, flag, row) {
 }
 
 // ============================================================
+// BAR TOOLTIP — hover nas barras mostra detalhes + tarefas
+// ============================================================
+function initBarTooltip() {
+  const tt = document.getElementById('bar-tooltip');
+  if (!tt) return;
+
+  function getPhase(pid, phid) {
+    if (!window.state) return null;
+    const proj = (state.projects || []).find(p => p.id === pid);
+    if (!proj) return null;
+    return (proj.phases || []).find(ph => ph.id === phid) || null;
+  }
+
+  function showTooltip(bar, e) {
+    const pid  = bar.dataset.project;
+    const phid = bar.dataset.phase;
+    if (!pid || !phid) return;
+    const ph = getPhase(pid, phid);
+    if (!ph) return;
+
+    const start = ph.actualStart || ph.replannedStart || ph.plannedStart;
+    const end   = ph.actualEnd   || ph.replannedEnd   || ph.plannedEnd;
+    const dates = (start || end) ? `📅 ${start ? fmtDate(start) : '?'} → ${end ? fmtDate(end) : 'em curso'}` : '';
+
+    const tasks = (ph.tasks || []);
+    const tasksHtml = tasks.length
+      ? `<div class="tt-tasks-label">Tarefas</div>` + tasks.map(t =>
+          `<div class="tt-task">${escapeHtml(t.name)}</div>`).join('')
+      : '';
+
+    tt.innerHTML =
+      `<div class="tt-title">${escapeHtml(ph.name)}</div>` +
+      (dates ? `<div class="tt-dates">${dates}</div>` : '') +
+      tasksHtml;
+
+    tt.style.display = 'block';
+    moveTooltip(e);
+  }
+
+  function moveTooltip(e) {
+    const pad = 14;
+    let x = e.clientX + pad;
+    let y = e.clientY + pad;
+    if (x + 300 > window.innerWidth)  x = e.clientX - 300 - pad;
+    if (y + tt.offsetHeight > window.innerHeight) y = e.clientY - tt.offsetHeight - pad;
+    tt.style.left = x + 'px';
+    tt.style.top  = y + 'px';
+  }
+
+  document.addEventListener('mouseover', e => {
+    const bar = e.target.closest('.phase-bar');
+    if (bar) { showTooltip(bar, e); return; }
+    if (!e.target.closest('#bar-tooltip')) tt.style.display = 'none';
+  });
+  document.addEventListener('mousemove', e => {
+    if (tt.style.display === 'block' && e.target.closest('.phase-bar')) moveTooltip(e);
+  });
+  document.addEventListener('mouseout', e => {
+    const to = e.relatedTarget;
+    if (!to || (!to.closest('.phase-bar') && !to.closest('#bar-tooltip'))) {
+      tt.style.display = 'none';
+    }
+  });
+}
+
+// ============================================================
+// PAN — arrastar o timeline com mouse/touch
+
+// ============================================================
 // PAN — arrastar o timeline com mouse/touch
 // ============================================================
 (function() {
@@ -5307,6 +5431,7 @@ migrateData();
 seedIfEmpty();
 render();
 updateVersionBadge();
+initBarTooltip();
 loadFromSupabase();
 </script>
 </body>
