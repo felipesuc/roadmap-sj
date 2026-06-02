@@ -106,7 +106,7 @@
     position: sticky; left: 0; z-index: 11;
     background: #1a3558;
   }
-  .year-row .years { display: flex; min-width: 1800px; }
+  .year-row .years { display: flex; min-width: 3600px; }
   .year-mark {
     text-align: center; padding: 5px 4px;
     font-size: 11px; font-weight: 700;
@@ -132,7 +132,7 @@
     background: #16304f;
   }
   .timeline-header .col-timeline {
-    flex: 1; position: relative; min-width: 1800px;
+    flex: 1; position: relative; min-width: 3600px;
   }
   .timeline-header { height: 52px; }
   .month-marks { display: flex; flex-direction: column; height: 100%; }
@@ -167,7 +167,7 @@
   }
   .week-cell:last-child { border-right: none; }
 
-  .timeline-header .col-timeline { flex: 1; position: relative; min-width: 1800px; }
+  .timeline-header .col-timeline { flex: 1; position: relative; min-width: 3600px; }
   .timeline-header { height: 52px; }
 
   /* ===== PROJECT ROW ===== */
@@ -175,6 +175,7 @@
     display: flex;
     border-bottom: 1px solid #edf0f4;
     min-height: 84px;
+    min-width: max-content;
     transition: background 0.1s;
   }
   .project-row:hover { background: #fafbfd; }
@@ -186,9 +187,9 @@
     border-right: 1px solid var(--border);
     display: flex; flex-direction: column;
     gap: 6px; font-size: 11.5px;
-    position: sticky; left: 0; z-index: 2;
     background: #fff;
-    position: sticky;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.06);
+    position: relative; z-index: 3;
   }
   .project-row:hover .project-info { background: #fafbfd; }
 
@@ -209,7 +210,8 @@
     display: flex; flex-direction: column;
     padding: 6px 0;
     background: #fafbfc;
-    position: sticky; left: 280px; z-index: 2;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.04);
+    position: relative; z-index: 2;
   }
   .project-row:hover .deliverables-col { background: #f5f7fa; }
   .deliv-item {
@@ -500,7 +502,7 @@
   .project-timeline {
     flex: 1;
     position: relative;
-    min-width: 1800px;
+    min-width: 3600px;
   }
   .project-timeline { min-height: calc(var(--lanes, 1) * 32px + 8px); }
   .phase-bar {
@@ -625,12 +627,13 @@
   /* ===== PORTFOLIO / PROGRAM GROUPS ===== */
   .portfolio-block {
     border-bottom: 2px solid #dde4ee;
+    min-width: max-content;
   }
   .portfolio-block:last-child { border-bottom: none; }
 
   .portfolio-header {
     position: sticky; top: 79px; z-index: 9;
-    min-width: max-content; width: 100%;
+    min-width: max-content;
     background: linear-gradient(to right, #16304f 0%, #2a4a78 100%);
     color: #fff;
     padding: 9px 16px;
@@ -648,7 +651,8 @@
     color: var(--yellow);
   }
   .portfolio-block.collapsed .portfolio-header .toggle-arrow { transform: rotate(-90deg); }
-  .portfolio-block.collapsed .portfolio-body { display: none; }
+  .portfolio-block.collapsed .portfolio-body {
+    min-width: max-content; display: none; }
   .portfolio-header .icon { font-size: 16px; }
   .portfolio-header .name {
     font-size: 14px;
@@ -1351,6 +1355,19 @@
   .icon-picker-item:hover { background: var(--yellow-soft); border-color: var(--yellow); }
   .icon-picker-item.selected { background: var(--yellow-soft); border-color: var(--yellow-dark); }
 
+  .sr-sortable {
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .sr-sortable:hover { background: rgba(255,255,255,0.08); }
+  .sr-sortable .sort-icon { opacity: 0.4; font-size: 10px; margin-left: 2px; }
+  .sr-sortable.sort-asc .sort-icon  { opacity: 1; content: '↑'; }
+  .sr-sortable.sort-asc .sort-icon::before  { content: '↑'; }
+  .sr-sortable.sort-desc .sort-icon::before { content: '↓'; }
+  .sr-sortable.sort-asc .sort-icon,
+  .sr-sortable.sort-desc .sort-icon { opacity: 1; color: var(--yellow); }
+
   /* ===== VERSIONS MODAL ===== */
   .ver-row {
     display: grid;
@@ -1802,14 +1819,14 @@
         <thead>
           <tr>
             <th style="width:18px"></th>
-            <th>Projeto</th>
-            <th>Portfólio</th>
-            <th>Patrocinador</th>
+            <th data-sort="name" class="sr-sortable">Projeto <span class="sort-icon">↕</span></th>
+            <th data-sort="portfolio" class="sr-sortable">Portfólio <span class="sort-icon">↕</span></th>
+            <th data-sort="sponsor" class="sr-sortable">Patrocinador <span class="sort-icon">↕</span></th>
             <th>Capacidades</th>
             <th>Tecnologia</th>
-            <th>Período</th>
-            <th>Farol</th>
-            <th style="min-width:130px">Progresso</th>
+            <th data-sort="period" class="sr-sortable">Período <span class="sort-icon">↕</span></th>
+            <th data-sort="farol" class="sr-sortable">Farol <span class="sort-icon">↕</span></th>
+            <th data-sort="progress" class="sr-sortable" style="min-width:130px">Progresso <span class="sort-icon">↕</span></th>
             <th>Próximo Marco</th>
             <th style="min-width:200px">Comentário</th>
           </tr>
@@ -2704,6 +2721,7 @@ function render() {
   wrap.innerHTML = `<div class="timeline-content-wrap" style="position:relative;min-width:max-content">${html}${buildTodayLine(range)}</div>`;
   wrap.querySelectorAll('textarea.editable').forEach(autoGrow);
   updateUndoButton();
+  setTimeout(freezeColumns, 30);
 }
 
 function renderPortfolioBlock(portfolio, projects, range) {
@@ -4859,6 +4877,7 @@ function renderStatusReport() {
   renderSRKpis(projects);
   renderSRFarolBar(projects);
   renderSRTable(projects, portfolios);
+  initSRSort();
   renderSRMilestones(projects, today);
   renderSRGrid3(highlights, risks, decisions);
 }
@@ -5182,6 +5201,33 @@ function renderSRGrid3(highlights, risks, decisions) {
     card('✅ Destaques do Período', 'green', '✅', highlights, 'Nenhum destaque registrado.') +
     card('⚠️ Riscos Identificados', 'red', '⚠️', risks, 'Nenhum risco ativo.') +
     card('📌 Decisões Pendentes', 'blue', '📌', decisions, 'Nenhuma decisão pendente.');
+}
+
+
+// ============================================================
+// FREEZE COLUNAS — congela projeto e entregas no scroll horizontal
+// ============================================================
+function freezeColumns() {
+  const wrap = document.getElementById('timeline-wrap');
+  if (!wrap) return;
+
+  function onScroll() {
+    const sl = wrap.scrollLeft;
+    // Congela project-info na borda esquerda
+    wrap.querySelectorAll('.project-info').forEach(el => {
+      el.style.transform = `translateX(${sl}px)`;
+    });
+    // Congela deliverables-col logo após project-info
+    wrap.querySelectorAll('.deliverables-col').forEach(el => {
+      el.style.transform = `translateX(${sl}px)`;
+    });
+  }
+
+  // Remove listener antigo se existir
+  if (wrap._freezeScroll) wrap.removeEventListener('scroll', wrap._freezeScroll);
+  wrap._freezeScroll = onScroll;
+  wrap.addEventListener('scroll', onScroll, { passive: true });
+  onScroll(); // aplica imediatamente
 }
 
 // ============================================================
@@ -5617,6 +5663,91 @@ function initBarTooltip() {
   setTimeout(init, 300);
 })();
 
+
+// ============================================================
+// SR TABLE SORT
+// ============================================================
+let _srSortCol = null, _srSortDir = 1;
+
+function initSRSort() {
+  document.querySelectorAll('.sr-sortable').forEach(th => {
+    th.onclick = () => {
+      const col = th.dataset.sort;
+      _srSortDir = (_srSortCol === col) ? _srSortDir * -1 : 1;
+      _srSortCol = col;
+      document.querySelectorAll('.sr-sortable').forEach(t => {
+        t.classList.remove('sort-asc','sort-desc');
+        t.querySelector('.sort-icon').textContent = '↕';
+      });
+      th.classList.add(_srSortDir === 1 ? 'sort-asc' : 'sort-desc');
+      th.querySelector('.sort-icon').textContent = _srSortDir === 1 ? '↑' : '↓';
+      sortSRRows();
+    };
+  });
+}
+
+function sortSRRows() {
+  const tbody = document.getElementById('sr-table-body');
+  if (!tbody || !_srSortCol) return;
+  const farolOrder = { green:1, yellow:2, red:3, gray:4 };
+  const rows = Array.from(tbody.querySelectorAll('tr[data-project-id]'));
+  rows.sort((a, b) => {
+    let va, vb;
+    switch (_srSortCol) {
+      case 'name':
+        va = a.querySelector('.proj-name-cell')?.textContent.trim().toLowerCase()||'';
+        vb = b.querySelector('.proj-name-cell')?.textContent.trim().toLowerCase()||'';
+        return _srSortDir * va.localeCompare(vb,'pt-BR');
+      case 'portfolio':
+        va = a.cells[2]?.textContent.trim().toLowerCase()||'';
+        vb = b.cells[2]?.textContent.trim().toLowerCase()||'';
+        return _srSortDir * va.localeCompare(vb,'pt-BR');
+      case 'sponsor':
+        va = a.cells[3]?.textContent.trim().toLowerCase()||'';
+        vb = b.cells[3]?.textContent.trim().toLowerCase()||'';
+        return _srSortDir * va.localeCompare(vb,'pt-BR');
+      case 'period':
+        va = a.cells[6]?.textContent.trim()||'';
+        vb = b.cells[6]?.textContent.trim()||'';
+        return _srSortDir * va.localeCompare(vb,'pt-BR');
+      case 'farol':
+        return _srSortDir * ((farolOrder[a.dataset.farol]||9)-(farolOrder[b.dataset.farol]||9));
+      case 'progress':
+        va = parseFloat(a.querySelector('.mini-bar-real')?.style.width)||0;
+        vb = parseFloat(b.querySelector('.mini-bar-real')?.style.width)||0;
+        return _srSortDir * (va - vb);
+      default: return 0;
+    }
+  });
+  rows.forEach(r => tbody.appendChild(r));
+}
+
+// ============================================================
+// FREEZE COLUNAS — congela projeto e entregas no scroll horizontal
+// ============================================================
+function freezeColumns() {
+  const wrap = document.getElementById('timeline-wrap');
+  if (!wrap) return;
+
+  function onScroll() {
+    const sl = wrap.scrollLeft;
+    // Congela project-info na borda esquerda
+    wrap.querySelectorAll('.project-info').forEach(el => {
+      el.style.transform = `translateX(${sl}px)`;
+    });
+    // Congela deliverables-col logo após project-info
+    wrap.querySelectorAll('.deliverables-col').forEach(el => {
+      el.style.transform = `translateX(${sl}px)`;
+    });
+  }
+
+  // Remove listener antigo se existir
+  if (wrap._freezeScroll) wrap.removeEventListener('scroll', wrap._freezeScroll);
+  wrap._freezeScroll = onScroll;
+  wrap.addEventListener('scroll', onScroll, { passive: true });
+  onScroll(); // aplica imediatamente
+}
+
 // ============================================================
 // INIT
 // ============================================================
@@ -5626,6 +5757,7 @@ seedIfEmpty();
 render();
 updateVersionBadge();
 initBarTooltip();
+freezeColumns();
 loadFromSupabase();
 </script>
 </body>
