@@ -317,6 +317,13 @@
     font-size: 13.5px;
     padding: 4px 6px;
     width: 100%;
+    word-break: break-word;
+    white-space: normal;
+    height: auto;
+    min-height: 28px;
+    resize: none;
+    overflow: hidden;
+    line-height: 1.4;
   }
   .editable {
     border: 1px solid transparent;
@@ -2727,8 +2734,8 @@ function renderProjectRow(p, range) {
                 title="Clique para alterar o farol (verde → amarelo → vermelho)">
             <span class="dot"></span>${statusLabel}
           </span>
-          <input class="editable proj-name" data-pid="${p.id}" data-field="name"
-                 value="${escapeHtml(p.name)}" placeholder="Nome do projeto">
+          <textarea class="editable proj-name" data-pid="${p.id}" data-field="name"
+                 placeholder="Nome do projeto" rows="1">${escapeHtml(p.name)}</textarea>
           <button class="proj-del-btn" data-del-project="${p.id}" title="Excluir projeto">✕</button>
           <button class="proj-toggle" data-toggle-project="${p.id}"
                   title="${expanded ? 'Recolher detalhes' : 'Expandir detalhes'}">
