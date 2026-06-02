@@ -88,15 +88,25 @@
     background: var(--card);
     border: 1px solid #dde4ee;
     border-radius: 8px;
-    overflow: hidden;
+    overflow: auto;
+    max-height: calc(100vh - 170px);
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    cursor: grab;
+    user-select: none;
   }
-  .year-row { display: flex; background: #1a3558; }
+  .timeline-wrap.is-panning { cursor: grabbing; }
+  .year-row {
+    display: flex; background: #1a3558;
+    position: sticky; top: 0; z-index: 10;
+    min-width: max-content;
+  }
   .year-row .col-info {
     width: 280px; flex-shrink: 0;
     border-right: 1px solid var(--navy-soft);
+    position: sticky; left: 0; z-index: 11;
+    background: #1a3558;
   }
-  .year-row .years { flex: 1; display: flex; min-width: 1800px; }
+  .year-row .years { display: flex; min-width: 1800px; }
   .year-mark {
     text-align: center; padding: 5px 4px;
     font-size: 11px; font-weight: 700;
@@ -107,6 +117,8 @@
   .timeline-header {
     display: flex; background: #16304f; color: #e8edf5;
     border-bottom: 2px solid var(--yellow);
+    position: sticky; top: 27px; z-index: 10;
+    min-width: max-content;
   }
   .timeline-header .col-info {
     width: 280px; padding: 8px 14px;
@@ -116,6 +128,8 @@
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    position: sticky; left: 0; z-index: 11;
+    background: #16304f;
   }
   .timeline-header .col-timeline {
     flex: 1; position: relative; min-width: 1800px;
@@ -171,8 +185,36 @@
     padding: 10px 12px;
     border-right: 1px solid var(--border);
     display: flex; flex-direction: column;
-    gap: 6px;
-    font-size: 11.5px;
+    gap: 6px; font-size: 11.5px;
+    position: sticky; left: 0; z-index: 2;
+    background: #fff;
+  }
+  .project-row:hover .project-info { background: #fafbfd; }
+
+  /* ── Coluna de entregas ── */
+  .deliverables-col {
+    width: 180px; flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    padding: 6px 0;
+    background: #fafbfc;
+    position: sticky; left: 280px; z-index: 2;
+  }
+  .project-row:hover .deliverables-col { background: #f5f7fa; }
+  .deliv-item {
+    display: flex; align-items: center; gap: 6px;
+    padding: 4px 10px;
+    font-size: 10.5px; color: var(--text);
+    border-bottom: 1px solid #f1f3f6;
+    line-height: 1.3;
+  }
+  .deliv-item:last-child { border-bottom: none; }
+  .deliv-item.is-milestone { color: var(--muted); font-style: italic; }
+  .deliv-dot {
+    width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+  }
+  .deliv-label {
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
   }
 
   /* Compact header (always visible) */
@@ -465,19 +507,16 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     filter: brightness(1.08);
   }
-  .phase-bar.dev-start {
-    background: var(--yellow); color: var(--navy);
-    border-color: var(--yellow-dark);
-    font-weight: 600;
-  }
-  .phase-bar.replanned {
-    background: repeating-linear-gradient(
-      45deg, var(--navy-soft), var(--navy-soft) 4px,
-      var(--navy) 4px, var(--navy) 8px
-    );
-  }
-  .phase-bar.actual { background: #1e7a47; border-color: #0d5230; }
-  .phase-bar.dev-start.actual { background: #1e7a47; color: #fff; }
+  /* Status-based bar colors (primary logic) */
+  .phase-bar.status-not_started     { background: #9ca3af; border-color: #6b7280; color: #fff; }
+  .phase-bar.status-in_progress     { background: #3b82f6; border-color: #1d4ed8; color: #fff; }
+  .phase-bar.status-ready_to_validate { background: #f59e0b; border-color: #d97706; color: #fff; }
+  .phase-bar.status-validating      { background: #8b5cf6; border-color: #6d28d9; color: #fff; }
+  .phase-bar.status-done            { background: #22c55e; border-color: #15803d; color: #fff; }
+  /* Dev-start flag override */
+  .phase-bar.dev-start { background: var(--yellow); color: var(--navy); border-color: var(--yellow-dark); font-weight: 600; }
+  /* Replanned: hatched pattern over status color */
+  .phase-bar.replanned { opacity: 0.85; }
   .milestone {
     position: absolute; top: 50%;
     width: 14px; height: 14px;
@@ -500,14 +539,12 @@
   }
   .legend .item { display: flex; align-items: center; gap: 5px; }
   .legend .swatch { width: 16px; height: 10px; border-radius: 2px; display: inline-block; }
-  .legend .swatch.planned { background: var(--navy-soft); border: 1px solid var(--navy);}
-  .legend .swatch.replanned {
-    background: repeating-linear-gradient(45deg,
-      var(--navy-soft), var(--navy-soft) 2px,
-      var(--navy) 2px, var(--navy) 4px);
-  }
-  .legend .swatch.actual { background: #1e7a47; }
-  .legend .swatch.dev { background: var(--yellow); border: 1px solid var(--yellow-dark);}
+  .legend .swatch.s-not_started      { background: #9ca3af; border: 1px solid #6b7280; }
+  .legend .swatch.s-in_progress      { background: #3b82f6; border: 1px solid #1d4ed8; }
+  .legend .swatch.s-ready_to_validate{ background: #f59e0b; border: 1px solid #d97706; }
+  .legend .swatch.s-validating       { background: #8b5cf6; border: 1px solid #6d28d9; }
+  .legend .swatch.s-done             { background: #22c55e; border: 1px solid #15803d; }
+  .legend .swatch.dev                { background: var(--yellow); border: 1px solid var(--yellow-dark); }
   .legend .ms {
     width: 10px; height: 10px;
     background: var(--yellow);
@@ -523,6 +560,8 @@
   .portfolio-block:last-child { border-bottom: none; }
 
   .portfolio-header {
+    position: sticky; top: 79px; z-index: 9;
+    min-width: max-content; width: 100%;
     background: linear-gradient(to right, #16304f 0%, #2a4a78 100%);
     color: #fff;
     padding: 9px 16px;
@@ -747,26 +786,23 @@
   /* ===== FLAGS MODAL CONTENT ===== */
   .flag-list-row {
     display: grid;
-    grid-template-columns: 56px 1fr 100px 50px;
-    gap: 8px;
+    grid-template-columns: 120px 1fr 36px 40px 36px;
+    gap: 6px;
     align-items: center;
     padding: 6px 4px;
     border-bottom: 1px solid var(--border);
   }
   .flag-list-row:last-child { border-bottom: none; }
   .flag-list-row .preview {
-    display: flex; align-items: center; justify-content: center;
+    display: flex; align-items: center;
   }
   .flag-list-row input[type=color] {
-    width: 100%; height: 30px;
+    width: 40px; height: 30px;
     border: 1px solid var(--border);
     border-radius: 3px;
     cursor: pointer;
     background: #fff;
-  }
-  .flag-list-row .icon-input {
-    text-align: center;
-    font-size: 16px;
+    padding: 2px;
   }
 
   /* ===== PORTFOLIO MODAL CONTENT ===== */
@@ -1202,6 +1238,50 @@
     .kb-board { grid-template-columns: repeat(2, 1fr); }
   }
 
+  input[type="date"] {
+    font-family: inherit;
+  }
+  /* Força exibição no padrão brasileiro em navegadores compatíveis */
+  input[type="date"]::-webkit-datetime-edit-fields-wrapper { direction: ltr; }
+
+  /* ===== ICON PICKER ===== */
+  .icon-picker-popup {
+    position: fixed;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    z-index: 9999;
+    padding: 10px;
+    width: 320px;
+  }
+  .icon-picker-search {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+  .icon-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+    max-height: 220px;
+    overflow-y: auto;
+  }
+  .icon-picker-item {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    border: 1px solid transparent;
+    transition: background 0.1s;
+  }
+  .icon-picker-item:hover { background: var(--yellow-soft); border-color: var(--yellow); }
+  .icon-picker-item.selected { background: var(--yellow-soft); border-color: var(--yellow-dark); }
+
   /* ===== VERSIONS MODAL ===== */
   .ver-row {
     display: grid;
@@ -1583,10 +1663,11 @@
   </label>
   <div class="spacer"></div>
   <div class="legend">
-    <div class="item"><span class="swatch planned"></span>Planejado</div>
-    <div class="item"><span class="swatch replanned"></span>Replanejado</div>
-    <div class="item"><span class="swatch actual"></span>Realizado</div>
-    <div class="item"><span class="swatch dev"></span>🚀 Início Dev.</div>
+    <div class="item"><span class="swatch s-not_started"></span>Não iniciado</div>
+    <div class="item"><span class="swatch s-in_progress"></span>Iniciado</div>
+    <div class="item"><span class="swatch s-ready_to_validate"></span>Pronto p/ validação</div>
+    <div class="item"><span class="swatch s-validating"></span>Validando</div>
+    <div class="item"><span class="swatch s-done"></span>Pronto</div>
     <div class="item"><span class="ms"></span>Marco</div>
   </div>
 </div>
@@ -2304,6 +2385,12 @@ function parseDate(s) {
   const d = new Date(s + 'T00:00:00');
   return isNaN(d) ? null : d;
 }
+// Formata yyyy-mm-dd → dd/mm/yyyy para exibição
+function fmtDate(s) {
+  if (!s) return '?';
+  const m = String(s).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : s;
+}
 function fmtMonth(d) {
   const m = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
   return m[d.getMonth()];
@@ -2481,10 +2568,12 @@ function render() {
   let html = `
     <div class="year-row">
       <div class="col-info"></div>
+      <div class="col-info" style="width:180px;border-right:1px solid var(--navy-soft)"></div>
       <div class="years">${yearsHtml}</div>
     </div>
     <div class="timeline-header">
       <div class="col-info">Projeto</div>
+      <div class="col-info" style="width:180px;font-size:10.5px;text-align:center;border-right:1px solid var(--navy-soft)">Entregas</div>
       <div class="col-timeline">
         <div class="month-marks">
           <div class="month-marks-row">${monthMarks.join('')}</div>
@@ -2519,7 +2608,7 @@ function render() {
     ungrouped.forEach(p => { html += renderProjectRow(p, range); });
   }
 
-  wrap.innerHTML = html;
+  wrap.innerHTML = `<div class="timeline-content-wrap" style="position:relative;min-width:max-content">${html}${buildTodayLine(range)}</div>`;
   wrap.querySelectorAll('textarea.editable').forEach(autoGrow);
   updateUndoButton();
 }
@@ -2664,13 +2753,76 @@ function renderProjectRow(p, range) {
           </div>
         </div>
       </div>
+      ${buildDeliverableCol(p)}
       <div class="project-timeline">${bars}</div>
     </div>
   `;
 }
 
+function buildDeliverableCol(p) {
+  const phases = p.phases || [];
+  if (!phases.length) return '<div class="deliverables-col"></div>';
+  const items = phases.map(ph => {
+    if (ph.isMilestone) {
+      return `<div class="deliv-item is-milestone">
+        <span class="deliv-dot" style="background:var(--yellow)"></span>
+        <span class="deliv-label" title="◆ ${escapeHtml(ph.name)}">◆ ${escapeHtml(ph.name)}</span>
+      </div>`;
+    }
+    const col = statusColor(ph.status || 'not_started');
+    return `<div class="deliv-item">
+      <span class="deliv-dot" style="background:${col}"></span>
+      <span class="deliv-label" title="${escapeHtml(ph.name)}">${escapeHtml(ph.name)}</span>
+    </div>`;
+  }).join('');
+  return `<div class="deliverables-col">${items}</div>`;
+}
+
 function getFlag(flagId) {
   return (state.flags || []).find(f => f.id === flagId);
+}
+
+function buildTodayLine(range) {
+  const todayPct = dateToPercent(new Date(), range);
+  if (todayPct <= 0 || todayPct >= 100) return '';
+
+  // O container é position:relative e tem largura = colunas fixas + timeline
+  // As colunas fixas (Projeto 280px + Entregas 180px) = 460px
+  // O timeline ocupa o restante (min 1800px) via flex
+  // Posicionamos a linha usando a mesma lógica de %: ela deve ficar 
+  // todayPct% dentro da área do timeline, que começa após as 460px fixas.
+  // Como o container tem min-width:max-content não sabemos o px exato em JS,
+  // então usamos um elemento que se posiciona como o timeline e usa left em %.
+  // Solução: colocar a linha dentro de um div que replica o offset das colunas.
+
+  return `
+    <div style="position:absolute;top:0;bottom:0;left:0;right:0;pointer-events:none;z-index:20;overflow:hidden">
+      <div style="
+        position:absolute;top:0;bottom:0;
+        left:460px;right:0;
+        pointer-events:none;
+      ">
+        <div style="
+          position:absolute;top:0;bottom:0;
+          left:${todayPct}%;
+          width:1px;
+          background:repeating-linear-gradient(to bottom,#ef4444 0,#ef4444 6px,transparent 6px,transparent 12px);
+          opacity:0.55;
+          pointer-events:none;
+        "></div>
+        <div style="
+          position:absolute;
+          top:79px;
+          left:${todayPct}%;
+          transform:translateX(-50%);
+          background:#ef4444;color:#fff;
+          font-size:8px;font-weight:800;
+          padding:2px 5px;border-radius:3px;
+          opacity:0.75;pointer-events:none;
+          white-space:nowrap;letter-spacing:0.5px;
+        ">HOJE</div>
+      </div>
+    </div>`;
 }
 
 function renderBars(p, range) {
@@ -2711,9 +2863,9 @@ function renderBars(p, range) {
       if (!d) return;
       const pos = dateToPercent(d, range);
       const title = `${ph.name} (Marco)${flagNames}\n` +
-        (ph.plannedStart   ? `Planejado: ${ph.plannedStart}\n`   : '') +
-        (ph.replannedStart ? `Replanejado: ${ph.replannedStart}\n` : '') +
-        (ph.actualStart    ? `Realizado: ${ph.actualStart}`       : '');
+        (ph.plannedStart   ? `Planejado: ${fmtDate(ph.plannedStart)}\n`   : '') +
+        (ph.replannedStart ? `Replanejado: ${fmtDate(ph.replannedStart)}\n` : '') +
+        (ph.actualStart    ? `Realizado: ${fmtDate(ph.actualStart)}`       : '');
       items.push({ type:'milestone', pos, ph, title });
     } else {
       const useStart = parseDate(ph.actualStart) || parseDate(ph.replannedStart) || parseDate(ph.plannedStart);
@@ -2724,15 +2876,19 @@ function renderBars(p, range) {
       const width = Math.max(right - left, 0.8);
 
       let cls = 'phase-bar';
-      if (parseDate(ph.actualStart) || parseDate(ph.actualEnd)) cls += ' actual';
-      else if (parseDate(ph.replannedStart) || parseDate(ph.replannedEnd)) cls += ' replanned';
+      // Cor baseada no status da entrega
+      const phStatus = ph.status || 'not_started';
+      cls += ` status-${phStatus}`;
+      // Flag dev-start sobrescreve a cor
       if (flagIds.includes('flag-dev')) cls += ' dev-start';
+      // Replanejado: reduz opacidade
+      if (parseDate(ph.replannedStart) || parseDate(ph.replannedEnd)) cls += ' replanned';
 
       const rp    = phaseRealizedProgress(ph);
       const title = `${ph.name} (${rp}%)${flagNames}\n` +
-        `Planejado: ${ph.plannedStart||'?'} → ${ph.plannedEnd||'?'}` +
-        (ph.replannedStart||ph.replannedEnd ? `\nReplanejado: ${ph.replannedStart||'?'} → ${ph.replannedEnd||'?'}` : '') +
-        (ph.actualStart||ph.actualEnd       ? `\nRealizado: ${ph.actualStart||'?'} → ${ph.actualEnd||'em curso'}` : '');
+        `Planejado: ${fmtDate(ph.plannedStart)} → ${fmtDate(ph.plannedEnd)}` +
+        (ph.replannedStart||ph.replannedEnd ? `\nReplanejado: ${fmtDate(ph.replannedStart)} → ${fmtDate(ph.replannedEnd)}` : '') +
+        (ph.actualStart||ph.actualEnd       ? `\nRealizado: ${fmtDate(ph.actualStart)} → ${(ph.actualEnd ? fmtDate(ph.actualEnd) : 'em curso')}` : '');
 
       items.push({ type:'bar', left, width, cls, ph, flagIcons, title });
     }
@@ -2990,7 +3146,7 @@ function renderFlagPills(target, kind) {
     const f = getFlag(fid);
     if (!f) return '';
     return `<span class="flag-pill" style="background:${f.color}22;color:${f.color};border-color:${f.color}66">
-      <span class="pill-icon">${f.icon||'🏷'}</span>${escapeHtml(f.name)}
+      <span class="pill-icon">${f.icon||'🏷'}</span><span class="pill-name">${escapeHtml(f.name)}</span>
       <span class="pill-x" data-remove-flag="${f.id}" data-kind="${kind}" data-target="${target.id}" title="Remover">×</span>
     </span>`;
   }).join('');
@@ -3039,12 +3195,12 @@ function renderPhaseRow(ph) {
       <td>${renderFlagPills(ph, 'phase')}</td>
       ${progressCell}
       <td class="calc-cell" title="Baseado na data atual">${predicted}%</td>
-      <td class="dates"><input type="date" class="ph-pstart" data-phase="${ph.id}" value="${ph.plannedStart||''}"></td>
-      <td class="dates"><input type="date" class="ph-pend" data-phase="${ph.id}" value="${ph.plannedEnd||''}"></td>
-      <td><input type="date" class="ph-rstart" data-phase="${ph.id}" value="${ph.replannedStart||''}"></td>
-      <td><input type="date" class="ph-rend" data-phase="${ph.id}" value="${ph.replannedEnd||''}"></td>
-      <td class="dates"><input type="date" class="ph-astart" data-phase="${ph.id}" value="${ph.actualStart||''}"></td>
-      <td class="dates"><input type="date" class="ph-aend" data-phase="${ph.id}" value="${ph.actualEnd||''}"></td>
+      <td class="dates"><input type="date" lang="pt-BR" class="ph-pstart" data-phase="${ph.id}" value="${ph.plannedStart||''}"></td>
+      <td class="dates"><input type="date" lang="pt-BR" class="ph-pend" data-phase="${ph.id}" value="${ph.plannedEnd||''}"></td>
+      <td><input type="date" lang="pt-BR" class="ph-rstart" data-phase="${ph.id}" value="${ph.replannedStart||''}"></td>
+      <td><input type="date" lang="pt-BR" class="ph-rend" data-phase="${ph.id}" value="${ph.replannedEnd||''}"></td>
+      <td class="dates"><input type="date" lang="pt-BR" class="ph-astart" data-phase="${ph.id}" value="${ph.actualStart||''}"></td>
+      <td class="dates"><input type="date" lang="pt-BR" class="ph-aend" data-phase="${ph.id}" value="${ph.actualEnd||''}"></td>
       <td class="actions">
         <button class="icon-btn" data-edit-phase="${ph.id}" title="Editar tarefas">📋</button>
         <button class="icon-btn del" data-del-phase="${ph.id}" title="Excluir">🗑</button>
@@ -3210,12 +3366,12 @@ function renderTaskRow(t) {
       <td>${renderFlagPills(t, 'task')}</td>
       <td class="progress-cell">${renderStatusSelect(t.id, t.status, 't-status', 'task')}</td>
       <td class="calc-cell">${predicted}%</td>
-      <td class="dates"><input type="date" class="t-pstart" value="${t.plannedStart||''}"></td>
-      <td class="dates"><input type="date" class="t-pend" value="${t.plannedEnd||''}"></td>
-      <td><input type="date" class="t-rstart" value="${t.replannedStart||''}"></td>
-      <td><input type="date" class="t-rend" value="${t.replannedEnd||''}"></td>
-      <td class="dates"><input type="date" class="t-astart" value="${t.actualStart||''}"></td>
-      <td class="dates"><input type="date" class="t-aend" value="${t.actualEnd||''}"></td>
+      <td class="dates"><input type="date" lang="pt-BR" class="t-pstart" value="${t.plannedStart||''}"></td>
+      <td class="dates"><input type="date" lang="pt-BR" class="t-pend" value="${t.plannedEnd||''}"></td>
+      <td><input type="date" lang="pt-BR" class="t-rstart" value="${t.replannedStart||''}"></td>
+      <td><input type="date" lang="pt-BR" class="t-rend" value="${t.replannedEnd||''}"></td>
+      <td class="dates"><input type="date" lang="pt-BR" class="t-astart" value="${t.actualStart||''}"></td>
+      <td class="dates"><input type="date" lang="pt-BR" class="t-aend" value="${t.actualEnd||''}"></td>
       <td class="actions"><button class="icon-btn del" data-del-task="${t.id}" title="Excluir">🗑</button></td>
     </tr>
   `;
@@ -3377,20 +3533,21 @@ function renderFlagsModal() {
     </div>
     <div style="background:#fafbfc;padding:8px;border-radius:4px;border:1px solid var(--border)">
       <div class="flag-list-row" style="background:var(--navy);color:#fff;font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:0.6px;padding:6px 4px">
-        <div>Preview</div><div>Nome</div><div>Cor</div><div></div>
-      </div>
-      ${flags.map(f => `
+        <div>Preview</div><div>Nome</div><div>Ícone</div><div>Cor</div><div></div>
+      </div>      ${flags.map(f => `
         <div class="flag-list-row" data-flag="${f.id}">
           <div class="preview">
             <span class="flag-pill" style="background:${f.color}22;color:${f.color};border-color:${f.color}66">
-              <span class="pill-icon">${f.icon||'🏷'}</span>${escapeHtml(f.name)}
+              <span class="pill-icon">${f.icon||'🏷'}</span><span class="pill-name">${escapeHtml(f.name)}</span>
             </span>
           </div>
-          <div style="display:flex;gap:4px">
-            <input type="text" class="fl-icon icon-input" value="${escapeHtml(f.icon||'')}"
-                   maxlength="3" style="width:36px" placeholder="🏷">
+          <div style="display:flex;gap:4px;flex:1">
             <input type="text" class="fl-name" value="${escapeHtml(f.name)}" style="flex:1" placeholder="Nome">
           </div>
+          <button class="icon-picker-btn" data-flag="${f.id}" title="Escolher ícone"
+                  style="width:36px;height:30px;font-size:16px;border:1px solid var(--border);border-radius:4px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center">
+            ${f.icon||'🏷'}
+          </button>
           <input type="color" class="fl-color" value="${f.color}">
           <div style="text-align:center">
             <button class="icon-btn del" data-del-flag="${f.id}" title="Excluir">🗑</button>
@@ -3399,7 +3556,7 @@ function renderFlagsModal() {
       `).join('')}
     </div>
     ${!flags.length ? '<p style="text-align:center;padding:16px;color:var(--muted);font-size:12px">Nenhuma flag cadastrada</p>' : ''}
-    <p class="help-text">💡 Edite nome, ícone (emoji) e cor diretamente. Use a flag <strong>Início Dev.</strong> em uma fase para aplicar o destaque amarelo na barra do roadmap. Para usar a flag em uma fase ou tarefa, vá em "📋 Fases & Tarefas" → coluna Flags → "+".</p>
+    <p class="help-text">💡 Edite nome, ícone e cor diretamente. Use a flag <strong>Início Dev.</strong> em uma entrega para o destaque amarelo na barra do roadmap.</p>
   `;
 
   document.getElementById('btn-add-flag').onclick = () => {
@@ -3420,22 +3577,19 @@ function renderFlagsModal() {
     const id = row.dataset.flag;
     const f = state.flags.find(x => x.id === id);
     if (!f) return;
-    row.querySelector('.fl-name').oninput = e => {
+
+    const nameInput = row.querySelector('.fl-name');
+    // oninput: só atualiza o objeto e o preview — sem save, sem re-render
+    nameInput.oninput = e => {
       f.name = e.target.value;
-      snapshotDebounced(); save();
-      // Update preview within this row
-      const pill = row.querySelector('.flag-pill');
-      if (pill) pill.lastChild.textContent = f.name;
+      const pn = row.querySelector('.pill-name');
+      if (pn) pn.textContent = f.name;
     };
-    row.querySelector('.fl-icon').oninput = e => {
-      f.icon = e.target.value || '🏷';
-      snapshotDebounced(); save();
-      const ico = row.querySelector('.flag-pill .pill-icon');
-      if (ico) ico.textContent = f.icon;
-    };
+    // onblur: persiste
+    nameInput.onblur = () => { snapshot(); save(); };
+
     row.querySelector('.fl-color').oninput = e => {
       f.color = e.target.value;
-      snapshotDebounced(); save();
       const pill = row.querySelector('.flag-pill');
       if (pill) {
         pill.style.background = f.color + '22';
@@ -3443,8 +3597,10 @@ function renderFlagsModal() {
         pill.style.borderColor = f.color + '66';
       }
     };
-    row.querySelector('.fl-color').onchange = () => {
-      render();
+    row.querySelector('.fl-color').onchange = () => { snapshot(); save(); render(); };
+    row.querySelector('.icon-picker-btn').onclick = e => {
+      e.stopPropagation();
+      openIconPicker(row.querySelector('.icon-picker-btn'), f, row);
     };
   });
 }
@@ -4656,7 +4812,7 @@ function buildSRProjects() {
     milestones.forEach(ph => {
       const d = parseDate(ph.plannedStart);
       if (d && d >= today) {
-        if (!nextMs || d < parseDate(nextMs.date)) nextMs = { name: ph.name, date: ph.plannedStart };
+        if (!nextMs || d < parseDate(nextMs.date)) nextMs = { name: ph.name, date: ph.plannedStart, dateFmt: fmtDate(ph.plannedStart) };
       }
     });
     const allFlags = [];
@@ -4766,12 +4922,12 @@ function renderSRTable(projects, portfolios) {
     const real = p.progress ? p.progress.realized : 0;
     const flagHtml = (p.flags || []).map(f =>
       `<span class="flag-pill" style="background:${f.color}22;color:${f.color};border-color:${f.color}66">
-        <span class="pill-icon">${f.icon||'🏷'}</span>${escapeHtml(f.name)}
+        <span class="pill-icon">${f.icon||'🏷'}</span><span class="pill-name">${escapeHtml(f.name)}</span>
       </span>`
     ).join('');
     const ms = p.nextMilestone;
     const msHtml = ms
-      ? `<span class="next-milestone">${escapeHtml(ms.name)}<span class="ms-date">${ms.date}</span></span>`
+      ? `<span class="next-milestone">${escapeHtml(ms.name)}<span class="ms-date">${fmtDate(ms.date)}</span></span>`
       : '<span style="color:var(--muted);font-size:11px">—</span>';
     const comment = p.statusExplanation
       ? `<span class="farol-comment">${escapeHtml(p.statusExplanation)}</span>`
@@ -4825,7 +4981,7 @@ function renderSRMilestones(projects, today) {
     let cls = 'upcoming', dLabel = '';
     if (it.diffDays < 0) { cls = 'overdue'; dLabel = `Vencido há ${Math.abs(it.diffDays)}d`; }
     else if (it.diffDays <= 14) { cls = 'soon'; dLabel = `Em ${it.diffDays}d`; }
-    else { dLabel = it.date; }
+    else { dLabel = fmtDate(it.date); }
     return `<div class="sr-milestone-row">
       <div class="ms-diamond"></div>
       <span class="ms-name">${escapeHtml(it.name)}</span>
@@ -4994,6 +5150,191 @@ async function deleteVersion(versionId) {
   renderVersionsModal();
   toast('Versão excluída');
 }
+
+// ============================================================
+// ICON PICKER
+// ============================================================
+const ICON_LIBRARY = [
+  // Gestão
+  { emoji: '🎯', label: 'meta objetivo' },
+  { emoji: '🏁', label: 'fim conclusão' },
+  { emoji: '⚡', label: 'urgente rápido' },
+  { emoji: '🔑', label: 'chave acesso' },
+  { emoji: '📌', label: 'fixado prioridade' },
+  { emoji: '📎', label: 'anexo vínculo' },
+  { emoji: '🔖', label: 'marcador' },
+  { emoji: '📊', label: 'análise dados' },
+  { emoji: '📈', label: 'crescimento alta' },
+  { emoji: '📉', label: 'queda baixa' },
+  { emoji: '⚖️', label: 'decisão equilíbrio' },
+  { emoji: '🧩', label: 'integração parte' },
+  // Status / Alertas
+  { emoji: '✅', label: 'concluído aprovado' },
+  { emoji: '❌', label: 'cancelado bloqueado' },
+  { emoji: '⚠️', label: 'atenção risco' },
+  { emoji: '🛑', label: 'parado impedido' },
+  { emoji: '🔄', label: 'revisão iteração' },
+  { emoji: '⏸️', label: 'pausado espera' },
+  { emoji: '🔃', label: 'replanejado mudança' },
+  { emoji: '💬', label: 'discussão pendente' },
+  // Tecnologia
+  { emoji: '⚙️', label: 'configuração sistema' },
+  { emoji: '🔧', label: 'manutenção correção' },
+  { emoji: '🛠️', label: 'desenvolvimento build' },
+  { emoji: '🔐', label: 'segurança acesso' },
+  { emoji: '☁️', label: 'cloud infraestrutura' },
+  { emoji: '📡', label: 'integração api' },
+  { emoji: '🤖', label: 'automação ia' },
+  { emoji: '🧪', label: 'teste homologação' },
+  { emoji: '📱', label: 'mobile app' },
+  { emoji: '🖥️', label: 'sistema plataforma' },
+  { emoji: '🔗', label: 'link conexão' },
+  { emoji: '📦', label: 'entrega deploy' },
+  // Negócio / Financeiro
+  { emoji: '💰', label: 'orçamento custo' },
+  { emoji: '💳', label: 'pagamento financeiro' },
+  { emoji: '🏦', label: 'banco financeiro' },
+  { emoji: '📑', label: 'contrato documento' },
+  { emoji: '🧾', label: 'nota fiscal' },
+  { emoji: '💼', label: 'negócio executivo' },
+  { emoji: '🤝', label: 'parceria acordo' },
+  { emoji: '📣', label: 'comunicação divulgação' },
+  { emoji: '🎖️', label: 'conquista resultado' },
+  { emoji: '🏆', label: 'meta atingida' },
+  { emoji: '💎', label: 'valor premium' },
+  { emoji: '🔍', label: 'análise auditoria' },
+  // Pessoas / Processo
+  { emoji: '👤', label: 'responsável pessoa' },
+  { emoji: '👥', label: 'equipe time' },
+  { emoji: '🏢', label: 'empresa área' },
+  { emoji: '📝', label: 'documentação registro' },
+  { emoji: '📋', label: 'checklist processo' },
+  { emoji: '🗓️', label: 'prazo data' },
+  { emoji: '⏰', label: 'tempo urgência' },
+  { emoji: '⏳', label: 'aguardando prazo' },
+  { emoji: '🔔', label: 'alerta notificação' },
+  { emoji: '📬', label: 'comunicado entregue' },
+  // Imobiliário
+  { emoji: '🏠', label: 'imóvel propriedade' },
+  { emoji: '🏗️', label: 'construção obra' },
+  { emoji: '🗺️', label: 'localização região' },
+  { emoji: '🔑', label: 'chave visita' },
+  { emoji: '🚗', label: 'visita campo' },
+  { emoji: '📐', label: 'planta projeto' },
+  { emoji: '🪟', label: 'vistoria inspeção' },
+  { emoji: '🏷️', label: 'preço valor' },
+];
+
+let _iconPickerEl = null;
+
+function openIconPicker(btn, flag, row) {
+  // Fecha se já aberto no mesmo botão
+  if (_iconPickerEl) {
+    _iconPickerEl.remove();
+    _iconPickerEl = null;
+    return;
+  }
+
+  const popup = document.createElement('div');
+  popup.className = 'icon-picker-popup';
+  _iconPickerEl = popup;
+
+  const rect = btn.getBoundingClientRect();
+  popup.style.top  = (rect.bottom + 6 + window.scrollY) + 'px';
+  popup.style.left = Math.min(rect.left, window.innerWidth - 340) + 'px';
+
+  let filter = '';
+  const render = () => {
+    const filtered = filter
+      ? ICON_LIBRARY.filter(i => i.label.includes(filter.toLowerCase()) || i.emoji.includes(filter))
+      : ICON_LIBRARY;
+    popup.innerHTML = `
+      <input class="icon-picker-search" placeholder="Buscar ícone..." value="${escapeHtml(filter)}">
+      <div class="icon-picker-grid">
+        ${filtered.map(i => `
+          <div class="icon-picker-item ${flag.icon === i.emoji ? 'selected' : ''}"
+               title="${escapeHtml(i.label)}" data-emoji="${escapeHtml(i.emoji)}">
+            ${i.emoji}
+          </div>`).join('')}
+      </div>`;
+
+    popup.querySelector('.icon-picker-search').oninput = e => {
+      filter = e.target.value;
+      render();
+      popup.querySelector('.icon-picker-search').focus();
+    };
+
+    popup.querySelectorAll('.icon-picker-item').forEach(item => {
+      item.onclick = () => {
+        flag.icon = item.dataset.emoji;
+        snapshotDebounced(); save(); render();
+        // Update button + pill in row
+        btn.textContent = flag.icon;
+        const ico = row.querySelector('.flag-pill .pill-icon');
+        if (ico) ico.textContent = flag.icon;
+        _iconPickerEl.remove();
+        _iconPickerEl = null;
+      };
+    });
+  };
+
+  render();
+  document.body.appendChild(popup);
+
+  // Close on outside click
+  setTimeout(() => {
+    document.addEventListener('click', function close(e) {
+      if (!popup.contains(e.target) && e.target !== btn) {
+        popup.remove();
+        _iconPickerEl = null;
+        document.removeEventListener('click', close);
+      }
+    });
+  }, 50);
+}
+
+// ============================================================
+// PAN — arrastar o timeline com mouse/touch
+// ============================================================
+(function() {
+  let wrap, isPanning = false, startX = 0, startY = 0, sl = 0, st = 0;
+  function init() {
+    wrap = document.getElementById('timeline-wrap');
+    if (!wrap) return;
+    wrap.addEventListener('mousedown', e => {
+      if (e.button !== 0) return;
+      if (e.target.closest('button,input,select,textarea,.phase-bar,.milestone,.flag-pill,.icon-btn,.proj-header,.proj-actions')) return;
+      isPanning = true;
+      startX = e.clientX; startY = e.clientY;
+      sl = wrap.scrollLeft; st = wrap.scrollTop;
+      wrap.classList.add('is-panning');
+      e.preventDefault();
+    });
+    document.addEventListener('mousemove', e => {
+      if (!isPanning) return;
+      wrap.scrollLeft = sl - (e.clientX - startX);
+      wrap.scrollTop  = st - (e.clientY - startY);
+    });
+    document.addEventListener('mouseup', () => {
+      if (!isPanning) return;
+      isPanning = false;
+      wrap.classList.remove('is-panning');
+    });
+    wrap.addEventListener('touchstart', e => {
+      if (e.touches.length !== 1) return;
+      isPanning = true;
+      startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+      sl = wrap.scrollLeft; st = wrap.scrollTop;
+    }, { passive: true });
+    wrap.addEventListener('touchmove', e => {
+      if (!isPanning || e.touches.length !== 1) return;
+      wrap.scrollLeft = sl - (e.touches[0].clientX - startX);
+      wrap.scrollTop  = st - (e.touches[0].clientY - startY);
+    }, { passive: true });
+    wrap.addEventListener('touchend', () => { isPanning = false; });
+  }
+  setTimeout(init, 300);
+})();
 
 // ============================================================
 // INIT
