@@ -1775,11 +1775,33 @@
     <div class="sr-farol-bar" id="sr-farol-bar"></div>
 
     <!-- Projects status table -->
-    <div class="sr-section-title">Situação dos Projetos</div>
+    <div class="sr-section-title" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <span>Situação dos Projetos</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select id="sr-filter-portfolio" onchange="applySRFilters()" style="font-size:11px;padding:4px 8px;border:1px solid var(--border);border-radius:4px;background:#fff">
+          <option value="">Todos os portfólios</option>
+        </select>
+        <select id="sr-filter-farol" onchange="applySRFilters()" style="font-size:11px;padding:4px 8px;border:1px solid var(--border);border-radius:4px;background:#fff">
+          <option value="">Todos os farois</option>
+          <option value="green">🟢 Verde</option>
+          <option value="yellow">🟡 Amarelo</option>
+          <option value="red">🔴 Vermelho</option>
+          <option value="gray">⚪ Sem farol</option>
+        </select>
+        <select id="sr-filter-company" onchange="applySRFilters()" style="font-size:11px;padding:4px 8px;border:1px solid var(--border);border-radius:4px;background:#fff">
+          <option value="">Todas as empresas</option>
+        </select>
+        <select id="sr-filter-sponsor" onchange="applySRFilters()" style="font-size:11px;padding:4px 8px;border:1px solid var(--border);border-radius:4px;background:#fff">
+          <option value="">Todos os responsáveis</option>
+        </select>
+        <button class="ghost" onclick="clearSRFilters()" style="font-size:11px;padding:4px 8px">✕ Limpar</button>
+      </div>
+    </div>
     <div class="sr-table-wrap">
       <table class="sr-table">
         <thead>
           <tr>
+            <th style="width:18px"></th>
             <th>Projeto</th>
             <th>Portfólio</th>
             <th>Patrocinador</th>
@@ -4953,16 +4975,50 @@ function renderSRTable(projects, portfolios) {
   const ptMap = {};
   portfolios.forEach(pt => { ptMap[pt.id] = pt.name; });
 
+  // Populate portfolio filter
+  const pfSel = document.getElementById('sr-filter-portfolio');
+  if (pfSel) {
+    const existing = Array.from(pfSel.options).map(o => o.value);
+    portfolios.forEach(pt => {
+      if (!existing.includes(pt.id)) {
+        const o = document.createElement('option');
+        o.value = pt.id; o.textContent = pt.name;
+        pfSel.appendChild(o);
+      }
+    });
+  }
+
+  // Populate company filter
+  const coSel = document.getElementById('sr-filter-company');
+  if (coSel) {
+    const companies = [...new Set(projects.map(p => p.company).filter(Boolean))].sort();
+    const existingCo = Array.from(coSel.options).map(o => o.value);
+    companies.forEach(c => {
+      if (!existingCo.includes(c)) {
+        const o = document.createElement('option');
+        o.value = c; o.textContent = c; coSel.appendChild(o);
+      }
+    });
+  }
+
+  // Populate sponsor filter
+  const spSel = document.getElementById('sr-filter-sponsor');
+  if (spSel) {
+    const sponsors = [...new Set(projects.map(p => p.sponsor).filter(Boolean))].sort();
+    const existingSp = Array.from(spSel.options).map(o => o.value);
+    sponsors.forEach(s => {
+      if (!existingSp.includes(s)) {
+        const o = document.createElement('option');
+        o.value = s; o.textContent = s; spSel.appendChild(o);
+      }
+    });
+  }
+
   const statusLabel = { green: 'Verde', yellow: 'Amarelo', red: 'Vermelho', gray: '—' };
   const rows = projects.map(p => {
     const ptName = p.portfolioName || ptMap[p.portfolioId] || '—';
     const pred = p.progress ? p.progress.predicted : 0;
     const real = p.progress ? p.progress.realized : 0;
-    const flagHtml = (p.flags || []).map(f =>
-      `<span class="flag-pill" style="background:${f.color}22;color:${f.color};border-color:${f.color}66">
-        <span class="pill-icon">${f.icon||'🏷'}</span><span class="pill-name">${escapeHtml(f.name)}</span>
-      </span>`
-    ).join('');
     const ms = p.nextMilestone;
     const msHtml = ms
       ? `<span class="next-milestone">${escapeHtml(ms.name)}<span class="ms-date">${fmtDate(ms.date)}</span></span>`
@@ -4971,7 +5027,8 @@ function renderSRTable(projects, portfolios) {
       ? `<span class="farol-comment">${escapeHtml(p.statusExplanation)}</span>`
       : `<span class="farol-comment empty">Sem comentário</span>`;
 
-    return `<tr>
+    return `<tr draggable="true" data-project-id="${p.id}" data-portfolio-id="${p.portfolioId||''}" data-farol="${p.status||'gray'}" data-company="${escapeHtml(p.company||'')}" data-sponsor="${escapeHtml(p.sponsor||'')}">
+      <td style="cursor:grab;color:#94a3b8;font-size:13px;text-align:center;padding:0 4px" class="sr-drag-handle" title="Arrastar para reordenar">⠿</td>
       <td><span class="proj-name-cell">${escapeHtml(p.name)}</span>
           <span class="portfolio-tag">${escapeHtml(p.company||'')}</span></td>
       <td style="font-size:11.5px;color:var(--muted)">${escapeHtml(ptName)}</td>
@@ -4996,9 +5053,81 @@ function renderSRTable(projects, portfolios) {
   }).join('');
 
   document.getElementById('sr-table-body').innerHTML = rows || `
-    <tr><td colspan="8" style="text-align:center;padding:20px;color:var(--muted);font-style:italic">
-      Nenhum projeto encontrado. Adicione projetos na aba Roadmap.
+    <tr><td colspan="11" style="text-align:center;padding:20px;color:var(--muted);font-style:italic">
+      Nenhum projeto encontrado.
     </td></tr>`;
+
+  initSRDragDrop();
+}
+
+// SR order state (array of project ids)
+let srOrder = [];
+
+function applySRFilters() {
+  const pfVal    = document.getElementById('sr-filter-portfolio')?.value || '';
+  const farolVal = document.getElementById('sr-filter-farol')?.value    || '';
+  const coVal    = document.getElementById('sr-filter-company')?.value  || '';
+  const spVal    = document.getElementById('sr-filter-sponsor')?.value  || '';
+  document.querySelectorAll('#sr-table-body tr[data-project-id]').forEach(row => {
+    const ok = (!pfVal    || row.dataset.portfolioId === pfVal)
+            && (!farolVal || row.dataset.farol        === farolVal)
+            && (!coVal    || row.dataset.company      === coVal)
+            && (!spVal    || row.dataset.sponsor      === spVal);
+    row.style.display = ok ? '' : 'none';
+  });
+}
+
+function clearSRFilters() {
+  ['sr-filter-portfolio','sr-filter-farol','sr-filter-company','sr-filter-sponsor']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  document.querySelectorAll('#sr-table-body tr[data-project-id]').forEach(r => r.style.display = '');
+}
+
+function initSRDragDrop() {
+  const tbody = document.getElementById('sr-table-body');
+  if (!tbody) return;
+  let dragRow = null, dropTarget = null;
+
+  tbody.addEventListener('dragstart', e => {
+    dragRow = e.target.closest('tr');
+    if (!dragRow) return;
+    dragRow.style.opacity = '0.4';
+    e.dataTransfer.effectAllowed = 'move';
+  });
+  tbody.addEventListener('dragover', e => {
+    e.preventDefault();
+    const target = e.target.closest('tr');
+    if (!target || target === dragRow) return;
+    if (dropTarget && dropTarget !== target) dropTarget.style.borderTop = '';
+    dropTarget = target;
+    dropTarget.style.borderTop = '2px solid var(--yellow)';
+  });
+  tbody.addEventListener('dragleave', e => {
+    if (dropTarget && !tbody.contains(e.relatedTarget)) {
+      dropTarget.style.borderTop = '';
+      dropTarget = null;
+    }
+  });
+  tbody.addEventListener('drop', e => {
+    e.preventDefault();
+    if (dropTarget) dropTarget.style.borderTop = '';
+    if (!dragRow || !dropTarget || dragRow === dropTarget) return;
+    tbody.insertBefore(dragRow, dropTarget);
+    dragRow.style.opacity = '';
+    dragRow = null; dropTarget = null;
+    // Persist new order to state
+    const newOrder = Array.from(tbody.querySelectorAll('tr[data-project-id]')).map(r => r.dataset.projectId);
+    state.projects.sort((a, b) => {
+      const ia = newOrder.indexOf(a.id), ib = newOrder.indexOf(b.id);
+      return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+    });
+    save();
+  });
+  tbody.addEventListener('dragend', () => {
+    if (dragRow) dragRow.style.opacity = '';
+    if (dropTarget) dropTarget.style.borderTop = '';
+    dragRow = null; dropTarget = null;
+  });
 }
 
 function renderSRMilestones(projects, today) {
