@@ -5751,6 +5751,22 @@ function freezeColumns() {
 // ============================================================
 // INIT
 // ============================================================
+
+function scrollToToday() {
+  setTimeout(() => {
+    const wrap = document.getElementById('timeline-wrap');
+    if (!wrap) return;
+    const range = getTimeRange();
+    const todayPct = dateToPercent(new Date(), range);
+    if (todayPct <= 0 || todayPct >= 100) return;
+    const totalWidth = wrap.scrollWidth;
+    const viewWidth  = wrap.clientWidth;
+    const fixedW   = 460;
+    const calWidth = totalWidth - fixedW;
+    const todayPx  = fixedW + (calWidth * todayPct / 100);
+    wrap.scrollLeft = todayPx - viewWidth / 2;
+  }, 300);
+}
 load();
 migrateData();
 seedIfEmpty();
@@ -5758,6 +5774,7 @@ render();
 updateVersionBadge();
 initBarTooltip();
 freezeColumns();
+scrollToToday();
 loadFromSupabase();
 </script>
 </body>
