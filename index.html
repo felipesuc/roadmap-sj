@@ -643,6 +643,7 @@
     cursor: pointer;
     user-select: none;
     border-left: 4px solid var(--yellow);
+    will-change: transform;
   }
   .portfolio-header:hover { filter: brightness(1.07); }
   .portfolio-header .toggle-arrow {
@@ -5776,6 +5777,30 @@ initBarTooltip();
 freezeColumns();
 scrollToToday();
 loadFromSupabase();
+
+// Congela linhas de portfólio ao rolar horizontalmente
+(function() {
+  function freeze() {
+    const wrap = document.getElementById('timeline-wrap');
+    if (!wrap) return;
+    const sl = wrap.scrollLeft;
+    wrap.querySelectorAll('.portfolio-header').forEach(el => {
+      el.style.transform = `translateX(${sl}px)`;
+    });
+  }
+  function init() {
+    const wrap = document.getElementById('timeline-wrap');
+    if (!wrap) { setTimeout(init, 200); return; }
+    wrap.addEventListener('scroll', freeze, { passive: true });
+    window.addEventListener('resize', freeze, { passive: true });
+    freeze();
+  }
+  setTimeout(init, 500);
+  // Re-apply after Supabase loads
+  const orig = window.render;
+  document.addEventListener('supabase-loaded', freeze);
+  setInterval(freeze, 1000); // catch re-renders
+})();
 </script>
 </body>
 </html>
