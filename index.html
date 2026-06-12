@@ -1118,6 +1118,116 @@
   }
   .field-checkbox input { width: 14px; height: 14px; }
 
+  /* ===== TAP MODAL — PREMIUM DESIGN ===== */
+  #tap-modal .modal-box { box-shadow: 0 25px 80px rgba(0,0,0,0.35); }
+
+  /* Sidebar nav */
+  .tap-nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 16px; font-size: 12px; font-weight: 500;
+    color: #64748b; cursor: pointer; transition: all 0.15s;
+    border-left: 3px solid transparent;
+  }
+  .tap-nav-item:hover { background: #e8edf5; color: #0D1F3C; }
+  .tap-nav-item.active { background: #e0eaf7; color: #0D1F3C; font-weight: 700; border-left-color: #F5C400; }
+  .tap-nav-num {
+    background: #0D1F3C; color: #fff;
+    width: 20px; height: 20px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700; flex-shrink: 0; line-height: 1;
+  }
+  .tap-nav-item.active .tap-nav-num { background: #F5C400; color: #0D1F3C; }
+
+  /* Cards */
+  .tap-card {
+    background: #fff; border-radius: 10px; padding: 24px;
+    margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    border: 1px solid #e2e8f0; scroll-margin-top: 20px;
+  }
+  .tap-card-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 20px; padding-bottom: 14px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .tap-card-num {
+    background: linear-gradient(135deg,#0D1F3C,#1a3558);
+    color: #fff; width: 28px; height: 28px; border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; flex-shrink: 0; line-height: 1;
+  }
+  .tap-card-title {
+    font-size: 13px; font-weight: 700; color: #0D1F3C;
+    text-transform: uppercase; letter-spacing: 0.6px;
+  }
+  .tap-card-sub { font-size: 11px; color: #94a3b8; margin-top: 1px; }
+
+  /* Grid */
+  .tap-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .tap-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+  /* Fields */
+  .tap-field { display: flex; flex-direction: column; gap: 5px; }
+  .tap-field label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; color: #64748b;
+  }
+  .tap-field input[type=text], .tap-field input[type=date], .tap-field select, .tap-field textarea {
+    padding: 9px 12px; border: 1.5px solid #e2e8f0; border-radius: 7px;
+    font-size: 12.5px; font-family: inherit; background: #fff;
+    color: #1e293b; transition: border-color 0.15s, box-shadow 0.15s; resize: vertical;
+  }
+  .tap-field input:focus, .tap-field select:focus, .tap-field textarea:focus {
+    outline: none; border-color: #0D1F3C; box-shadow: 0 0 0 3px rgba(13,31,60,0.08);
+  }
+  .tap-field input[readonly] { background: #f8fafc; color: #64748b; cursor: default; }
+  .tap-field textarea { min-height: 80px; line-height: 1.5; }
+
+  /* Size matrix */
+  .tap-matrix-wrap { overflow-x: auto; }
+  .tap-size-matrix { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .tap-size-matrix th { background: #0D1F3C; color: #fff; padding: 9px 14px; text-align: center; font-size: 10.5px; font-weight: 600; }
+  .tap-size-matrix th:first-child { text-align: left; }
+  .tap-size-matrix td { padding: 8px 14px; border: 1px solid #e2e8f0; text-align: center; font-weight: 700; cursor: pointer; transition: filter 0.1s; }
+  .tap-size-matrix td:first-child { text-align: left; font-weight: 600; color: #374151; background: #f8fafc; cursor: default; }
+  .tap-size-matrix td:not(:first-child):hover { filter: brightness(0.88); }
+  .tap-size-matrix td.cell-P  { background: #dcfce7; color: #166534; }
+  .tap-size-matrix td.cell-M  { background: #fef9c3; color: #854d0e; }
+  .tap-size-matrix td.cell-G  { background: #fed7aa; color: #9a3412; }
+  .tap-size-matrix td.cell-EG { background: #fee2e2; color: #991b1b; }
+  .tap-size-matrix td.cell-active { outline: 3px solid #0D1F3C; outline-offset: -2px; position: relative; z-index: 1; }
+
+  /* Size result */
+  .tap-size-result-box {
+    padding: 14px 18px; border-radius: 8px;
+    display: flex; align-items: center; gap: 16px;
+    border: 1.5px solid transparent;
+  }
+  .tap-size-result-box.P  { background: #f0fdf4; border-color: #86efac; }
+  .tap-size-result-box.M  { background: #fefce8; border-color: #fde047; }
+  .tap-size-result-box.G  { background: #fff7ed; border-color: #fdba74; }
+  .tap-size-result-box.EG { background: #fef2f2; border-color: #fca5a5; }
+  .tap-size-result-box.empty { background: #f8fafc; border-color: #e2e8f0; }
+  .tap-size-letter { font-size: 36px; font-weight: 800; line-height: 1; min-width: 48px; text-align: center; }
+  .tap-size-result-box.P  .tap-size-letter { color: #166534; }
+  .tap-size-result-box.M  .tap-size-letter { color: #854d0e; }
+  .tap-size-result-box.G  .tap-size-letter { color: #9a3412; }
+  .tap-size-result-box.EG .tap-size-letter { color: #991b1b; }
+  .tap-size-result-box.empty .tap-size-letter { color: #94a3b8; font-size: 24px; }
+
+  /* Footer */
+  .tap-footer {
+    padding: 14px 32px; background: #fff;
+    border-top: 1px solid #e2e8f0; flex-shrink: 0;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .tap-btn-save {
+    background: linear-gradient(135deg,#0D1F3C,#1a3558);
+    color: #fff; border: none; padding: 10px 26px;
+    border-radius: 7px; font-size: 13px; font-weight: 700; cursor: pointer;
+  }
+  .tap-btn-save:hover { opacity: 0.88; }
+  .tap-saved-msg { font-size: 12px; color: #22c55e; font-weight: 600; display: none; }
+
   body.resizing { cursor: col-resize !important; user-select: none; }
   body.resizing * { cursor: col-resize !important; }
 
@@ -1765,6 +1875,36 @@
   <div class="timeline-wrap" id="timeline-wrap"></div>
 </main>
 </div><!-- /panel-roadmap -->
+
+<!-- TAP MODAL -->
+<div class="modal-backdrop" id="tap-modal">
+  <div class="modal-box" style="max-width:1100px;width:97%;height:90vh;overflow:hidden;padding:0;display:flex;flex-direction:column;border-radius:12px">
+    <!-- TAP Header -->
+    <div style="background:linear-gradient(135deg,#0D1F3C 0%,#1a3558 100%);padding:20px 32px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:3px solid #F5C400">
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="background:#F5C400;border-radius:8px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:20px">📋</div>
+        <div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#7FA8C8;margin-bottom:3px">Termo de Abertura do Projeto</div>
+          <div id="tap-modal-title" style="font-size:19px;font-weight:700;color:#fff;line-height:1.2"></div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div id="tap-status-badge" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:5px 14px;font-size:11px;color:#e8edf5">TAP</div>
+        <button data-close="tap-modal" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#7FA8C8;width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+      </div>
+    </div>
+    <!-- TAP Body: sidebar nav + content -->
+    <div style="display:flex;flex:1;overflow:hidden">
+      <!-- Sidebar -->
+      <div id="tap-sidebar" style="width:200px;flex-shrink:0;background:#f8fafc;border-right:1px solid #e2e8f0;overflow-y:auto;padding:16px 0">
+        <div style="padding:0 16px 12px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8">Seções</div>
+      </div>
+      <!-- Scrollable content -->
+      <div id="tap-modal-body" style="flex:1;overflow-y:auto;padding:28px 32px;background:#f1f5f9"></div>
+    </div>
+    <div id="tap-footer-placeholder"></div>
+  </div>
+</div>
 
 <!-- STATUS REPORT PANEL -->
 <div class="tab-panel" id="panel-status">
@@ -2861,8 +3001,8 @@ function renderProjectRow(p, range) {
 
           <div class="proj-actions">
             <button class="secondary" data-manage-phases="${p.id}">📋 Entregas & Tarefas</button>
+            <button class="ghost" data-open-tap="${p.id}">🗂 Cadastro</button>
             <button class="ghost" data-assign-project="${p.id}" title="Atribuir a um portfólio/programa">📁 Atribuir</button>
-
           </div>
         </div>
       </div>
@@ -4401,6 +4541,11 @@ document.addEventListener('click', e => {
   if (dpo) { e.stopPropagation(); deletePortfolio(dpo.dataset.delPortfolio); return; }
 
   // Assign project to portfolio/program
+
+  // Open TAP modal
+  const tapBtn = e.target.closest('[data-open-tap]');
+  if (tapBtn) { openTapModal(tapBtn.dataset.openTap); return; }
+
   const ap = e.target.closest('[data-assign-project]');
   if (ap) { e.stopPropagation(); openAssignModal(ap.dataset.assignProject); return; }
 
@@ -5234,6 +5379,7 @@ function freezeColumns() {
 // ============================================================
 // INIT
 // ============================================================
+
 load();
 migrateData();
 seedIfEmpty();
@@ -5747,6 +5893,357 @@ function freezeColumns() {
   wrap._freezeScroll = onScroll;
   wrap.addEventListener('scroll', onScroll, { passive: true });
   onScroll(); // aplica imediatamente
+}
+
+// ============================================================
+// CADASTRO / TAP — MODAL
+// ============================================================
+const SIZE_MATRIX = {
+  E1:{D0:'P',D1:'P',D2:'M',D3:'M'},
+  E2:{D0:'P',D1:'P',D2:'M',D3:'G'},
+  E3:{D0:'M',D1:'M',D2:'G',D3:'EG'},
+  E4:{D0:'EG',D1:'EG',D2:'EG',D3:'EG'},
+};
+const SIZE_LABELS = {
+  P:  { label:'Pequeno',     desc:'Entrega rápida, baixa dependência. Pode ser assumida diretamente pelo time.' },
+  M:  { label:'Médio',       desc:'Requer planejamento cuidadoso. Envolve coordenação mínima com outros times.' },
+  G:  { label:'Grande',      desc:'Alto esforço ou múltiplas dependências. Requer gestão ativa de riscos.' },
+  EG: { label:'Extra Grande', desc:'Escopo extenso e alta complexidade. Necessita de sponsor e governança forte.' },
+};
+
+function closeTapModal() { closeModal('tap-modal'); }
+
+async function loadTap(pid) {
+  try {
+    const r = await fetch(SB_URL+'/rest/v1/project_tap?project_id=eq.'+pid+'&select=*',{headers:SB_H});
+    const rows = await r.json();
+    return (rows&&rows.length)?rows[0]:{project_id:pid};
+  } catch(e){ return {project_id:pid}; }
+}
+
+async function saveTap(pid) {
+  const fs = ['objetivo','justificativa','escopo_incluido','escopo_excluido','premissas',
+    'restricoes','riscos','criterios_sucesso','esforco','dependencia','sponsor','gerente',
+    'data_inicio','data_fim','versao','horizonte'];
+  const payload = {project_id:pid, id:'tap-'+pid};
+  fs.forEach(f=>{const el=document.getElementById('tap-'+f); payload[f]=el?el.value:'';});
+  payload.tamanho = (SIZE_MATRIX[payload.esforco]||{})[payload.dependencia]||'';
+  payload.updated_at = new Date().toISOString();
+  await fetch(SB_URL+'/rest/v1/project_tap',{
+    method:'POST', headers:{...SB_H,'Prefer':'resolution=merge-duplicates'},
+    body:JSON.stringify(payload)
+  });
+  const msg=document.getElementById('tap-saved-msg');
+  if(msg){msg.style.display='inline';setTimeout(()=>msg.style.display='none',2500);}
+}
+
+function tapUpdateSize() {
+  const e=document.getElementById('tap-esforco')?.value;
+  const d=document.getElementById('tap-dependencia')?.value;
+  const t=(SIZE_MATRIX[e]||{})[d]||'';
+  const box=document.getElementById('tap-size-result-box');
+  if(!box) return;
+  box.className='tap-size-result-box '+(t||'empty');
+  if(t) {
+    box.innerHTML=`<div class="tap-size-letter">${t}</div>
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:2px">${SIZE_LABELS[t].label}</div>
+        <div style="font-size:11.5px;color:#64748b;line-height:1.5">${SIZE_LABELS[t].desc}</div>
+      </div>`;
+  } else {
+    box.innerHTML=`<div class="tap-size-letter">?</div><div style="font-size:12px;color:#94a3b8">Selecione Esforço e Dependências para calcular o tamanho.</div>`;
+  }
+  // Highlight matrix
+  document.querySelectorAll('.tap-size-matrix td').forEach(td=>td.classList.remove('cell-active'));
+  if(e&&d){const cell=document.querySelector(`.tap-size-matrix td[data-e="${e}"][data-d="${d}"]`);if(cell)cell.classList.add('cell-active');}
+}
+
+function tapNavActivate(id) {
+  document.querySelectorAll('.tap-nav-item').forEach(n=>n.classList.remove('active'));
+  const nav=document.querySelector(`.tap-nav-item[data-target="${id}"]`);
+  if(nav) nav.classList.add('active');
+}
+
+async function openTapModal(projectId) {
+  const proj = state.projects.find(p=>p.id===projectId)||{};
+  document.getElementById('tap-modal-title').textContent = proj.name||'';
+  document.getElementById('tap-modal').classList.add('open');
+  document.getElementById('tap-modal-body').innerHTML = '<div style="padding:40px;text-align:center;color:#94a3b8"><div style="font-size:32px;margin-bottom:12px">⏳</div>Carregando TAP...</div>';
+
+  // Build sidebar
+  const sections = [
+    {id:'tap-s1',num:'1',label:'Identificação'},
+    {id:'tap-s2',num:'2',label:'Contexto & Justificativa'},
+    {id:'tap-s3',num:'3',label:'Objetivo'},
+    {id:'tap-s4',num:'4',label:'Escopo'},
+    {id:'tap-s5',num:'5',label:'Premissas & Restrições'},
+    {id:'tap-s6',num:'6',label:'Riscos'},
+    {id:'tap-s7',num:'7',label:'Critérios de Sucesso'},
+    {id:'tap-s8',num:'8',label:'Estimativa de Tamanho'},
+  ];
+  const sidebar = document.getElementById('tap-sidebar');
+  if(sidebar) {
+    sidebar.innerHTML = '<div style="padding:0 16px 12px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8">Seções</div>' +
+      sections.map(s=>`<div class="tap-nav-item${s.num==='1'?' active':''}" data-target="${s.id}" onclick="
+        document.getElementById('${s.id}')?.scrollIntoView({behavior:'smooth',block:'start'});
+        tapNavActivate('${s.id}');
+      "><span class="tap-nav-num">${s.num}</span>${s.label}</div>`).join('');
+  }
+
+  const tap = await loadTap(projectId);
+  const v = f => (tap[f]||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const sel = (f,val) => tap[f]===val?'selected':'';
+  const curSize = (SIZE_MATRIX[tap.esforco]||{})[tap.dependencia]||'';
+  const sizeInfo = SIZE_LABELS[curSize];
+
+  // Matrix
+  const eRows=[
+    {k:'E1',l:'E1 — até 1 semana'},
+    {k:'E2',l:'E2 — 1 a 4 semanas'},
+    {k:'E3',l:'E3 — 4 a 12 semanas'},
+    {k:'E4',l:'E4 — mais de 12 semanas'},
+  ];
+  const dCols=[{k:'D0',l:'D0 (nenhuma)'},{k:'D1',l:'D1 (baixa)'},{k:'D2',l:'D2 (média)'},{k:'D3',l:'D3 (alta)'}];
+  const matrixRows = eRows.map(e=>`<tr><td>${e.l}</td>`+
+    dCols.map(d=>{const sz=SIZE_MATRIX[e.k][d.k]; const act=(tap.esforco===e.k&&tap.dependencia===d.k)?' cell-active':'';
+      return `<td class="cell-${sz}${act}" data-e="${e.k}" data-d="${d.k}"
+        onclick="document.getElementById('tap-esforco').value='${e.k}';document.getElementById('tap-dependencia').value='${d.k}';tapUpdateSize()">${sz}</td>`;
+    }).join('')+'</tr>').join('');
+
+  document.getElementById('tap-modal-body').innerHTML = `
+  <!-- 1. Identificação -->
+  <div id="tap-s1" class="tap-card">
+    <div class="tap-card-header">
+      <div class="tap-card-num">1</div>
+      <div>
+        <div class="tap-card-title">Identificação</div>
+        <div class="tap-card-sub">Dados básicos do projeto e responsáveis</div>
+      </div>
+    </div>
+    <div class="tap-grid3">
+      <div class="tap-field"><label>Nome do Projeto</label>
+        <input type="text" value="${escapeHtml(proj.name||'')}" readonly></div>
+      <div class="tap-field"><label>Patrocinador</label>
+        <input type="text" id="tap-sponsor" value="${v('sponsor')||escapeHtml(proj.sponsor||'')}"></div>
+      <div class="tap-field"><label>Gerente do Projeto</label>
+        <input type="text" id="tap-gerente" value="${v('gerente')}"></div>
+      <div class="tap-field"><label>Empresa</label>
+        <input type="text" value="${escapeHtml(proj.company||'')}" readonly></div>
+      <div class="tap-field"><label>Data de Início</label>
+        <input type="text" id="tap-data_inicio" value="${v('data_inicio')}" placeholder="dd/mm/aaaa"></div>
+      <div class="tap-field"><label>Horizonte do TAP</label>
+        <input type="text" id="tap-horizonte" value="${v('horizonte')}" placeholder="Ex: 90 a 150 dias"></div>
+      <div class="tap-field"><label>Versão</label>
+        <input type="text" id="tap-versao" value="${v('versao')||'1.0'}"></div>
+      <div class="tap-field"><label>Tecnologia</label>
+        <input type="text" value="${escapeHtml(proj.technology||'')}" readonly></div>
+      <div class="tap-field"><label>Capacidades de Negócio</label>
+        <input type="text" value="${escapeHtml(proj.businessCapabilities||'')}" readonly></div>
+    </div>
+  </div>
+
+  <!-- 2. Contexto -->
+  <div id="tap-s2" class="tap-card">
+    <div class="tap-card-header">
+      <div class="tap-card-num">2</div>
+      <div>
+        <div class="tap-card-title">Contexto e Justificativa</div>
+        <div class="tap-card-sub">Por que este projeto existe? Qual o problema ou oportunidade?</div>
+      </div>
+    </div>
+    <div class="tap-field">
+      <textarea id="tap-justificativa" rows="5" placeholder="Descreva o contexto de negócio, o problema identificado e por que este projeto é necessário agora...">${tap.justificativa||''}</textarea>
+    </div>
+  </div>
+
+  <!-- 3. Objetivo -->
+  <div id="tap-s3" class="tap-card">
+    <div class="tap-card-header">
+      <div class="tap-card-num">3</div>
+      <div>
+        <div class="tap-card-title">Objetivo do Projeto</div>
+        <div class="tap-card-sub">O que será habilitado ao final?</div>
+      </div>
+    </div>
+    <div class="tap-field">
+      <textarea id="tap-objetivo" rows="4" placeholder="Descreva o objetivo central de forma clara, mensurável e orientada ao resultado de negócio...">${tap.objetivo||''}</textarea>
+    </div>
+  </div>
+
+  <!-- 4. Escopo -->
+  <div id="tap-s4" class="tap-card">
+    <div class="tap-card-header">
+      <div class="tap-card-num">4</div>
+      <div>
+        <div class="tap-card-title">Escopo</div>
+        <div class="tap-card-sub">Delimite o que está dentro e fora deste projeto</div>
+      </div>
+    </div>
+    <div class="tap-grid2">
+      <div class="tap-field">
+        <label style="color:#166534">✅ Incluído</label>
+        <textarea id="tap-escopo_incluido" rows="5" placeholder="Liste o que está dentro do escopo (uma entrega por linha)..." style="border-color:#86efac">${tap.escopo_incluido||''}</textarea>
+      </div>
+      <div class="tap-field">
+        <label style="color:#991b1b">🚫 Excluído</label>
+        <textarea id="tap-escopo_excluido" rows="5" placeholder="Liste o que está explicitamente fora do escopo..." style="border-color:#fca5a5">${tap.escopo_excluido||''}</textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Premissas e Restrições -->
+  <div id="tap-s5" class="tap-card">
+    <div class="tap-card-header">
+      <div class="tap-card-num">5</div>
+      <div>
+        <div class="tap-card-title">Premissas e Restrições</div>
+        <div class="tap-card-sub">Condições que precisam ser verdadeiras e limitações do projeto</div>
+      </div>
+    </div>
+    <div class="tap-grid2">
+      <div class="tap-field">
+        <label>🔵 Premissas</label>
+        <textarea id="tap-premissas" rows="5" placeholder="Condições que devem se manter verdadeiras para o projeto ter sucesso...">${tap.premissas||''}</textarea>
+      </div>
+      <div class="tap-field">
+        <label>🟠 Restrições</label>
+        <textarea id="tap-restricoes" rows="5" placeholder="Limitações de prazo, orçamento, equipe, tecnologia ou escopo...">${tap.restricoes||''}</textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Riscos -->
+  <div id="tap-s6" class="tap-card">
+    <div class="tap-card-header">
+      <div class="tap-card-num">6</div>
+      <div>
+        <div class="tap-card-title">Riscos e Mitigadores</div>
+        <div class="tap-card-sub">Principais ameaças ao projeto e como serão tratadas</div>
+      </div>
+    </div>
+    <div class="tap-field">
+      <textarea id="tap-riscos" rows="5" placeholder="Risco | Impacto | Probabilidade | Mitigador (um por linha)...">${tap.riscos||''}</textarea>
+    </div>
+  </div>
+
+  <!-- 7. Critérios de Sucesso -->
+  <div id="tap-s7" class="tap-card">
+    <div class="tap-card-header">
+      <div class="tap-card-num">7</div>
+      <div>
+        <div class="tap-card-title">Critérios de Sucesso</div>
+        <div class="tap-card-sub">Como saberemos que o projeto foi bem-sucedido?</div>
+      </div>
+    </div>
+    <div class="tap-field">
+      <textarea id="tap-criterios_sucesso" rows="5" placeholder="Descreva os indicadores e critérios mensuráveis que definem o sucesso deste projeto...">${tap.criterios_sucesso||''}</textarea>
+    </div>
+  </div>
+
+  <!-- 8. Estimativa de Tamanho -->
+  <div id="tap-s8" class="tap-card">
+    <div class="tap-card-header">
+      <div class="tap-card-num">8</div>
+      <div>
+        <div class="tap-card-title">Estimativa de Tamanho</div>
+        <div class="tap-card-sub">Esforço × Dependências → Tamanho (P / M / G / EG)</div>
+      </div>
+    </div>
+    <!-- Critérios — premium pill cards -->
+    <div class="tap-grid2" style="margin-bottom:20px">
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+        <div style="background:#0D1F3C;padding:10px 16px;display:flex;align-items:center;gap:8px">
+          <span style="background:#F5C400;color:#0D1F3C;font-size:9px;font-weight:800;padding:2px 7px;border-radius:4px;letter-spacing:0.5px">E</span>
+          <span style="font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.8px">Esforço — trabalho efetivo</span>
+        </div>
+        <div style="padding:8px 0">
+          ${[['E1','Até 1 semana','#dcfce7','#166534'],['E2','Até 4 semanas','#fef9c3','#854d0e'],['E3','4 a 12 semanas','#fed7aa','#9a3412'],['E4','Mais de 12 semanas','#fee2e2','#991b1b']].map(([cod,desc,bg,cor])=>`
+          <div style="display:flex;align-items:center;gap:12px;padding:9px 16px;border-bottom:1px solid #f1f5f9">
+            <span style="background:${bg};color:${cor};font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;min-width:32px;text-align:center;flex-shrink:0">${cod}</span>
+            <span style="font-size:12.5px;color:#374151">${desc}</span>
+          </div>`).join('')}
+        </div>
+      </div>
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+        <div style="background:#0D1F3C;padding:10px 16px;display:flex;align-items:center;gap:8px">
+          <span style="background:#F5C400;color:#0D1F3C;font-size:9px;font-weight:800;padding:2px 7px;border-radius:4px;letter-spacing:0.5px">D</span>
+          <span style="font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.8px">Dependências — risco de espera</span>
+        </div>
+        <div style="padding:8px 0">
+          ${[['D0','Nenhuma (time resolve sozinho)','#f0fdf4','#16a34a'],['D1','1 dependência interna simples','#eff6ff','#1d4ed8'],['D2','2–3 dependências ou 1 externa','#fff7ed','#c2410c'],['D3','>3 dependências ou múltiplos times','#fef2f2','#dc2626']].map(([cod,desc,bg,cor])=>`
+          <div style="display:flex;align-items:center;gap:12px;padding:9px 16px;border-bottom:1px solid #f1f5f9">
+            <span style="background:${bg};color:${cor};font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;min-width:32px;text-align:center;flex-shrink:0">${cod}</span>
+            <span style="font-size:12.5px;color:#374151">${desc}</span>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <!-- Matrix -->
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#64748b;margin-bottom:8px">Matriz de Tamanho — clique para selecionar</div>
+    <div class="tap-matrix-wrap">
+      <table class="tap-size-matrix">
+        <thead><tr>
+          <th>Esforço \ Dependências</th>
+          <th>D0 (nenhuma)</th><th>D1 (baixa)</th><th>D2 (média)</th><th>D3 (alta)</th>
+        </tr></thead>
+        <tbody>${matrixRows}</tbody>
+      </table>
+    </div>
+    <!-- Selects + Result -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 2fr;gap:16px;margin-top:20px;align-items:end">
+      <div class="tap-field">
+        <label>Esforço Estimado</label>
+        <select id="tap-esforco" onchange="tapUpdateSize()">
+          <option value="">— Selecione —</option>
+          <option value="E1" ${sel('esforco','E1')}>E1 — até 1 semana</option>
+          <option value="E2" ${sel('esforco','E2')}>E2 — até 4 semanas</option>
+          <option value="E3" ${sel('esforco','E3')}>E3 — 4 a 12 semanas</option>
+          <option value="E4" ${sel('esforco','E4')}>E4 — mais de 12 semanas</option>
+        </select>
+      </div>
+      <div class="tap-field">
+        <label>Dependências</label>
+        <select id="tap-dependencia" onchange="tapUpdateSize()">
+          <option value="">— Selecione —</option>
+          <option value="D0" ${sel('dependencia','D0')}>D0 — nenhuma</option>
+          <option value="D1" ${sel('dependencia','D1')}>D1 — 1 interna simples</option>
+          <option value="D2" ${sel('dependencia','D2')}>D2 — 2-3 ou 1 externa</option>
+          <option value="D3" ${sel('dependencia','D3')}>D3 — +3 ou múltiplos times</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#64748b;margin-bottom:8px">Tamanho Calculado</div>
+        <div id="tap-size-result-box" class="tap-size-result-box ${curSize||'empty'}">
+          ${curSize
+            ? `<div class="tap-size-letter">${curSize}</div><div><div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:2px">${sizeInfo.label}</div><div style="font-size:11.5px;color:#64748b;line-height:1.5">${sizeInfo.desc}</div></div>`
+            : `<div class="tap-size-letter">?</div><div style="font-size:12px;color:#94a3b8">Selecione Esforço e Dependências para calcular.</div>`}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="tap-footer">
+    <button class="tap-btn-save" onclick="saveTap('${projectId}')">💾 Salvar TAP</button>
+    <span id="tap-saved-msg" class="tap-saved-msg">✓ TAP salvo com sucesso!</span>
+    <div style="flex:1"></div>
+    <div style="font-size:11px;color:#94a3b8">Os dados são salvos no Supabase por projeto</div>
+  </div>`;
+
+  tapUpdateSize();
+
+  // Scroll spy
+  const body = document.getElementById('tap-modal-body');
+  if(body) {
+    body.addEventListener('scroll', () => {
+      sections.forEach(s => {
+        const el = document.getElementById(s.id);
+        if(!el) return;
+        const top = el.getBoundingClientRect().top - body.getBoundingClientRect().top;
+        if(top >= -40 && top < 300) tapNavActivate(s.id);
+      });
+    }, {passive:true});
+  }
 }
 
 // ============================================================
