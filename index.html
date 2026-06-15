@@ -1120,7 +1120,48 @@
   body.resizing { cursor: col-resize !important; user-select: none; }
   body.resizing * { cursor: col-resize !important; }
 
-  /* ===== TAP MODAL ===== */
+  /* ===== VIEW MODE TOGGLE ===== */
+  .view-toggle {
+    display: flex; border: 1px solid var(--border); border-radius: 6px;
+    overflow: hidden; flex-shrink: 0;
+  }
+  .view-btn {
+    padding: 5px 12px; font-size: 11.5px; font-weight: 500;
+    border: none; background: #fff; color: var(--muted);
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .view-btn:not(:last-child) { border-right: 1px solid var(--border); }
+  .view-btn.active { background: var(--navy); color: #fff; font-weight: 600; }
+  .view-btn:hover:not(.active) { background: #f1f5f9; color: var(--navy); }
+
+  /* Task rows inside deliverable col */
+  .deliv-item.is-task {
+    padding-left: 22px;
+    background: #fafbfc;
+    border-top: 1px dashed #e8edf4;
+  }
+  .deliv-item.is-task .deliv-dot {
+    width: 6px; height: 6px; opacity: 0.7;
+  }
+  .deliv-item.is-task .deliv-label {
+    font-size: 10.5px; color: var(--muted); font-style: italic;
+  }
+  .deliv-group-header {
+    font-size: 10px; font-weight: 700; color: var(--navy);
+    text-transform: uppercase; letter-spacing: 0.4px;
+    padding: 5px 10px 2px; background: #f1f5f9;
+    border-top: 1px solid var(--border);
+  }
+  /* Barra de tarefa no Gantt */
+  .task-bar {
+    border-left: 3px solid #F5C400 !important;
+    opacity: 0.85;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: #fff !important;
+    font-size: 10.5px !important;
+  }
   .tap-nav-item { display:flex;align-items:center;gap:10px;padding:9px 16px;font-size:12px;font-weight:500;color:#64748b;cursor:pointer;transition:all 0.15s;border-left:3px solid transparent; }
   .tap-nav-item:hover { background:#e8edf5;color:#0D1F3C; }
   .tap-nav-item.active { background:#e0eaf7;color:#0D1F3C;font-weight:700;border-left-color:#F5C400; }
@@ -1792,6 +1833,10 @@
   <button id="btn-collapse-all" class="ghost" title="Recolher todos os projetos">⊟ Recolher todos</button>
   <button id="btn-sort-date" class="ghost" title="Ordenar projetos por data planejada de início (crescente)">↕ Ordenar por Data</button>
   <button id="btn-undo" class="ghost" title="Desfazer (Ctrl+Z)">↶ Desfazer</button>
+  <div class="view-toggle" title="Modo de visualização">
+    <button class="view-btn active" id="vbtn-phases" onclick="setViewMode('phases')" title="Só Entregas">Entregas</button>
+    <button class="view-btn" id="vbtn-tasks" onclick="setViewMode('tasks')" title="Entregas + Tarefas">Entregas + Tarefas</button>
+  </div>
   <button id="btn-download" class="secondary">⬇ Baixar Planilha</button>
   <label class="btn-file">⬆ Carregar Planilha
     <input type="file" id="upload-file" accept=".xlsx,.xls">
@@ -2939,22 +2984,69 @@ function renderProjectRow(p, range) {
   `;
 }
 
+// ============================================================
+// VIEW MODE: 'phases' | 'tasks'
+// ============================================================
+let viewMode = 'phases';
+
+function setViewMode(mode) {
+  viewMode = mode;
+  ['phases','tasks'].forEach(m => {
+    const btn = document.getElementById('vbtn-'+m);
+    if (btn) btn.classList.toggle('active', m === mode);
+  });
+  render();
+}
+
 function buildDeliverableCol(p) {
   const phases = p.phases || [];
   if (!phases.length) return '<div class="deliverables-col"></div>';
-  const items = phases.map(ph => {
-    if (ph.isMilestone) {
-      return `<div class="deliv-item is-milestone">
-        <span class="deliv-dot" style="background:var(--yellow)"></span>
-        <span class="deliv-label" title="◆ ${escapeHtml(ph.name)}">◆ ${escapeHtml(ph.name)}</span>
+
+  let items = '';
+
+  if (viewMode === 'tasks') {
+    // Entregas + Tarefas
+    phases.forEach(ph => {
+      if (ph.isMilestone) {
+        items += `<div class="deliv-item is-milestone">
+          <span class="deliv-dot" style="background:var(--yellow)"></span>
+          <span class="deliv-label" title="◆ ${escapeHtml(ph.name)}">◆ ${escapeHtml(ph.name)}</span>
+        </div>`;
+      } else {
+        const col = statusColor(ph.status || 'not_started');
+        items += `<div class="deliv-item">
+          <span class="deliv-dot" style="background:${col}"></span>
+          <span class="deliv-label" title="${escapeHtml(ph.name)}">${escapeHtml(ph.name)}</span>
+        </div>`;
+        // Tasks below
+        if (ph.tasks && ph.tasks.length) {
+          ph.tasks.forEach(t => {
+            const tc = statusColor(t.status || 'not_started');
+            items += `<div class="deliv-item is-task">
+              <span class="deliv-dot" style="background:${tc}"></span>
+              <span class="deliv-label" title="${escapeHtml(t.name)}">${escapeHtml(t.name)}</span>
+            </div>`;
+          });
+        }
+      }
+    });
+  } else {
+    // Só Entregas (padrão)
+    items = phases.map(ph => {
+      if (ph.isMilestone) {
+        return `<div class="deliv-item is-milestone">
+          <span class="deliv-dot" style="background:var(--yellow)"></span>
+          <span class="deliv-label" title="◆ ${escapeHtml(ph.name)}">◆ ${escapeHtml(ph.name)}</span>
+        </div>`;
+      }
+      const col = statusColor(ph.status || 'not_started');
+      return `<div class="deliv-item">
+        <span class="deliv-dot" style="background:${col}"></span>
+        <span class="deliv-label" title="${escapeHtml(ph.name)}">${escapeHtml(ph.name)}</span>
       </div>`;
-    }
-    const col = statusColor(ph.status || 'not_started');
-    return `<div class="deliv-item">
-      <span class="deliv-dot" style="background:${col}"></span>
-      <span class="deliv-label" title="${escapeHtml(ph.name)}">${escapeHtml(ph.name)}</span>
-    </div>`;
-  }).join('');
+    }).join('');
+  }
+
   return `<div class="deliverables-col">${items}</div>`;
 }
 
@@ -3028,7 +3120,16 @@ function renderBars(p, range) {
   }
 
   const phases = p.phases || [];
-  const totalH = Math.max(phases.length, 1) * ROW_H;
+
+  // Calcular total de linhas dependendo do viewMode
+  const rowsPerPhase = phases.map(ph => {
+    if (viewMode === 'tasks' && !ph.isMilestone && ph.tasks && ph.tasks.length) {
+      return 1 + ph.tasks.length;
+    }
+    return 1;
+  });
+  const totalRows = Math.max(rowsPerPhase.reduce((a, b) => a + b, 0), 1);
+  const totalH = totalRows * ROW_H;
 
   const gridLines = weekLines.map(pct =>
     `<div style="position:absolute;top:0;bottom:0;left:${pct}%;width:1px;background:#edf0f4;pointer-events:none"></div>`
@@ -3042,8 +3143,10 @@ function renderBars(p, range) {
     [data-project="${p.id}"] .deliv-item { height: ${ROW_H}px; }
   </style>`, gridLines];
 
+  // Barra de cada fase — posicionada na primeira linha do bloco da fase
+  let rowOffset = 0;
   phases.forEach((ph, i) => {
-    const topPx = i * ROW_H + PAD;
+    const topPx = rowOffset * ROW_H + PAD;
     const flagIds = ph.flagIds || [];
     const flags   = flagIds.map(getFlag).filter(Boolean);
     const flagIcons = flags.map(f => `<span class="bar-flag" title="${escapeHtml(f.name)}">${f.icon||'🏷'}</span>`).join('');
@@ -3051,7 +3154,7 @@ function renderBars(p, range) {
 
     if (ph.isMilestone) {
       const d = parseDate(ph.actualStart) || parseDate(ph.replannedStart) || parseDate(ph.plannedStart);
-      if (!d) return;
+      if (!d) { rowOffset += rowsPerPhase[i]; return; }
       const pos = dateToPercent(d, range);
       const title = `${ph.name} (Marco)${flagNames}\n` +
         (ph.plannedStart ? `Planejado: ${fmtDate(ph.plannedStart)}\n` : '') +
@@ -3061,31 +3164,66 @@ function renderBars(p, range) {
     } else {
       const useStart = parseDate(ph.actualStart) || parseDate(ph.replannedStart) || parseDate(ph.plannedStart);
       const useEnd   = parseDate(ph.actualEnd)   || parseDate(ph.replannedEnd)   || parseDate(ph.plannedEnd);
-      if (!useStart || !useEnd) return;
-      const left  = dateToPercent(useStart, range);
-      const right = dateToPercent(useEnd, range);
-      if (right <= 0 || left >= 100) return;
-      const width = Math.max(right - left, 1);
+      if (useStart && useEnd) {
+        const left  = dateToPercent(useStart, range);
+        const right = dateToPercent(useEnd, range);
+        if (right > 0 && left < 100) {
+          const width = Math.max(right - left, 1);
+          const phStatus = ph.status || 'not_started';
+          let cls = `phase-bar status-${phStatus}`;
+          if (flagIds.includes('flag-dev')) cls += ' dev-start';
+          if (parseDate(ph.replannedStart) || parseDate(ph.replannedEnd)) cls += ' replanned';
 
-      const phStatus = ph.status || 'not_started';
-      let cls = `phase-bar status-${phStatus}`;
-      if (flagIds.includes('flag-dev')) cls += ' dev-start';
-      if (parseDate(ph.replannedStart) || parseDate(ph.replannedEnd)) cls += ' replanned';
+          const rp = phaseRealizedProgress(ph);
+          const statusMap = { not_started: 'Não iniciado', in_progress: 'Iniciado', ready_to_validate: 'Pronto p/ validação', validating: 'Validando', done: 'Pronto' };
+          const tasksList = (ph.tasks||[]).length
+            ? '\n─────────────────\n' + ph.tasks.map(t => `· ${t.name}: ${statusMap[t.status] || 'Não iniciado'}`).join('\n')
+            : '';
+          const title = `${ph.name} (${rp}%)${flagNames}\n` +
+            `Planejado: ${fmtDate(ph.plannedStart)} → ${fmtDate(ph.plannedEnd)}` +
+            (ph.replannedStart||ph.replannedEnd ? `\nReplanejado: ${fmtDate(ph.replannedStart)} → ${fmtDate(ph.replannedEnd)}` : '') +
+            (ph.actualStart||ph.actualEnd ? `\nRealizado: ${fmtDate(ph.actualStart)} → ${ph.actualEnd ? fmtDate(ph.actualEnd) : 'em curso'}` : '') +
+            tasksList;
 
-      const rp = phaseRealizedProgress(ph);
-      const statusMap = { not_started: 'Não iniciado', in_progress: 'Iniciado', ready_to_validate: 'Pronto p/ validação', validating: 'Validando', done: 'Pronto' };
-      const tasksList = (ph.tasks||[]).length
-        ? '\n─────────────────\n' + ph.tasks.map(t => `· ${t.name}: ${statusMap[t.status] || 'Não iniciado'}`).join('\n')
-        : '';
-      const title = `${ph.name} (${rp}%)${flagNames}\n` +
-        `Planejado: ${fmtDate(ph.plannedStart)} → ${fmtDate(ph.plannedEnd)}` +
-        (ph.replannedStart||ph.replannedEnd ? `\nReplanejado: ${fmtDate(ph.replannedStart)} → ${fmtDate(ph.replannedEnd)}` : '') +
-        (ph.actualStart||ph.actualEnd ? `\nRealizado: ${fmtDate(ph.actualStart)} → ${ph.actualEnd ? fmtDate(ph.actualEnd) : 'em curso'}` : '') +
-        tasksList;
+          parts.push(`<div class="${cls}" style="left:${left}%;width:${width}%;top:${topPx}px;height:${BAR_H}px"
+            data-project="${p.id}" data-phase="${ph.id}"
+            title="${escapeHtml(title)}">${flagIcons}${escapeHtml(ph.name)}</div>`);
+        }
+      }
+    }
+    rowOffset += 1; // linha da entrega
 
-      parts.push(`<div class="${cls}" style="left:${left}%;width:${width}%;top:${topPx}px;height:${BAR_H}px"
-        data-project="${p.id}" data-phase="${ph.id}"
-        title="${escapeHtml(title)}">${flagIcons}${escapeHtml(ph.name)}</div>`);
+    // No modo tasks: desenha barras das tarefas abaixo da entrega
+    if (viewMode === 'tasks' && !ph.isMilestone && ph.tasks && ph.tasks.length) {
+      // Datas limite da entrega (clamp)
+      const phStart = parseDate(ph.actualStart) || parseDate(ph.replannedStart) || parseDate(ph.plannedStart);
+      const phEnd   = parseDate(ph.actualEnd)   || parseDate(ph.replannedEnd)   || parseDate(ph.plannedEnd);
+
+      ph.tasks.forEach((t) => {
+        const tTop = rowOffset * ROW_H + PAD;
+
+        // Datas da tarefa limitadas pelas datas da entrega
+        let tStart = parseDate(t.plannedStart) || phStart;
+        let tEnd   = parseDate(t.plannedEnd)   || phEnd;
+        if (phStart && tStart < phStart) tStart = phStart;
+        if (phEnd   && tEnd   > phEnd)   tEnd   = phEnd;
+
+        if (tStart && tEnd && tEnd > tStart) {
+          const tLeft  = dateToPercent(tStart, range);
+          const tRight = dateToPercent(tEnd, range);
+          if (tRight > 0 && tLeft < 100) {
+            const tWidth = Math.max(tRight - tLeft, 0.5);
+            const tStatus = t.status || 'not_started';
+            // Barra de tarefa: mais fina, com borda esquerda amarela e prefixo ↳
+            parts.push(`<div class="phase-bar status-${tStatus} task-bar"
+              style="left:calc(${tLeft}% + 10px);width:calc(${tWidth}% - 10px);top:${tTop}px;height:${BAR_H}px;
+                     border-left:3px solid #F5C400;border-radius:3px;font-size:10.5px;padding-left:6px"
+              data-project="${p.id}" data-phase="${ph.id}"
+              title="↳ Tarefa: ${escapeHtml(t.name)}\n${fmtDate(t.plannedStart)} → ${fmtDate(t.plannedEnd)}">↳ ${escapeHtml(t.name)}</div>`);
+          }
+        }
+        rowOffset++;
+      });
     }
   });
 
