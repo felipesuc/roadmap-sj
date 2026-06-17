@@ -810,11 +810,32 @@
     border-radius: 10px;
     cursor: pointer;
     line-height: 1.3;
+    font-family: inherit;
   }
   .flag-add-btn:hover {
     background: var(--yellow-soft);
     border-color: var(--yellow);
     border-style: solid;
+  }
+  /* Na tv-table, botão + flag só aparece no hover da linha */
+  .tv-phase-row .flag-add-btn,
+  .tv-task-row .flag-add-btn {
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .tv-phase-row:hover .flag-add-btn,
+  .tv-task-row:hover .flag-add-btn {
+    opacity: 1;
+  }
+  /* pill-x também só aparece no hover na tv-table */
+  .tv-phase-row .pill-x,
+  .tv-task-row .pill-x {
+    opacity: 0;
+    transition: opacity 0.1s;
+  }
+  .tv-phase-row:hover .pill-x,
+  .tv-task-row:hover .pill-x {
+    opacity: 0.6;
   }
 
   /* Flag chooser popup */
@@ -1122,8 +1143,39 @@
 
   .tv-proj-row td { padding: 8px 14px; background: #f1f5f9; border-bottom: 1px solid #dde4ee; }
   .tv-proj-row:hover td { background: #e8edf5; }
-  .tv-date-input { font-size:11px;padding:3px 6px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;cursor:pointer;width:118px; }
-  .tv-date-input:focus { outline:none;border-color:#0D1F3C; }
+  /* Date cell: exibe valor ou placeholder clicável */
+  .tv-date-cell {
+    display: inline-flex; align-items: center; gap: 4px;
+    min-width: 100px;
+  }
+  .tv-date-input {
+    font-size:11px; padding:3px 6px; border:1px solid #e2e8f0;
+    border-radius:5px; background:#fff; cursor:pointer; width:110px;
+    font-family:inherit; color:#1e293b;
+  }
+  .tv-date-input:focus { outline:none; border-color:#0D1F3C; box-shadow:0 0 0 2px rgba(13,31,60,0.08); }
+  /* Input vazio: muito discreto, só aparece no hover da linha */
+  .tv-date-input.tv-empty {
+    color: transparent; border-color: transparent; background: transparent;
+    cursor: pointer; width: 110px;
+  }
+  .tv-date-input.tv-empty::-webkit-calendar-picker-indicator { opacity: 0; }
+  .tv-phase-row:hover .tv-date-input.tv-empty,
+  .tv-task-row:hover .tv-date-input.tv-empty {
+    border-color: #e2e8f0; background: #fff;
+    color: #94a3b8;
+  }
+  .tv-date-input.tv-empty:focus {
+    border-color: #0D1F3C !important; background: #fff !important;
+    color: #1e293b !important; box-shadow: 0 0 0 2px rgba(13,31,60,0.08);
+  }
+  /* Entrega: fundo branco limpo */
+  .tv-phase-row td { padding: 7px 12px; border-bottom: 1px solid #edf0f4; vertical-align: middle; }
+  .tv-phase-row:hover td { background: #f8fafc; }
+  /* Tarefa: fundo levemente diferenciado + indentação com trilho */
+  .tv-task-row td { padding: 5px 12px; border-bottom: 1px solid #f3f4f6; background: #f8fafc; vertical-align: middle; font-size: 11.5px; color: #4b5563; }
+  .tv-task-row:hover td { background: #f1f5f9; }
+  .tv-task-row td:first-child { border-left: 2px solid #e2e8f0; }
   .tv-farol-select { font-size:11px;padding:3px 8px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;cursor:pointer; }
 
   /* ===== TABLE VIEW ===== */
@@ -1886,6 +1938,7 @@
   <button id="btn-collapse-all" class="ghost" title="Recolher todos os projetos">⊟ Recolher todos</button>
   <button id="btn-sort-date" class="ghost" title="Ordenar projetos por data planejada de início (crescente)">↕ Ordenar por Data</button>
   <button id="btn-undo" class="ghost" title="Desfazer (Ctrl+Z)">↶ Desfazer</button>
+  <button id="btn-sync-db" class="ghost" title="Limpa o cache local e recarrega os dados do banco">🔄 Sincronizar banco</button>
   <div class="view-toggle" title="Modo de visualização">
     <button class="view-btn active" id="vbtn-gantt-phases" onclick="setViewMode('gantt-phases')" title="Gantt — Só Entregas">📅 Gantt</button>
     <button class="view-btn" id="vbtn-gantt-tasks" onclick="setViewMode('gantt-tasks')" title="Gantt — Entregas + Tarefas">📅 Gantt + Tarefas</button>
@@ -2318,7 +2371,8 @@ async function loadFromSupabase() {
       sbGet('task_flags', '*'),
     ]);
 
-    if (!portfolios.length && !projects.length) { setSyncStatus('idle'); return; }
+    // Se banco vazio, ainda assim persiste o estado vazio no localStorage (não reaproveita cache antigo)
+    if (!portfolios.length && !projects.length) { lsSave(); setSyncStatus('idle'); return; }
 
     // Build flag lookup
     const flagMap = {};
@@ -2738,17 +2792,22 @@ function phasePredictedProgress(phase, today) {
 
 // Progresso realizado: usa o progress salvo na fase (atualizado via coluna Progresso)
 // Quando usuário muda o select de status, ph.progress é atualizado via statusToProgress
+function snapToSteps(pct) {
+  const STEPS = [0, 25, 50, 75, 100];
+  return STEPS.filter(s => s <= pct).pop() ?? 0;
+}
+
 function phaseRealizedProgress(phase) {
   if (phase.tasks && phase.tasks.length) {
     let sum = 0;
     phase.tasks.forEach(t => {
       sum += t.status ? statusToProgress(t.status) : (Number(t.progress) || 0);
     });
-    return Math.round(sum / phase.tasks.length);
+    return snapToSteps(sum / phase.tasks.length);
   }
-  // Sem tarefas: usa progress da fase (sincronizado com status via onInlineEdit)
-  if (phase.progress !== undefined && phase.progress !== null) return Number(phase.progress) || 0;
+  // Sem tarefas: usa status da fase (já está nos degraus via statusToProgress)
   if (phase.status) return statusToProgress(phase.status);
+  if (phase.progress !== undefined && phase.progress !== null) return snapToSteps(Number(phase.progress) || 0);
   return 0;
 }
 
@@ -2767,8 +2826,8 @@ function projectProgress(project) {
   });
 
   return {
-    predicted: count ? Math.round(pSum / count) : 0,
-    realized:  count ? Math.round(rSum / count) : 0
+    predicted: count ? snapToSteps(pSum / count) : 0,
+    realized:  count ? snapToSteps(rSum / count) : 0
   };
 }
 
@@ -3104,8 +3163,13 @@ function renderTableView() {
   }
 
   function dateInput(val, field, phId) {
-    return `<input type="date" class="tv-date-input" data-phase="${phId}" data-field="${field}"
-      value="${val||''}" style="font-size:11px;padding:3px 6px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;cursor:pointer;width:120px">`;
+    const empty = !val ? ' tv-empty' : '';
+    return `<input type="date" class="tv-date-input${empty}" data-phase="${phId}" data-field="${field}" value="${val||''}">`;
+  }
+
+  function taskDateInput(val, field, tId, phId) {
+    const empty = !val ? ' tv-empty' : '';
+    return `<input type="date" class="tv-date-input${empty}" data-task="${tId}" data-phase="${phId}" data-field="${field}" value="${val||''}">`;
   }
 
   function progBar(pct, color) {
@@ -3285,7 +3349,7 @@ function renderTableView() {
               ${progBar(real, sc.color)}
             </div>
           </td>
-          <td>${flagPills(ph.flagIds)}</td>
+          <td>${renderFlagPills(ph, 'phase')}</td>
           <td>
             <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
               <button class="ghost" style="font-size:10px;padding:2px 6px" data-manage-phases="${ph.projectId||p.id}" title="Editar no modal">📋</button>
@@ -3310,12 +3374,12 @@ function renderTableView() {
                 </div>
               </td>
               <td>${taskStatusSelect(t, ph.id)}</td>
-              <td><input type="date" class="tv-date-input" data-task="${t.id}" data-phase="${ph.id}" data-field="plannedStart" value="${t.plannedStart||''}" style="font-size:11px;padding:3px 6px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;width:118px"></td>
-              <td><input type="date" class="tv-date-input" data-task="${t.id}" data-phase="${ph.id}" data-field="plannedEnd" value="${t.plannedEnd||''}" style="font-size:11px;padding:3px 6px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;width:118px"></td>
-              <td><input type="date" class="tv-date-input" data-task="${t.id}" data-phase="${ph.id}" data-field="replannedStart" value="${t.replannedStart||''}" style="font-size:11px;padding:3px 6px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;width:118px"></td>
-              <td><input type="date" class="tv-date-input" data-task="${t.id}" data-phase="${ph.id}" data-field="replannedEnd" value="${t.replannedEnd||''}" style="font-size:11px;padding:3px 6px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;width:118px"></td>
-              <td><input type="date" class="tv-date-input" data-task="${t.id}" data-phase="${ph.id}" data-field="actualStart" value="${t.actualStart||''}" style="font-size:11px;padding:3px 6px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;width:118px"></td>
-              <td><input type="date" class="tv-date-input" data-task="${t.id}" data-phase="${ph.id}" data-field="actualEnd" value="${t.actualEnd||''}" style="font-size:11px;padding:3px 6px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;width:118px"></td>
+              <td>${taskDateInput(t.plannedStart,'plannedStart',t.id,ph.id)}</td>
+              <td>${taskDateInput(t.plannedEnd,'plannedEnd',t.id,ph.id)}</td>
+              <td>${taskDateInput(t.replannedStart,'replannedStart',t.id,ph.id)}</td>
+              <td>${taskDateInput(t.replannedEnd,'replannedEnd',t.id,ph.id)}</td>
+              <td>${taskDateInput(t.actualStart,'actualStart',t.id,ph.id)}</td>
+              <td>${taskDateInput(t.actualEnd,'actualEnd',t.id,ph.id)}</td>
               <td>
                 <div style="display:flex;align-items:center;gap:4px">
                   ${progBar(phasePredictedProgress(t, today), '#94a3b8')}
@@ -3326,7 +3390,7 @@ function renderTableView() {
                   ${progBar(tReal, tc.color)}
                 </div>
               </td>
-              <td>${flagPills(t.flagIds)}</td>
+              <td>${renderFlagPills(t, 'task')}</td>
               <td>
                 <button class="ghost" style="font-size:10px;padding:2px 6px;color:#ef4444;border-color:#fca5a5" data-tv-del-task="${t.id}" data-tv-del-task-phase="${ph.id}" title="Excluir tarefa">🗑</button>
               </td>
@@ -3412,6 +3476,7 @@ function renderTableView() {
 
   // Task date inputs
   tableV.querySelectorAll('.tv-date-input[data-task]').forEach(inp => {
+    inp.onfocus = () => inp.classList.remove('tv-empty');
     inp.onchange = () => {
       const ph = state.projects.flatMap(p => p.phases||[]).find(x => x.id === inp.dataset.phase);
       if (!ph) return;
@@ -3419,8 +3484,14 @@ function renderTableView() {
       if (!t) return;
       snapshot();
       t[inp.dataset.field] = inp.value;
+      if (!inp.value) inp.classList.add('tv-empty');
       save();
     };
+  });
+
+  // Phase date inputs: também aplicar tv-empty ao limpar
+  tableV.querySelectorAll('.tv-date-input[data-phase]:not([data-task])').forEach(inp => {
+    inp.onfocus = () => inp.classList.remove('tv-empty');
   });
 
   // Inline phase name edit
@@ -4524,6 +4595,8 @@ function addFlagToTarget(targetId, kind, flagId) {
     save();
     if (document.getElementById('phases-modal').classList.contains('open')) renderPhasesModal();
     if (document.getElementById('tasks-modal').classList.contains('open')) renderTasksModal();
+    const tv = document.getElementById('table-view');
+    if (tv && tv.style.display !== 'none') renderTableView();
     render();
   }
 }
@@ -4535,6 +4608,8 @@ function removeFlagFromTarget(targetId, kind, flagId) {
   save();
   if (document.getElementById('phases-modal').classList.contains('open')) renderPhasesModal();
   if (document.getElementById('tasks-modal').classList.contains('open')) renderTasksModal();
+  const tv = document.getElementById('table-view');
+  if (tv && tv.style.display !== 'none') renderTableView();
   render();
 }
 
@@ -5313,6 +5388,14 @@ document.getElementById('btn-sort-date').onclick = () => {
   save();
   render();
   toast('Projetos, entregas e tarefas reordenados por data planejada de início ↑');
+};
+document.getElementById('btn-sync-db').onclick = async () => {
+  if (!confirm('Isso vai limpar o cache local e recarregar os dados diretamente do banco. Continuar?')) return;
+  try { localStorage.removeItem('roadmap-empresas-sj'); } catch(e) {}
+  state = { portfolios: [], flags: [], projects: [] };
+  render();
+  toast('Cache local limpo. Carregando do banco...');
+  await loadFromSupabase();
 };
 document.getElementById('btn-expand-all').onclick = () => {
   state.projects.forEach(p => expandedProjects.add(p.id));
