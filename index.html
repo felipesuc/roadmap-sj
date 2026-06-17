@@ -3176,6 +3176,37 @@ function renderTableView() {
             <button class="ghost" style="font-size:11px;padding:3px 8px" data-open-tap="${p.id}">🗂 TAP</button>
           </div>
         </td>
+      </tr>
+      <!-- Farol fields row -->
+      <tr data-project="${p.id}">
+        <td colspan="8" style="padding:0;border-bottom:1px solid #dde4ee;background:#fafbfc">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;border-top:1px solid #f1f5f9">
+            <div class="farol-reason ${p.status||'gray'}" style="margin:0;border-radius:0;border-left:3px solid;padding:8px 12px">
+              <div class="farol-label" style="margin-bottom:4px"><span class="marker" style="display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:${p.status==='green'?'var(--green)':p.status==='yellow'?'var(--amber)':p.status==='red'?'var(--red)':'#9ca3af'}"></span>MOTIVO DO FAROL</div>
+              <textarea class="editable tv-proj-field" data-pid="${p.id}" data-field="statusExplanation"
+                rows="2" placeholder="Explique o motivo do farol atual"
+                style="width:100%;font-size:11.5px;resize:none;border:none;background:transparent;padding:0;font-family:inherit">${escapeHtml(p.statusExplanation||'')}</textarea>
+            </div>
+            <div style="border-left:3px solid var(--green);background:#f0fdf4;padding:8px 12px">
+              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--green);margin-bottom:4px">✅ DESTAQUE DO PERÍODO</div>
+              <textarea class="editable tv-proj-field" data-pid="${p.id}" data-field="srHighlight"
+                rows="2" placeholder="Destaque do período"
+                style="width:100%;font-size:11.5px;resize:none;border:none;background:transparent;padding:0;font-family:inherit">${escapeHtml(p.srHighlight||'')}</textarea>
+            </div>
+            <div style="border-left:3px solid var(--amber);background:#fffbeb;padding:8px 12px">
+              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--amber);margin-bottom:4px">⚠️ RISCO IDENTIFICADO</div>
+              <textarea class="editable tv-proj-field" data-pid="${p.id}" data-field="srRisk"
+                rows="2" placeholder="Risco identificado"
+                style="width:100%;font-size:11.5px;resize:none;border:none;background:transparent;padding:0;font-family:inherit">${escapeHtml(p.srRisk||'')}</textarea>
+            </div>
+            <div style="border-left:3px solid #8b5cf6;background:#f5f3ff;padding:8px 12px">
+              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#8b5cf6;margin-bottom:4px">📌 DECISÃO PENDENTE</div>
+              <textarea class="editable tv-proj-field" data-pid="${p.id}" data-field="srDecision"
+                rows="2" placeholder="Decisão pendente"
+                style="width:100%;font-size:11.5px;resize:none;border:none;background:transparent;padding:0;font-family:inherit">${escapeHtml(p.srDecision||'')}</textarea>
+            </div>
+          </div>
+        </td>
       </tr>`;
 
       if (!phases.length) {
@@ -3225,8 +3256,8 @@ function renderTableView() {
             rows += `<tr class="tv-task-row">
               <td style="padding-left:48px">↳ ${escapeHtml(t.name)}</td>
               <td>${taskStatusSelect(t, ph.id)}</td>
-              <td style="font-size:11px;color:#94a3b8">${fmtDate(t.plannedStart)}</td>
-              <td style="font-size:11px;color:#94a3b8">${fmtDate(t.plannedEnd)}</td>
+              <td><input type="date" class="tv-date-input" data-task="${t.id}" data-phase="${ph.id}" data-field="plannedStart" value="${t.plannedStart||''}" style="font-size:11px;padding:3px 6px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;width:118px"></td>
+              <td><input type="date" class="tv-date-input" data-task="${t.id}" data-phase="${ph.id}" data-field="plannedEnd" value="${t.plannedEnd||''}" style="font-size:11px;padding:3px 6px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;width:118px"></td>
               <td>—</td>
               <td>
                 <div style="display:flex;align-items:center;gap:4px">
@@ -3262,14 +3293,41 @@ function renderTableView() {
       snapshot();
       p.status = sel.value;
       save();
+    };
+  });
+
+  // Phase status — atualiza status E progress (realizado)
+  tableV.querySelectorAll('select.ph-status').forEach(sel => {
+    sel.onchange = () => {
+      const ph = state.projects.flatMap(p => p.phases||[]).find(x => x.id === sel.dataset.phase);
+      if (!ph) return;
+      snapshot();
+      ph.status   = sel.value;
+      ph.progress = statusToProgress(sel.value);
+      save();
       renderTableView();
     };
   });
 
-  // Date inputs
-  tableV.querySelectorAll('.tv-date-input').forEach(inp => {
+  // Task status — atualiza status E progress
+  tableV.querySelectorAll('select.t-status').forEach(sel => {
+    sel.onchange = () => {
+      const ph = state.projects.flatMap(p => p.phases||[]).find(x => x.id === sel.dataset.phase);
+      if (!ph) return;
+      const t = (ph.tasks||[]).find(x => x.id === sel.dataset.task);
+      if (!t) return;
+      snapshot();
+      t.status   = sel.value;
+      t.progress = statusToProgress(sel.value);
+      save();
+      renderTableView();
+    };
+  });
+
+  // Phase date inputs
+  tableV.querySelectorAll('.tv-date-input[data-phase]:not([data-task])').forEach(inp => {
     inp.onchange = () => {
-      const ph = state.projects.flatMap(p=>p.phases||[]).find(x=>x.id===inp.dataset.phase);
+      const ph = state.projects.flatMap(p => p.phases||[]).find(x => x.id === inp.dataset.phase);
       if (!ph) return;
       snapshot();
       ph[inp.dataset.field] = inp.value;
@@ -3277,8 +3335,29 @@ function renderTableView() {
     };
   });
 
-  // Phase status selects (reuse existing wire-up via document event)
-  // Task status selects (reuse existing wire-up via document event)
+  // Project text fields (farol reason, highlight, risk, decision)
+  tableV.querySelectorAll('.tv-proj-field').forEach(el => {
+    el.oninput = () => {
+      const p = state.projects.find(x => x.id === el.dataset.pid);
+      if (!p) return;
+      p[el.dataset.field] = el.value;
+      snapshotDebounced();
+      save();
+    };
+  });
+
+  // Task date inputs
+  tableV.querySelectorAll('.tv-date-input[data-task]').forEach(inp => {
+    inp.onchange = () => {
+      const ph = state.projects.flatMap(p => p.phases||[]).find(x => x.id === inp.dataset.phase);
+      if (!ph) return;
+      const t = (ph.tasks||[]).find(x => x.id === inp.dataset.task);
+      if (!t) return;
+      snapshot();
+      t[inp.dataset.field] = inp.value;
+      save();
+    };
+  });
 }
 
 function tvTogglePortfolio(ptId) {
