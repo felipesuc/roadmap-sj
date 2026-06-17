@@ -2561,7 +2561,8 @@ function statusToProgress(statusValue) {
   return s ? s.progress : 0;
 }
 function progressToStatus(progress) {
-  const p = Number(progress);
+  // Arredonda para o degrau mais próximo antes de mapear para status
+  const p = snapToSteps(Number(progress) || 0);
   const s = STATUS_OPTIONS.find(x => x.progress === p);
   return s ? s.value : 'not_started';
 }
@@ -2619,8 +2620,14 @@ function migrateData() {
         ph.flagIds.push('flag-dev');
       }
       delete ph.isDevelopmentStart;
+      // Normalizar status/progress: garantir que ambos estão nos degraus
+      if (!ph.status) ph.status = progressToStatus(ph.progress || 0);
+      ph.progress = statusToProgress(ph.status);
+
       (ph.tasks || []).forEach(t => {
         if (!Array.isArray(t.flagIds)) t.flagIds = [];
+        if (!t.status) t.status = progressToStatus(t.progress || 0);
+        t.progress = statusToProgress(t.status);
       });
     });
   });
@@ -2793,22 +2800,25 @@ function phasePredictedProgress(phase, today) {
 // Progresso realizado: usa o progress salvo na fase (atualizado via coluna Progresso)
 // Quando usuário muda o select de status, ph.progress é atualizado via statusToProgress
 function snapToSteps(pct) {
+  // Arredonda para baixo nos degraus 0/25/50/75/100
   const STEPS = [0, 25, 50, 75, 100];
-  return STEPS.filter(s => s <= pct).pop() ?? 0;
+  return STEPS.filter(s => s <= Math.max(0, pct)).pop() ?? 0;
 }
 
 function phaseRealizedProgress(phase) {
+  // Com tarefas: média dos progressos das tarefas, arredondada para baixo nos degraus
   if (phase.tasks && phase.tasks.length) {
     let sum = 0;
     phase.tasks.forEach(t => {
-      sum += t.status ? statusToProgress(t.status) : (Number(t.progress) || 0);
+      // Prefere status (fonte de verdade); cai no progress numérico legado se status ausente
+      const val = t.status ? statusToProgress(t.status) : snapToSteps(Number(t.progress) || 0);
+      sum += val;
     });
     return snapToSteps(sum / phase.tasks.length);
   }
-  // Sem tarefas: usa status da fase (já está nos degraus via statusToProgress)
+  // Sem tarefas: status é a fonte de verdade (progress fica sincronizado via select)
   if (phase.status) return statusToProgress(phase.status);
-  if (phase.progress !== undefined && phase.progress !== null) return snapToSteps(Number(phase.progress) || 0);
-  return 0;
+  return snapToSteps(Number(phase.progress) || 0);
 }
 
 // Progresso consolidado do projeto (previsto + realizado)
