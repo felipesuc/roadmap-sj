@@ -1120,6 +1120,57 @@
   body.resizing { cursor: col-resize !important; user-select: none; }
   body.resizing * { cursor: col-resize !important; }
 
+  .tv-proj-row td { padding: 8px 14px; background: #f1f5f9; border-bottom: 1px solid #dde4ee; }
+  .tv-proj-row:hover td { background: #e8edf5; }
+  .tv-date-input { font-size:11px;padding:3px 6px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;cursor:pointer;width:118px; }
+  .tv-date-input:focus { outline:none;border-color:#0D1F3C; }
+  .tv-farol-select { font-size:11px;padding:3px 8px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;cursor:pointer; }
+
+  /* ===== TABLE VIEW ===== */
+  .tv-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .tv-table thead th {
+    position: sticky; top: 0; z-index: 5;
+    background: #0D1F3C; color: #e8edf5;
+    padding: 10px 14px; text-align: left;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    white-space: nowrap;
+  }
+  .tv-portfolio-row {
+    background: linear-gradient(to right,#16304f,#2a4a78);
+    color: #fff;
+  }
+  .tv-portfolio-row td {
+    padding: 8px 14px; font-weight: 700; font-size: 12px;
+    border-bottom: 2px solid #F5C400;
+  }
+  .tv-phase-row td {
+    padding: 8px 14px; border-bottom: 1px solid #edf0f4;
+    vertical-align: middle;
+  }
+  .tv-phase-row:hover td { background: #f8fafc; }
+  .tv-task-row td {
+    padding: 6px 14px 6px 36px; border-bottom: 1px solid #f1f5f9;
+    background: #fafbfc; vertical-align: middle;
+    font-size: 11.5px; color: #4b5563;
+  }
+  .tv-task-row:hover td { background: #f1f5f9; }
+  .tv-task-row td:first-child { border-left: 3px solid #F5C400; }
+  .tv-status-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 10.5px; font-weight: 600; white-space: nowrap;
+  }
+  .tv-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .tv-prog-bar { height: 6px; border-radius: 3px; background: #e2e8f0; width: 80px; overflow: hidden; }
+  .tv-prog-fill { height: 100%; border-radius: 3px; }
+  .tv-milestone-row td {
+    padding: 7px 14px; border-bottom: 1px solid #edf0f4;
+    background: #fffbeb; font-style: italic; color: #854d0e;
+    font-size: 12px;
+  }
+
   /* ===== VIEW MODE TOGGLE ===== */
   .view-toggle {
     display: flex; border: 1px solid var(--border); border-radius: 6px;
@@ -1834,8 +1885,10 @@
   <button id="btn-sort-date" class="ghost" title="Ordenar projetos por data planejada de início (crescente)">↕ Ordenar por Data</button>
   <button id="btn-undo" class="ghost" title="Desfazer (Ctrl+Z)">↶ Desfazer</button>
   <div class="view-toggle" title="Modo de visualização">
-    <button class="view-btn active" id="vbtn-phases" onclick="setViewMode('phases')" title="Só Entregas">Entregas</button>
-    <button class="view-btn" id="vbtn-tasks" onclick="setViewMode('tasks')" title="Entregas + Tarefas">Entregas + Tarefas</button>
+    <button class="view-btn active" id="vbtn-gantt-phases" onclick="setViewMode('gantt-phases')" title="Gantt — Só Entregas">📅 Gantt</button>
+    <button class="view-btn" id="vbtn-gantt-tasks" onclick="setViewMode('gantt-tasks')" title="Gantt — Entregas + Tarefas">📅 Gantt + Tarefas</button>
+    <button class="view-btn" id="vbtn-table-phases" onclick="setViewMode('table-phases')" title="Tabela — Entregas">📋 Tabela</button>
+    <button class="view-btn" id="vbtn-table-tasks" onclick="setViewMode('table-tasks')" title="Tabela — Entregas + Tarefas">📋 Tabela + Tarefas</button>
   </div>
   <button id="btn-download" class="secondary">⬇ Baixar Planilha</button>
   <label class="btn-file">⬆ Carregar Planilha
@@ -1854,6 +1907,7 @@
 
 <main>
   <div class="timeline-wrap" id="timeline-wrap"></div>
+  <div id="table-view" style="display:none;overflow:auto;max-height:calc(100vh - 170px);border:1px solid #dde4ee;border-radius:8px;background:#fff"></div>
 </main>
 </div><!-- /panel-roadmap -->
 
@@ -2985,17 +3039,252 @@ function renderProjectRow(p, range) {
 }
 
 // ============================================================
-// VIEW MODE: 'phases' | 'tasks'
+// VIEW MODE: 'gantt-phases' | 'gantt-tasks' | 'table-phases' | 'table-tasks'
 // ============================================================
-let viewMode = 'phases';
+let viewMode = 'gantt-phases';
 
 function setViewMode(mode) {
   viewMode = mode;
-  ['phases','tasks'].forEach(m => {
+  ['gantt-phases','gantt-tasks','table-phases','table-tasks'].forEach(m => {
     const btn = document.getElementById('vbtn-'+m);
     if (btn) btn.classList.toggle('active', m === mode);
   });
-  render();
+
+  const isTable = mode.startsWith('table');
+  const gantt   = document.getElementById('timeline-wrap');
+  const tableV  = document.getElementById('table-view');
+  if (gantt)  gantt.style.display  = isTable ? 'none' : '';
+  if (tableV) tableV.style.display = isTable ? '' : 'none';
+
+  if (isTable) renderTableView();
+  else render();
+}
+
+function renderTableView() {
+  const tableV = document.getElementById('table-view');
+  if (!tableV) return;
+
+  const showTasks = viewMode === 'table-tasks';
+  const today = new Date();
+
+  // Track collapsed portfolios (reuse same set as gantt)
+  const byPortfolio = new Map();
+  state.projects.forEach(p => {
+    const pid = p.portfolioId || '__none__';
+    if (!byPortfolio.has(pid)) byPortfolio.set(pid, []);
+    byPortfolio.get(pid).push(p);
+  });
+
+  function statusSelect(ph) {
+    return `<select class="ph-status" data-phase="${ph.id}" data-project="${ph.projectId||''}"
+      style="font-size:11px;padding:3px 6px;border-radius:5px;border:1px solid #e2e8f0;background:#fff;cursor:pointer">
+      ${STATUS_OPTIONS.map(s => `<option value="${s.value}" ${ph.status===s.value?'selected':''}>${s.label}</option>`).join('')}
+    </select>`;
+  }
+
+  function taskStatusSelect(t, phId) {
+    return `<select class="t-status" data-task="${t.id}" data-phase="${phId}"
+      style="font-size:11px;padding:3px 6px;border-radius:5px;border:1px solid #e2e8f0;background:#fff;cursor:pointer">
+      ${STATUS_OPTIONS.map(s => `<option value="${s.value}" ${t.status===s.value?'selected':''}>${s.label}</option>`).join('')}
+    </select>`;
+  }
+
+  function dateInput(val, field, phId) {
+    return `<input type="date" class="tv-date-input" data-phase="${phId}" data-field="${field}"
+      value="${val||''}" style="font-size:11px;padding:3px 6px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;cursor:pointer;width:120px">`;
+  }
+
+  function progBar(pct, color) {
+    return `<div class="tv-prog-bar" style="width:90px">
+      <div class="tv-prog-fill" style="width:${pct}%;background:${color}"></div>
+    </div>
+    <span style="font-size:10.5px;color:#64748b;margin-left:4px">${pct}%</span>`;
+  }
+
+  function farolSelect(p) {
+    const opts = {gray:'— —', green:'🟢 Verde', yellow:'🟡 Amarelo', red:'🔴 Vermelho'};
+    return `<select class="tv-farol-select" data-pid="${p.id}"
+      style="font-size:11px;padding:3px 8px;border-radius:5px;border:1px solid #e2e8f0;background:#fff;cursor:pointer">
+      ${Object.entries(opts).map(([v,l])=>`<option value="${v}" ${p.status===v?'selected':''}>${l}</option>`).join('')}
+    </select>`;
+  }
+
+  function flagPills(flagIds) {
+    if (!flagIds || !flagIds.length) return '<span style="color:#cbd5e1;font-size:11px">—</span>';
+    return flagIds.map(fid => {
+      const f = getFlag(fid);
+      if (!f) return '';
+      return `<span class="flag-pill" style="background:${f.color}22;color:${f.color};border-color:${f.color}66;font-size:10px;padding:1px 6px">
+        <span class="pill-icon">${f.icon||'🏷'}</span><span class="pill-name">${escapeHtml(f.name)}</span>
+      </span>`;
+    }).join('');
+  }
+
+  let html = `<table class="tv-table">
+    <thead><tr>
+      <th style="min-width:260px">Entrega / Tarefa</th>
+      <th style="min-width:160px">Status</th>
+      <th>Início Planejado</th>
+      <th>Fim Planejado</th>
+      <th style="min-width:110px">% Previsto</th>
+      <th style="min-width:130px">% Realizado</th>
+      <th style="min-width:120px">Flags</th>
+      <th style="min-width:100px">Ações</th>
+    </tr></thead><tbody>`;
+
+  const renderPortfolio = (pt, projects) => {
+    if (!projects.length) return '';
+    const ptId = pt ? pt.id : '__none__';
+    const ptName = pt ? pt.name : 'Sem Portfólio';
+    const isCollapsed = collapsedPortfolios.has(ptId);
+
+    let rows = `<tr class="tv-portfolio-row" onclick="tvTogglePortfolio('${ptId}')" style="cursor:pointer">
+      <td colspan="8" style="padding:9px 16px">
+        <span style="font-size:11px;color:#F5C400;margin-right:6px">${isCollapsed?'▶':'▾'}</span>
+        📁 <strong>${escapeHtml(ptName)}</strong>
+        <span style="font-weight:400;opacity:0.7;font-size:11px;margin-left:6px">${projects.length} projeto${projects.length!==1?'s':''}</span>
+      </td>
+    </tr>`;
+
+    if (isCollapsed) return rows;
+
+    projects.forEach(p => {
+      const phases = p.phases || [];
+      const prog   = projectProgress(p);
+
+      // Project header row
+      rows += `<tr class="tv-proj-row" data-project="${p.id}">
+        <td style="padding:8px 14px;font-weight:700;font-size:12.5px;color:#0D1F3C;border-bottom:1px solid #dde4ee">
+          ${escapeHtml(p.name)}
+          <span style="font-weight:400;color:#94a3b8;font-size:11px;margin-left:8px">${escapeHtml(p.company||'')}</span>
+        </td>
+        <td style="border-bottom:1px solid #dde4ee">${farolSelect(p)}</td>
+        <td colspan="2" style="border-bottom:1px solid #dde4ee;font-size:11px;color:#64748b">${escapeHtml(p.sponsor||'—')}</td>
+        <td style="border-bottom:1px solid #dde4ee">
+          <div style="display:flex;align-items:center;gap:6px">
+            ${progBar(prog.predicted,'#94a3b8')}
+          </div>
+        </td>
+        <td style="border-bottom:1px solid #dde4ee">
+          <div style="display:flex;align-items:center;gap:6px">
+            ${progBar(prog.realized,'#3b82f6')}
+          </div>
+        </td>
+        <td colspan="2" style="border-bottom:1px solid #dde4ee">
+          <div style="display:flex;gap:6px;align-items:center">
+            <button class="ghost" style="font-size:11px;padding:3px 8px" data-manage-phases="${p.id}">📋 Entregas</button>
+            <button class="ghost" style="font-size:11px;padding:3px 8px" data-open-tap="${p.id}">🗂 TAP</button>
+          </div>
+        </td>
+      </tr>`;
+
+      if (!phases.length) {
+        rows += `<tr><td colspan="8" style="padding:7px 14px 7px 28px;color:#94a3b8;font-style:italic;font-size:11.5px;border-bottom:1px solid #edf0f4">Nenhuma entrega cadastrada</td></tr>`;
+        return;
+      }
+
+      phases.forEach(ph => {
+        const pred = phasePredictedProgress(ph, today);
+        const real = phaseRealizedProgress(ph);
+        const sc   = STATUS_OPTIONS.find(s=>s.value===ph.status)||STATUS_OPTIONS[0];
+
+        if (ph.isMilestone) {
+          rows += `<tr class="tv-milestone-row">
+            <td style="padding-left:28px">◆ ${escapeHtml(ph.name)}</td>
+            <td style="color:#b45309;font-size:11px">Marco</td>
+            <td colspan="6"></td>
+          </tr>`;
+          return;
+        }
+
+        rows += `<tr class="tv-phase-row">
+          <td style="font-weight:600;color:#1e293b;padding-left:28px">${escapeHtml(ph.name)}</td>
+          <td>${statusSelect(ph)}</td>
+          <td>${dateInput(ph.plannedStart,'plannedStart',ph.id)}</td>
+          <td>${dateInput(ph.plannedEnd,'plannedEnd',ph.id)}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:4px">
+              ${progBar(pred,'#94a3b8')}
+            </div>
+          </td>
+          <td>
+            <div style="display:flex;align-items:center;gap:4px">
+              ${progBar(real, sc.color)}
+            </div>
+          </td>
+          <td>${flagPills(ph.flagIds)}</td>
+          <td>
+            <button class="ghost" style="font-size:10px;padding:2px 7px" data-manage-phases="${ph.projectId||p.id}" title="Editar tarefas">📋</button>
+          </td>
+        </tr>`;
+
+        if (showTasks && ph.tasks && ph.tasks.length) {
+          ph.tasks.forEach(t => {
+            const tc = STATUS_OPTIONS.find(s=>s.value===t.status)||STATUS_OPTIONS[0];
+            const tReal = statusToProgress(t.status||'not_started');
+            rows += `<tr class="tv-task-row">
+              <td style="padding-left:48px">↳ ${escapeHtml(t.name)}</td>
+              <td>${taskStatusSelect(t, ph.id)}</td>
+              <td style="font-size:11px;color:#94a3b8">${fmtDate(t.plannedStart)}</td>
+              <td style="font-size:11px;color:#94a3b8">${fmtDate(t.plannedEnd)}</td>
+              <td>—</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:4px">
+                  ${progBar(tReal, tc.color)}
+                </div>
+              </td>
+              <td>${flagPills(t.flagIds)}</td>
+              <td></td>
+            </tr>`;
+          });
+        }
+      });
+    });
+
+    return rows;
+  };
+
+  state.portfolios.forEach(pt => {
+    html += renderPortfolio(pt, byPortfolio.get(pt.id)||[]);
+  });
+  const ungrouped = byPortfolio.get('__none__')||[];
+  if (ungrouped.length) html += renderPortfolio(null, ungrouped);
+
+  html += '</tbody></table>';
+  tableV.innerHTML = html;
+
+  // Wire up events
+  // Farol select
+  tableV.querySelectorAll('.tv-farol-select').forEach(sel => {
+    sel.onchange = () => {
+      const p = state.projects.find(x => x.id === sel.dataset.pid);
+      if (!p) return;
+      snapshot();
+      p.status = sel.value;
+      save();
+      renderTableView();
+    };
+  });
+
+  // Date inputs
+  tableV.querySelectorAll('.tv-date-input').forEach(inp => {
+    inp.onchange = () => {
+      const ph = state.projects.flatMap(p=>p.phases||[]).find(x=>x.id===inp.dataset.phase);
+      if (!ph) return;
+      snapshot();
+      ph[inp.dataset.field] = inp.value;
+      save();
+    };
+  });
+
+  // Phase status selects (reuse existing wire-up via document event)
+  // Task status selects (reuse existing wire-up via document event)
+}
+
+function tvTogglePortfolio(ptId) {
+  if (collapsedPortfolios.has(ptId)) collapsedPortfolios.delete(ptId);
+  else collapsedPortfolios.add(ptId);
+  renderTableView();
 }
 
 function buildDeliverableCol(p) {
@@ -3004,7 +3293,7 @@ function buildDeliverableCol(p) {
 
   let items = '';
 
-  if (viewMode === 'tasks') {
+  if (viewMode === 'gantt-tasks') {
     // Entregas + Tarefas
     phases.forEach(ph => {
       if (ph.isMilestone) {
@@ -3123,7 +3412,7 @@ function renderBars(p, range) {
 
   // Calcular total de linhas dependendo do viewMode
   const rowsPerPhase = phases.map(ph => {
-    if (viewMode === 'tasks' && !ph.isMilestone && ph.tasks && ph.tasks.length) {
+    if (viewMode === 'gantt-tasks' && !ph.isMilestone && ph.tasks && ph.tasks.length) {
       return 1 + ph.tasks.length;
     }
     return 1;
@@ -3194,7 +3483,7 @@ function renderBars(p, range) {
     rowOffset += 1; // linha da entrega
 
     // No modo tasks: desenha barras das tarefas abaixo da entrega
-    if (viewMode === 'tasks' && !ph.isMilestone && ph.tasks && ph.tasks.length) {
+    if (viewMode === 'gantt-tasks' && !ph.isMilestone && ph.tasks && ph.tasks.length) {
       // Datas limite da entrega (clamp)
       const phStart = parseDate(ph.actualStart) || parseDate(ph.replannedStart) || parseDate(ph.plannedStart);
       const phEnd   = parseDate(ph.actualEnd)   || parseDate(ph.replannedEnd)   || parseDate(ph.plannedEnd);
