@@ -1137,6 +1137,8 @@
     border-right: 1px solid rgba(255,255,255,0.08);
     white-space: nowrap;
   }
+  .tv-table thead tr:first-child th { top: 0; }
+  .tv-table thead tr:last-child  th { top: 37px; }
   .tv-portfolio-row {
     background: linear-gradient(to right,#16304f,#2a4a78);
     color: #fff;
@@ -3042,6 +3044,15 @@ function renderProjectRow(p, range) {
 // VIEW MODE: 'gantt-phases' | 'gantt-tasks' | 'table-phases' | 'table-tasks'
 // ============================================================
 let viewMode = 'gantt-phases';
+const collapsedTvProjects = new Set();
+const collapsedTvFields   = new Set();
+
+function initTvCollapsed() {
+  state.projects.forEach(p => {
+    collapsedTvProjects.add(p.id);
+    collapsedTvFields.add(p.id);
+  });
+}
 
 function setViewMode(mode) {
   viewMode = mode;
@@ -3056,8 +3067,11 @@ function setViewMode(mode) {
   if (gantt)  gantt.style.display  = isTable ? 'none' : '';
   if (tableV) tableV.style.display = isTable ? '' : 'none';
 
-  if (isTable) renderTableView();
-  else render();
+  if (isTable) {
+    // Inicializa todos recolhidos na primeira abertura
+    if (!collapsedTvProjects.size) initTvCollapsed();
+    renderTableView();
+  } else render();
 }
 
 function renderTableView() {
@@ -3121,16 +3135,27 @@ function renderTableView() {
   }
 
   let html = `<table class="tv-table">
-    <thead><tr>
-      <th style="min-width:260px">Entrega / Tarefa</th>
-      <th style="min-width:160px">Status</th>
-      <th>Início Planejado</th>
-      <th>Fim Planejado</th>
-      <th style="min-width:110px">% Previsto</th>
-      <th style="min-width:130px">% Realizado</th>
-      <th style="min-width:120px">Flags</th>
-      <th style="min-width:100px">Ações</th>
-    </tr></thead><tbody>`;
+    <thead>
+      <tr>
+        <th rowspan="2" style="min-width:260px">Entrega / Tarefa</th>
+        <th rowspan="2" style="min-width:160px">Status</th>
+        <th colspan="2" style="text-align:center;background:#1a3a6a;border-bottom:1px solid #F5C400">Planejado</th>
+        <th colspan="2" style="text-align:center;background:#1a3a6a;border-bottom:1px solid #f59e0b">Replanejado</th>
+        <th colspan="2" style="text-align:center;background:#1a3a6a;border-bottom:1px solid #22c55e">Realizado</th>
+        <th rowspan="2" style="min-width:110px">% Previsto</th>
+        <th rowspan="2" style="min-width:130px">% Realizado</th>
+        <th rowspan="2" style="min-width:120px">Flags</th>
+        <th rowspan="2" style="min-width:100px">Ações</th>
+      </tr>
+      <tr>
+        <th style="border-top:2px solid #F5C400">Início</th>
+        <th style="border-top:2px solid #F5C400">Fim</th>
+        <th style="border-top:2px solid #f59e0b">Início</th>
+        <th style="border-top:2px solid #f59e0b">Fim</th>
+        <th style="border-top:2px solid #22c55e">Início</th>
+        <th style="border-top:2px solid #22c55e">Fim</th>
+      </tr>
+    </thead><tbody>`;
 
   const renderPortfolio = (pt, projects) => {
     if (!projects.length) return '';
@@ -3139,7 +3164,7 @@ function renderTableView() {
     const isCollapsed = collapsedPortfolios.has(ptId);
 
     let rows = `<tr class="tv-portfolio-row" onclick="tvTogglePortfolio('${ptId}')" style="cursor:pointer">
-      <td colspan="8" style="padding:9px 16px">
+      <td colspan="12" style="padding:9px 16px">
         <span style="font-size:11px;color:#F5C400;margin-right:6px">${isCollapsed?'▶':'▾'}</span>
         📁 <strong>${escapeHtml(ptName)}</strong>
         <span style="font-weight:400;opacity:0.7;font-size:11px;margin-left:6px">${projects.length} projeto${projects.length!==1?'s':''}</span>
@@ -3152,23 +3177,23 @@ function renderTableView() {
       const phases = p.phases || [];
       const prog   = projectProgress(p);
 
+      const isProjCollapsed   = collapsedTvProjects.has(p.id);
+      const isFieldsCollapsed = collapsedTvFields.has(p.id);
+
       // Project header row
       rows += `<tr class="tv-proj-row" data-project="${p.id}">
         <td style="padding:8px 14px;font-weight:700;font-size:12.5px;color:#0D1F3C;border-bottom:1px solid #dde4ee">
+          <span onclick="tvToggleProject('${p.id}')" style="cursor:pointer;margin-right:8px;color:#64748b;font-size:12px">${isProjCollapsed?'▶':'▾'}</span>
           ${escapeHtml(p.name)}
           <span style="font-weight:400;color:#94a3b8;font-size:11px;margin-left:8px">${escapeHtml(p.company||'')}</span>
         </td>
         <td style="border-bottom:1px solid #dde4ee">${farolSelect(p)}</td>
-        <td colspan="2" style="border-bottom:1px solid #dde4ee;font-size:11px;color:#64748b">${escapeHtml(p.sponsor||'—')}</td>
+        <td colspan="6" style="border-bottom:1px solid #dde4ee;font-size:11px;color:#64748b">${escapeHtml(p.sponsor||'—')}</td>
         <td style="border-bottom:1px solid #dde4ee">
-          <div style="display:flex;align-items:center;gap:6px">
-            ${progBar(prog.predicted,'#94a3b8')}
-          </div>
+          <div style="display:flex;align-items:center;gap:6px">${progBar(prog.predicted,'#94a3b8')}</div>
         </td>
         <td style="border-bottom:1px solid #dde4ee">
-          <div style="display:flex;align-items:center;gap:6px">
-            ${progBar(prog.realized,'#3b82f6')}
-          </div>
+          <div style="display:flex;align-items:center;gap:6px">${progBar(prog.realized,'#3b82f6')}</div>
         </td>
         <td colspan="2" style="border-bottom:1px solid #dde4ee">
           <div style="display:flex;gap:6px;align-items:center">
@@ -3179,40 +3204,50 @@ function renderTableView() {
       </tr>
       <!-- Farol fields row -->
       <tr data-project="${p.id}">
-        <td colspan="8" style="padding:0;border-bottom:1px solid #dde4ee;background:#fafbfc">
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;border-top:1px solid #f1f5f9">
-            <div class="farol-reason ${p.status||'gray'}" style="margin:0;border-radius:0;border-left:3px solid;padding:8px 12px">
-              <div class="farol-label" style="margin-bottom:4px"><span class="marker" style="display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:${p.status==='green'?'var(--green)':p.status==='yellow'?'var(--amber)':p.status==='red'?'var(--red)':'#9ca3af'}"></span>MOTIVO DO FAROL</div>
-              <textarea class="editable tv-proj-field" data-pid="${p.id}" data-field="statusExplanation"
-                rows="2" placeholder="Explique o motivo do farol atual"
-                style="width:100%;font-size:11.5px;resize:none;border:none;background:transparent;padding:0;font-family:inherit">${escapeHtml(p.statusExplanation||'')}</textarea>
+        <td colspan="12" style="padding:0;border-bottom:1px solid #dde4ee;background:#fafbfc">
+          <div style="display:flex;align-items:stretch">
+            <!-- Toggle button -->
+            <div onclick="tvToggleFields('${p.id}')" style="width:32px;flex-shrink:0;background:#f1f5f9;border-right:1px solid #e2e8f0;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#94a3b8;font-size:11px" title="${isFieldsCollapsed?'Expandir campos':'Recolher campos'}">
+              ${isFieldsCollapsed?'▶':'▾'}
             </div>
-            <div style="border-left:3px solid var(--green);background:#f0fdf4;padding:8px 12px">
-              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--green);margin-bottom:4px">✅ DESTAQUE DO PERÍODO</div>
-              <textarea class="editable tv-proj-field" data-pid="${p.id}" data-field="srHighlight"
-                rows="2" placeholder="Destaque do período"
-                style="width:100%;font-size:11.5px;resize:none;border:none;background:transparent;padding:0;font-family:inherit">${escapeHtml(p.srHighlight||'')}</textarea>
-            </div>
-            <div style="border-left:3px solid var(--amber);background:#fffbeb;padding:8px 12px">
-              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--amber);margin-bottom:4px">⚠️ RISCO IDENTIFICADO</div>
-              <textarea class="editable tv-proj-field" data-pid="${p.id}" data-field="srRisk"
-                rows="2" placeholder="Risco identificado"
-                style="width:100%;font-size:11.5px;resize:none;border:none;background:transparent;padding:0;font-family:inherit">${escapeHtml(p.srRisk||'')}</textarea>
-            </div>
-            <div style="border-left:3px solid #8b5cf6;background:#f5f3ff;padding:8px 12px">
-              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#8b5cf6;margin-bottom:4px">📌 DECISÃO PENDENTE</div>
-              <textarea class="editable tv-proj-field" data-pid="${p.id}" data-field="srDecision"
-                rows="2" placeholder="Decisão pendente"
-                style="width:100%;font-size:11.5px;resize:none;border:none;background:transparent;padding:0;font-family:inherit">${escapeHtml(p.srDecision||'')}</textarea>
-            </div>
+            ${isFieldsCollapsed
+              ? `<div style="padding:8px 14px;font-size:11px;color:#94a3b8;font-style:italic">Motivo do farol, destaques e riscos recolhidos...</div>`
+              : `<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;flex:1">
+              <div class="farol-reason ${p.status||'gray'}" style="margin:0;border-radius:0;border-left:3px solid;padding:8px 12px">
+                <div class="farol-label" style="margin-bottom:4px"><span class="marker" style="display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:${p.status==='green'?'var(--green)':p.status==='yellow'?'var(--amber)':p.status==='red'?'var(--red)':'#9ca3af'}"></span>MOTIVO DO FAROL</div>
+                <textarea class="editable tv-proj-field" data-pid="${p.id}" data-field="statusExplanation"
+                  rows="2" placeholder="Explique o motivo do farol atual"
+                  style="width:100%;font-size:11.5px;resize:none;border:none;background:transparent;padding:0;font-family:inherit">${escapeHtml(p.statusExplanation||'')}</textarea>
+              </div>
+              <div style="border-left:3px solid var(--green);background:#f0fdf4;padding:8px 12px">
+                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--green);margin-bottom:4px">✅ DESTAQUE DO PERÍODO</div>
+                <textarea class="editable tv-proj-field" data-pid="${p.id}" data-field="srHighlight"
+                  rows="2" placeholder="Destaque do período"
+                  style="width:100%;font-size:11.5px;resize:none;border:none;background:transparent;padding:0;font-family:inherit">${escapeHtml(p.srHighlight||'')}</textarea>
+              </div>
+              <div style="border-left:3px solid var(--amber);background:#fffbeb;padding:8px 12px">
+                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--amber);margin-bottom:4px">⚠️ RISCO IDENTIFICADO</div>
+                <textarea class="editable tv-proj-field" data-pid="${p.id}" data-field="srRisk"
+                  rows="2" placeholder="Risco identificado"
+                  style="width:100%;font-size:11.5px;resize:none;border:none;background:transparent;padding:0;font-family:inherit">${escapeHtml(p.srRisk||'')}</textarea>
+              </div>
+              <div style="border-left:3px solid #8b5cf6;background:#f5f3ff;padding:8px 12px">
+                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#8b5cf6;margin-bottom:4px">📌 DECISÃO PENDENTE</div>
+                <textarea class="editable tv-proj-field" data-pid="${p.id}" data-field="srDecision"
+                  rows="2" placeholder="Decisão pendente"
+                  style="width:100%;font-size:11.5px;resize:none;border:none;background:transparent;padding:0;font-family:inherit">${escapeHtml(p.srDecision||'')}</textarea>
+              </div>
+            </div>`}
           </div>
         </td>
       </tr>`;
 
       if (!phases.length) {
-        rows += `<tr><td colspan="8" style="padding:7px 14px 7px 28px;color:#94a3b8;font-style:italic;font-size:11.5px;border-bottom:1px solid #edf0f4">Nenhuma entrega cadastrada</td></tr>`;
+        if (!isProjCollapsed) rows += `<tr><td colspan="12" style="padding:7px 14px 7px 28px;color:#94a3b8;font-style:italic;font-size:11.5px;border-bottom:1px solid #edf0f4">Nenhuma entrega cadastrada</td></tr>`;
         return;
       }
+
+      if (isProjCollapsed) return;
 
       phases.forEach(ph => {
         const pred = phasePredictedProgress(ph, today);
@@ -3223,7 +3258,7 @@ function renderTableView() {
           rows += `<tr class="tv-milestone-row">
             <td style="padding-left:28px">◆ ${escapeHtml(ph.name)}</td>
             <td style="color:#b45309;font-size:11px">Marco</td>
-            <td colspan="6"></td>
+            <td colspan="10"></td>
           </tr>`;
           return;
         }
@@ -3233,6 +3268,10 @@ function renderTableView() {
           <td>${statusSelect(ph)}</td>
           <td>${dateInput(ph.plannedStart,'plannedStart',ph.id)}</td>
           <td>${dateInput(ph.plannedEnd,'plannedEnd',ph.id)}</td>
+          <td>${dateInput(ph.replannedStart,'replannedStart',ph.id)}</td>
+          <td>${dateInput(ph.replannedEnd,'replannedEnd',ph.id)}</td>
+          <td>${dateInput(ph.actualStart,'actualStart',ph.id)}</td>
+          <td>${dateInput(ph.actualEnd,'actualEnd',ph.id)}</td>
           <td>
             <div style="display:flex;align-items:center;gap:4px">
               ${progBar(pred,'#94a3b8')}
@@ -3258,6 +3297,7 @@ function renderTableView() {
               <td>${taskStatusSelect(t, ph.id)}</td>
               <td><input type="date" class="tv-date-input" data-task="${t.id}" data-phase="${ph.id}" data-field="plannedStart" value="${t.plannedStart||''}" style="font-size:11px;padding:3px 6px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;width:118px"></td>
               <td><input type="date" class="tv-date-input" data-task="${t.id}" data-phase="${ph.id}" data-field="plannedEnd" value="${t.plannedEnd||''}" style="font-size:11px;padding:3px 6px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;width:118px"></td>
+              <td colspan="4" style="color:#94a3b8;font-size:11px;text-align:center">—</td>
               <td>—</td>
               <td>
                 <div style="display:flex;align-items:center;gap:4px">
@@ -3360,6 +3400,16 @@ function renderTableView() {
   });
 }
 
+function tvToggleProject(pid) {
+  if (collapsedTvProjects.has(pid)) collapsedTvProjects.delete(pid);
+  else collapsedTvProjects.add(pid);
+  renderTableView();
+}
+function tvToggleFields(pid) {
+  if (collapsedTvFields.has(pid)) collapsedTvFields.delete(pid);
+  else collapsedTvFields.add(pid);
+  renderTableView();
+}
 function tvTogglePortfolio(ptId) {
   if (collapsedPortfolios.has(ptId)) collapsedPortfolios.delete(ptId);
   else collapsedPortfolios.add(ptId);
