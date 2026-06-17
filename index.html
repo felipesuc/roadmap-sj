@@ -3198,9 +3198,10 @@ function renderTableView() {
         </td>
         <td style="border-bottom:1px solid #dde4ee"></td>
         <td style="border-bottom:1px solid #dde4ee">
-          <div style="display:flex;gap:6px;align-items:center">
+          <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">
             <button class="ghost" style="font-size:11px;padding:3px 8px" data-manage-phases="${p.id}">📋 Entregas</button>
             <button class="ghost" style="font-size:11px;padding:3px 8px" data-open-tap="${p.id}">🗂 TAP</button>
+            <button class="ghost" style="font-size:11px;padding:3px 8px;color:#16a34a;border-color:#86efac" data-tv-add-phase="${p.id}" title="Adicionar entrega">+ Entrega</button>
           </div>
         </td>
       </tr>
@@ -3257,8 +3258,16 @@ function renderTableView() {
           return;
         }
 
-        rows += `<tr class="tv-phase-row">
-          <td style="font-weight:600;color:#1e293b;padding-left:28px">${escapeHtml(ph.name)}</td>
+        rows += `<tr class="tv-phase-row" data-phase-row="${ph.id}">
+          <td style="padding-left:28px">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="width:8px;height:8px;border-radius:50%;background:${sc.color};flex-shrink:0;display:inline-block"></span>
+              <input type="text" class="tv-inline-name tv-phase-name" data-phase="${ph.id}" value="${escapeHtml(ph.name)}"
+                style="font-weight:600;color:#1e293b;font-size:12.5px;border:1px solid transparent;background:transparent;padding:3px 5px;border-radius:3px;flex:1;min-width:0;font-family:inherit;cursor:text"
+                onfocus="this.style.borderColor='var(--yellow)';this.style.background='#fff'"
+                onblur="this.style.borderColor='transparent';this.style.background='transparent'">
+            </div>
+          </td>
           <td>${statusSelect(ph)}</td>
           <td>${dateInput(ph.plannedStart,'plannedStart',ph.id)}</td>
           <td>${dateInput(ph.plannedEnd,'plannedEnd',ph.id)}</td>
@@ -3278,7 +3287,11 @@ function renderTableView() {
           </td>
           <td>${flagPills(ph.flagIds)}</td>
           <td>
-            <button class="ghost" style="font-size:10px;padding:2px 7px" data-manage-phases="${ph.projectId||p.id}" title="Editar tarefas">📋</button>
+            <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+              <button class="ghost" style="font-size:10px;padding:2px 6px" data-manage-phases="${ph.projectId||p.id}" title="Editar no modal">📋</button>
+              ${showTasks ? `<button class="ghost" style="font-size:10px;padding:2px 6px;color:#16a34a;border-color:#86efac" data-tv-add-task="${ph.id}" data-tv-task-proj="${p.id}" title="Adicionar tarefa">+ Tarefa</button>` : ''}
+              <button class="ghost" style="font-size:10px;padding:2px 6px;color:#ef4444;border-color:#fca5a5" data-tv-del-phase="${ph.id}" data-tv-del-phase-proj="${p.id}" title="Excluir entrega">🗑</button>
+            </div>
           </td>
         </tr>`;
 
@@ -3286,8 +3299,16 @@ function renderTableView() {
           ph.tasks.forEach(t => {
             const tc = STATUS_OPTIONS.find(s=>s.value===t.status)||STATUS_OPTIONS[0];
             const tReal = statusToProgress(t.status||'not_started');
-            rows += `<tr class="tv-task-row">
-              <td style="padding-left:48px">↳ ${escapeHtml(t.name)}</td>
+            rows += `<tr class="tv-task-row" data-task-row="${t.id}">
+              <td style="padding-left:52px">
+                <div style="display:flex;align-items:center;gap:6px">
+                  <span style="color:#94a3b8;font-size:11px;flex-shrink:0">↳</span>
+                  <input type="text" class="tv-inline-name tv-task-name" data-task="${t.id}" data-phase="${ph.id}" value="${escapeHtml(t.name)}"
+                    style="font-size:12px;color:#374151;border:1px solid transparent;background:transparent;padding:3px 5px;border-radius:3px;flex:1;min-width:0;font-family:inherit;cursor:text"
+                    onfocus="this.style.borderColor='var(--yellow)';this.style.background='#fff'"
+                    onblur="this.style.borderColor='transparent';this.style.background='transparent'">
+                </div>
+              </td>
               <td>${taskStatusSelect(t, ph.id)}</td>
               <td><input type="date" class="tv-date-input" data-task="${t.id}" data-phase="${ph.id}" data-field="plannedStart" value="${t.plannedStart||''}" style="font-size:11px;padding:3px 6px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;width:118px"></td>
               <td><input type="date" class="tv-date-input" data-task="${t.id}" data-phase="${ph.id}" data-field="plannedEnd" value="${t.plannedEnd||''}" style="font-size:11px;padding:3px 6px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;width:118px"></td>
@@ -3299,7 +3320,9 @@ function renderTableView() {
                 </div>
               </td>
               <td>${flagPills(t.flagIds)}</td>
-              <td></td>
+              <td>
+                <button class="ghost" style="font-size:10px;padding:2px 6px;color:#ef4444;border-color:#fca5a5" data-tv-del-task="${t.id}" data-tv-del-task-phase="${ph.id}" title="Excluir tarefa">🗑</button>
+              </td>
             </tr>`;
           });
         }
@@ -3390,6 +3413,123 @@ function renderTableView() {
       snapshot();
       t[inp.dataset.field] = inp.value;
       save();
+    };
+  });
+
+  // Inline phase name edit
+  tableV.querySelectorAll('.tv-phase-name').forEach(inp => {
+    inp.onchange = () => {
+      const ph = state.projects.flatMap(p => p.phases||[]).find(x => x.id === inp.dataset.phase);
+      if (!ph) return;
+      snapshot();
+      ph.name = inp.value.trim() || ph.name;
+      save();
+      render();
+    };
+  });
+
+  // Inline task name edit
+  tableV.querySelectorAll('.tv-task-name').forEach(inp => {
+    inp.onchange = () => {
+      const ph = state.projects.flatMap(p => p.phases||[]).find(x => x.id === inp.dataset.phase);
+      if (!ph) return;
+      const t = (ph.tasks||[]).find(x => x.id === inp.dataset.task);
+      if (!t) return;
+      snapshot();
+      t.name = inp.value.trim() || t.name;
+      save();
+      render();
+    };
+  });
+
+  // + Entrega (no projeto)
+  tableV.querySelectorAll('[data-tv-add-phase]').forEach(btn => {
+    btn.onclick = () => {
+      const p = state.projects.find(x => x.id === btn.dataset.tvAddPhase);
+      if (!p) return;
+      snapshot();
+      if (!p.phases) p.phases = [];
+      const newPh = {
+        id: uid(), name: 'Nova Entrega', flagIds: [], isMilestone: false,
+        plannedStart:'', plannedEnd:'', replannedStart:'', replannedEnd:'',
+        actualStart:'', actualEnd:'', progress: 0, status: 'not_started', tasks: [],
+        projectId: p.id
+      };
+      p.phases.push(newPh);
+      save();
+      renderTableView();
+      render();
+      // Foca no nome da nova entrega
+      setTimeout(() => {
+        const inp = tableV.querySelector(`.tv-phase-name[data-phase="${newPh.id}"]`);
+        if (inp) { inp.select(); inp.focus(); }
+      }, 50);
+    };
+  });
+
+  // + Tarefa (na entrega)
+  tableV.querySelectorAll('[data-tv-add-task]').forEach(btn => {
+    btn.onclick = () => {
+      const ph = state.projects.flatMap(p => p.phases||[]).find(x => x.id === btn.dataset.tvAddTask);
+      if (!ph) return;
+      snapshot();
+      if (!ph.tasks) ph.tasks = [];
+      const newT = {
+        id: uid(), name: 'Nova Tarefa', flagIds: [],
+        plannedStart:'', plannedEnd:'', replannedStart:'', replannedEnd:'',
+        actualStart:'', actualEnd:'', progress: 0, status: 'not_started'
+      };
+      ph.tasks.push(newT);
+      save();
+      renderTableView();
+      render();
+      // Foca no nome da nova tarefa
+      setTimeout(() => {
+        const inp = tableV.querySelector(`.tv-task-name[data-task="${newT.id}"]`);
+        if (inp) { inp.select(); inp.focus(); }
+      }, 50);
+    };
+  });
+
+  // 🗑 Excluir entrega
+  tableV.querySelectorAll('[data-tv-del-phase]').forEach(btn => {
+    btn.onclick = () => {
+      const phId = btn.dataset.tvDelPhase;
+      const projId = btn.dataset.tvDelPhaseProj;
+      const p = state.projects.find(x => x.id === projId);
+      if (!p) return;
+      const ph = (p.phases||[]).find(x => x.id === phId);
+      if (!ph) return;
+      const taskCount = (ph.tasks||[]).length;
+      const msg = taskCount > 0
+        ? `Excluir a entrega "${ph.name}" e ${taskCount} tarefa(s) dentro dela?`
+        : `Excluir a entrega "${ph.name}"?`;
+      if (!confirm(msg)) return;
+      snapshot();
+      p.phases = p.phases.filter(x => x.id !== phId);
+      save();
+      renderTableView();
+      render();
+      toast(`Entrega "${ph.name}" excluída.`);
+    };
+  });
+
+  // 🗑 Excluir tarefa
+  tableV.querySelectorAll('[data-tv-del-task]').forEach(btn => {
+    btn.onclick = () => {
+      const tId = btn.dataset.tvDelTask;
+      const phId = btn.dataset.tvDelTaskPhase;
+      const ph = state.projects.flatMap(p => p.phases||[]).find(x => x.id === phId);
+      if (!ph) return;
+      const t = (ph.tasks||[]).find(x => x.id === tId);
+      if (!t) return;
+      if (!confirm(`Excluir a tarefa "${t.name}"?`)) return;
+      snapshot();
+      ph.tasks = ph.tasks.filter(x => x.id !== tId);
+      save();
+      renderTableView();
+      render();
+      toast(`Tarefa "${t.name}" excluída.`);
     };
   });
 }
@@ -5137,22 +5277,35 @@ document.getElementById('btn-undo').onclick = undo;
 document.getElementById('btn-sort-date').onclick = () => {
   snapshot();
 
-  // Função auxiliar: pega a menor data planejada de início entre todas as fases do projeto
+  function itemDate(item) {
+    const d = item.plannedStart || item.replannedStart || item.actualStart;
+    return d ? new Date(d + 'T00:00:00').getTime() : Infinity;
+  }
+
   function earliestDate(p) {
-    const dates = (p.phases || [])
-      .map(ph => ph.plannedStart || ph.replannedStart || ph.actualStart)
-      .filter(Boolean)
-      .map(d => new Date(d + 'T00:00:00'))
-      .filter(d => !isNaN(d));
+    const dates = (p.phases || []).map(itemDate).filter(v => v !== Infinity);
     return dates.length ? Math.min(...dates) : Infinity;
   }
 
-  // Ordena projetos dentro de cada portfólio e os sem portfólio
+  // Nível 1: projetos por data mais cedo das entregas
   state.projects.sort((a, b) => earliestDate(a) - earliestDate(b));
+
+  // Nível 2: entregas de cada projeto por data planejada
+  state.projects.forEach(p => {
+    if (p.phases && p.phases.length > 1) {
+      p.phases.sort((a, b) => itemDate(a) - itemDate(b));
+    }
+    // Nível 3: tarefas dentro de cada entrega por data planejada
+    (p.phases || []).forEach(ph => {
+      if (ph.tasks && ph.tasks.length > 1) {
+        ph.tasks.sort((a, b) => itemDate(a) - itemDate(b));
+      }
+    });
+  });
 
   save();
   render();
-  toast('Projetos reordenados por data planejada de início ↑');
+  toast('Projetos, entregas e tarefas reordenados por data planejada de início ↑');
 };
 document.getElementById('btn-expand-all').onclick = () => {
   state.projects.forEach(p => expandedProjects.add(p.id));
