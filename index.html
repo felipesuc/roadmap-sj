@@ -2772,65 +2772,62 @@ function dateToPercent(d, range) {
 // PROGRESS COMPUTATION
 // ============================================================
 
-// Progresso previsto de uma fase com base nas datas e no status atual
+// Arredonda para baixo no degrau 0/25/50/75/100
+function snapToSteps(pct) {
+  const STEPS = [0, 25, 50, 75, 100];
+  const n = Math.max(0, Math.min(100, Number(pct) || 0));
+  return STEPS.filter(s => s <= n).pop() ?? 0;
+}
+
+// Previsto de UMA fase: proporção de tempo decorrido → degrau para baixo
+// Usa replanejado se disponível, senão planejado
+// Retorna null se não há datas (fase sem referência temporal)
 function phasePredictedProgress(phase, today) {
   today = today || new Date();
-  const STEPS = [0, 25, 50, 75, 100];
-
   const start = parseDate(phase.replannedStart || phase.plannedStart);
   const end   = parseDate(phase.replannedEnd   || phase.plannedEnd);
-
-  // Sem datas: sem como calcular previsto por tempo — retorna 0
-  if (!start || !end) return 0;
-
-  if (end <= start) return today >= end ? 100 : 0;
+  if (!start || !end) return null; // sem datas = sem previsto
+  if (end <= start)   return today >= end ? 100 : 0;
   if (today <= start) return 0;
   if (today >= end)   return 100;
-
-  // Proporção de tempo decorrido arredondada para baixo no degrau da escala
   const pct = ((today - start) / (end - start)) * 100;
-  return STEPS.filter(s => s <= pct).pop() ?? 0;
+  return snapToSteps(pct);
 }
 
-// Progresso realizado: usa o progress salvo na fase (atualizado via coluna Progresso)
-// Quando usuário muda o select de status, ph.progress é atualizado via statusToProgress
-function snapToSteps(pct) {
-  // Arredonda para baixo nos degraus 0/25/50/75/100
-  const STEPS = [0, 25, 50, 75, 100];
-  return STEPS.filter(s => s <= Math.max(0, pct)).pop() ?? 0;
-}
-
+// Realizado de UMA fase:
+//   - com tarefas → média simples dos progressos das tarefas → snap para baixo
+//   - sem tarefas → statusToProgress do status da fase
 function phaseRealizedProgress(phase) {
-  // Com tarefas: média dos status das tarefas, snap para baixo nos degraus
-  if (phase.tasks && phase.tasks.length) {
-    let sum = 0;
-    phase.tasks.forEach(t => {
-      sum += statusToProgress(t.status || 'not_started');
-    });
-    return snapToSteps(sum / phase.tasks.length);
+  const tasks = (phase.tasks || []).filter(t => !t.isMilestone);
+  if (tasks.length) {
+    const sum = tasks.reduce((acc, t) => acc + statusToProgress(t.status || 'not_started'), 0);
+    return snapToSteps(sum / tasks.length);
   }
-  // Sem tarefas: status é a fonte de verdade
   return statusToProgress(phase.status || 'not_started');
 }
 
-// Progresso consolidado do projeto (previsto + realizado)
+// Progresso consolidado do PROJETO
+// Previsto: média das fases que TÊM datas (fases sem data não entram na média)
+// Realizado: média de todas as fases não-marco
 function projectProgress(project) {
   const phases = (project.phases || []).filter(ph => !ph.isMilestone);
   if (!phases.length) return { predicted: 0, realized: 0 };
 
   const today = new Date();
-  let pSum = 0, rSum = 0, count = 0;
 
-  phases.forEach(ph => {
-    pSum += phasePredictedProgress(ph, today);
-    rSum += phaseRealizedProgress(ph);
-    count++;
-  });
+  // Previsto: só conta fases com datas
+  const predsWithDates = phases
+    .map(ph => phasePredictedProgress(ph, today))
+    .filter(v => v !== null);
+  const predicted = predsWithDates.length
+    ? snapToSteps(predsWithDates.reduce((a, b) => a + b, 0) / predsWithDates.length)
+    : 0;
 
-  return {
-    predicted: count ? snapToSteps(pSum / count) : 0,
-    realized:  count ? snapToSteps(rSum / count) : 0
-  };
+  // Realizado: todas as fases não-marco contribuem
+  const rSum = phases.reduce((acc, ph) => acc + phaseRealizedProgress(ph), 0);
+  const realized = snapToSteps(rSum / phases.length);
+
+  return { predicted, realized };
 }
 
 // ============================================================
@@ -3311,7 +3308,7 @@ function renderTableView() {
       if (isProjCollapsed) return;
 
       phases.forEach(ph => {
-        const pred = phasePredictedProgress(ph, today);
+        const pred = phasePredictedProgress(ph, today) ?? 0;
         const real = phaseRealizedProgress(ph);
         const sc   = STATUS_OPTIONS.find(s=>s.value===ph.status)||STATUS_OPTIONS[0];
 
@@ -3384,7 +3381,7 @@ function renderTableView() {
               <td>${taskDateInput(t.actualEnd,'actualEnd',t.id,ph.id)}</td>
               <td>
                 <div style="display:flex;align-items:center;gap:4px">
-                  ${progBar(phasePredictedProgress(t, today), '#94a3b8')}
+                  ${progBar(phasePredictedProgress(t, today) ?? 0, '#94a3b8')}
                 </div>
               </td>
               <td>
@@ -4079,7 +4076,7 @@ function renderFlagPills(target, kind) {
 function renderPhaseRow(ph) {
   const hasTasks  = (ph.tasks || []).length > 0;
   const today     = new Date();
-  const predicted = phasePredictedProgress(ph, today);
+  const predicted = phasePredictedProgress(ph, today) ?? 0;
 
   // Ensure status field exists (migrate from progress if needed)
   if (!ph.status) ph.status = progressToStatus(ph.progress || 0);
@@ -4271,7 +4268,7 @@ function renderTasksModal() {
 
 function renderTaskRow(t) {
   const today = new Date();
-  const predicted = phasePredictedProgress(t, today);
+  const predicted = phasePredictedProgress(t, today) ?? 0;
   if (!t.status) t.status = progressToStatus(t.progress || 0);
   const col = statusColor(t.status);
   return `
