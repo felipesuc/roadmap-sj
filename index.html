@@ -2815,6 +2815,22 @@ function projectProgress(project) {
 
   const today = new Date();
 
+  // DEBUG
+  console.group('projectProgress: ' + project.name);
+  phases.forEach(ph => {
+    const pred = phasePredictedProgress(ph, today);
+    const real = phaseRealizedProgress(ph);
+    console.log(
+      ph.name,
+      '| status:', ph.status,
+      '| tasks:', (ph.tasks||[]).length,
+      '| plannedStart:', ph.plannedStart, '| plannedEnd:', ph.plannedEnd,
+      '| replannedStart:', ph.replannedStart, '| replannedEnd:', ph.replannedEnd,
+      '| pred:', pred, '| real:', real
+    );
+  });
+  console.groupEnd();
+
   // Previsto: só conta fases com datas
   const predsWithDates = phases
     .map(ph => phasePredictedProgress(ph, today))
