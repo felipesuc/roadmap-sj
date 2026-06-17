@@ -3188,14 +3188,16 @@ function renderTableView() {
           <span style="font-weight:400;color:#94a3b8;font-size:11px;margin-left:8px">${escapeHtml(p.company||'')}</span>
         </td>
         <td style="border-bottom:1px solid #dde4ee">${farolSelect(p)}</td>
-        <td colspan="6" style="border-bottom:1px solid #dde4ee;font-size:11px;color:#64748b">${escapeHtml(p.sponsor||'—')}</td>
+        <td colspan="2" style="border-bottom:1px solid #dde4ee;font-size:11px;color:#64748b">${escapeHtml(p.sponsor||'—')}</td>
+        <td colspan="4" style="border-bottom:1px solid #dde4ee"></td>
         <td style="border-bottom:1px solid #dde4ee">
           <div style="display:flex;align-items:center;gap:6px">${progBar(prog.predicted,'#94a3b8')}</div>
         </td>
         <td style="border-bottom:1px solid #dde4ee">
           <div style="display:flex;align-items:center;gap:6px">${progBar(prog.realized,'#3b82f6')}</div>
         </td>
-        <td colspan="2" style="border-bottom:1px solid #dde4ee">
+        <td style="border-bottom:1px solid #dde4ee"></td>
+        <td style="border-bottom:1px solid #dde4ee">
           <div style="display:flex;gap:6px;align-items:center">
             <button class="ghost" style="font-size:11px;padding:3px 8px" data-manage-phases="${p.id}">📋 Entregas</button>
             <button class="ghost" style="font-size:11px;padding:3px 8px" data-open-tap="${p.id}">🗂 TAP</button>
@@ -3203,43 +3205,35 @@ function renderTableView() {
         </td>
       </tr>
       <!-- Farol fields row -->
-      <tr data-project="${p.id}">
-        <td colspan="12" style="padding:0;border-bottom:1px solid #dde4ee;background:#fafbfc">
-          <div style="display:flex;align-items:stretch">
-            <!-- Toggle button -->
-            <div onclick="tvToggleFields('${p.id}')" style="width:32px;flex-shrink:0;background:#f1f5f9;border-right:1px solid #e2e8f0;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#94a3b8;font-size:11px" title="${isFieldsCollapsed?'Expandir campos':'Recolher campos'}">
-              ${isFieldsCollapsed?'▶':'▾'}
+      <tr data-project="${p.id}" style="background:#fafbfc;border-bottom:1px solid #dde4ee">
+        <td style="padding:0;width:32px;background:#f1f5f9;border-right:1px solid #e2e8f0;text-align:center;vertical-align:middle;cursor:pointer;color:#94a3b8;font-size:11px"
+          onclick="tvToggleFields('${p.id}')" title="${isFieldsCollapsed?'Expandir campos':'Recolher campos'}">${isFieldsCollapsed?'▶':'▾'}</td>
+        ${isFieldsCollapsed
+          ? `<td colspan="11" style="padding:8px 14px;font-size:11px;color:#94a3b8;font-style:italic">Motivo do farol, destaques e riscos recolhidos...</td>`
+          : `<td colspan="3" style="padding:0;border-left:3px solid ${p.status==='green'?'var(--green)':p.status==='yellow'?'var(--amber)':p.status==='red'?'var(--red)':'#9ca3af'};background:${p.status==='green'?'#f0fdf4':p.status==='yellow'?'#fffbeb':p.status==='red'?'#fef2f2':'#f8fafc'};border-right:1px solid #e8edf4;vertical-align:top">
+            <div style="padding:8px 12px">
+              <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.8px;color:${p.status==='green'?'var(--green)':p.status==='yellow'?'var(--amber)':p.status==='red'?'var(--red)':'#6b7280'};margin-bottom:4px;display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${p.status==='green'?'var(--green)':p.status==='yellow'?'var(--amber)':p.status==='red'?'var(--red)':'#9ca3af'}"></span>MOTIVO DO FAROL</div>
+              <textarea class="editable tv-proj-field" data-pid="${p.id}" data-field="statusExplanation" rows="2" placeholder="Explique o motivo do farol atual" style="width:100%;font-size:11.5px;resize:none;border:none;background:transparent;padding:0;font-family:inherit">${escapeHtml(p.statusExplanation||'')}</textarea>
             </div>
-            ${isFieldsCollapsed
-              ? `<div style="padding:8px 14px;font-size:11px;color:#94a3b8;font-style:italic">Motivo do farol, destaques e riscos recolhidos...</div>`
-              : `<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;flex:1">
-              <div class="farol-reason ${p.status||'gray'}" style="margin:0;border-radius:0;border-left:3px solid;padding:8px 12px">
-                <div class="farol-label" style="margin-bottom:4px"><span class="marker" style="display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:${p.status==='green'?'var(--green)':p.status==='yellow'?'var(--amber)':p.status==='red'?'var(--red)':'#9ca3af'}"></span>MOTIVO DO FAROL</div>
-                <textarea class="editable tv-proj-field" data-pid="${p.id}" data-field="statusExplanation"
-                  rows="2" placeholder="Explique o motivo do farol atual"
-                  style="width:100%;font-size:11.5px;resize:none;border:none;background:transparent;padding:0;font-family:inherit">${escapeHtml(p.statusExplanation||'')}</textarea>
-              </div>
-              <div style="border-left:3px solid var(--green);background:#f0fdf4;padding:8px 12px">
-                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--green);margin-bottom:4px">✅ DESTAQUE DO PERÍODO</div>
-                <textarea class="editable tv-proj-field" data-pid="${p.id}" data-field="srHighlight"
-                  rows="2" placeholder="Destaque do período"
-                  style="width:100%;font-size:11.5px;resize:none;border:none;background:transparent;padding:0;font-family:inherit">${escapeHtml(p.srHighlight||'')}</textarea>
-              </div>
-              <div style="border-left:3px solid var(--amber);background:#fffbeb;padding:8px 12px">
-                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--amber);margin-bottom:4px">⚠️ RISCO IDENTIFICADO</div>
-                <textarea class="editable tv-proj-field" data-pid="${p.id}" data-field="srRisk"
-                  rows="2" placeholder="Risco identificado"
-                  style="width:100%;font-size:11.5px;resize:none;border:none;background:transparent;padding:0;font-family:inherit">${escapeHtml(p.srRisk||'')}</textarea>
-              </div>
-              <div style="border-left:3px solid #8b5cf6;background:#f5f3ff;padding:8px 12px">
-                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#8b5cf6;margin-bottom:4px">📌 DECISÃO PENDENTE</div>
-                <textarea class="editable tv-proj-field" data-pid="${p.id}" data-field="srDecision"
-                  rows="2" placeholder="Decisão pendente"
-                  style="width:100%;font-size:11.5px;resize:none;border:none;background:transparent;padding:0;font-family:inherit">${escapeHtml(p.srDecision||'')}</textarea>
-              </div>
-            </div>`}
-          </div>
-        </td>
+          </td>
+          <td colspan="3" style="padding:0;border-left:3px solid var(--green);background:#f0fdf4;border-right:1px solid #e8edf4;vertical-align:top">
+            <div style="padding:8px 12px">
+              <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.8px;color:var(--green);margin-bottom:4px">✅ DESTAQUE DO PERÍODO</div>
+              <textarea class="editable tv-proj-field" data-pid="${p.id}" data-field="srHighlight" rows="2" placeholder="Destaque do período" style="width:100%;font-size:11.5px;resize:none;border:none;background:transparent;padding:0;font-family:inherit">${escapeHtml(p.srHighlight||'')}</textarea>
+            </div>
+          </td>
+          <td colspan="3" style="padding:0;border-left:3px solid var(--amber);background:#fffbeb;border-right:1px solid #e8edf4;vertical-align:top">
+            <div style="padding:8px 12px">
+              <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.8px;color:var(--amber);margin-bottom:4px">⚠️ RISCO IDENTIFICADO</div>
+              <textarea class="editable tv-proj-field" data-pid="${p.id}" data-field="srRisk" rows="2" placeholder="Risco identificado" style="width:100%;font-size:11.5px;resize:none;border:none;background:transparent;padding:0;font-family:inherit">${escapeHtml(p.srRisk||'')}</textarea>
+            </div>
+          </td>
+          <td colspan="2" style="padding:0;border-left:3px solid #8b5cf6;background:#f5f3ff;vertical-align:top">
+            <div style="padding:8px 12px">
+              <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.8px;color:#8b5cf6;margin-bottom:4px">📌 DECISÃO PENDENTE</div>
+              <textarea class="editable tv-proj-field" data-pid="${p.id}" data-field="srDecision" rows="2" placeholder="Decisão pendente" style="width:100%;font-size:11.5px;resize:none;border:none;background:transparent;padding:0;font-family:inherit">${escapeHtml(p.srDecision||'')}</textarea>
+            </div>
+          </td>`}
       </tr>`;
 
       if (!phases.length) {
