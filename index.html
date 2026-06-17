@@ -2398,7 +2398,7 @@ async function loadFromSupabase() {
       if (!tasksByPhase[t.phase_id]) tasksByPhase[t.phase_id] = [];
       tasksByPhase[t.phase_id].push({
         id: t.id, name: t.name,
-        status: t.status, progress: t.progress,
+        status: t.status || 'not_started', progress: Number(t.progress) || 0,
         plannedStart: t.planned_start||'', plannedEnd: t.planned_end||'',
         replannedStart: t.replanned_start||'', replannedEnd: t.replanned_end||'',
         actualStart: t.actual_start||'', actualEnd: t.actual_end||'',
@@ -2413,7 +2413,7 @@ async function loadFromSupabase() {
       phasesByProject[ph.project_id].push({
         id: ph.id, name: ph.name,
         isMilestone: ph.is_milestone,
-        status: ph.status, progress: ph.progress,
+        status: ph.status || 'not_started', progress: Number(ph.progress) || 0,
         plannedStart: ph.planned_start||'', plannedEnd: ph.planned_end||'',
         replannedStart: ph.replanned_start||'', replannedEnd: ph.replanned_end||'',
         actualStart: ph.actual_start||'', actualEnd: ph.actual_end||'',
@@ -2620,14 +2620,12 @@ function migrateData() {
         ph.flagIds.push('flag-dev');
       }
       delete ph.isDevelopmentStart;
-      // Normalizar status/progress: garantir que ambos estão nos degraus
+      // Garantir status: se ausente, derivar do progress legado
       if (!ph.status) ph.status = progressToStatus(ph.progress || 0);
-      ph.progress = statusToProgress(ph.status);
 
       (ph.tasks || []).forEach(t => {
         if (!Array.isArray(t.flagIds)) t.flagIds = [];
         if (!t.status) t.status = progressToStatus(t.progress || 0);
-        t.progress = statusToProgress(t.status);
       });
     });
   });
@@ -2782,11 +2780,8 @@ function phasePredictedProgress(phase, today) {
   const start = parseDate(phase.replannedStart || phase.plannedStart);
   const end   = parseDate(phase.replannedEnd   || phase.plannedEnd);
 
-  // Sem datas: usa status como previsto (única referência disponível)
-  if (!start || !end) {
-    if (phase.status) return statusToProgress(phase.status);
-    return 0;
-  }
+  // Sem datas: sem como calcular previsto por tempo — retorna 0
+  if (!start || !end) return 0;
 
   if (end <= start) return today >= end ? 100 : 0;
   if (today <= start) return 0;
@@ -2806,19 +2801,16 @@ function snapToSteps(pct) {
 }
 
 function phaseRealizedProgress(phase) {
-  // Com tarefas: média dos progressos das tarefas, arredondada para baixo nos degraus
+  // Com tarefas: média dos status das tarefas, snap para baixo nos degraus
   if (phase.tasks && phase.tasks.length) {
     let sum = 0;
     phase.tasks.forEach(t => {
-      // Prefere status (fonte de verdade); cai no progress numérico legado se status ausente
-      const val = t.status ? statusToProgress(t.status) : snapToSteps(Number(t.progress) || 0);
-      sum += val;
+      sum += statusToProgress(t.status || 'not_started');
     });
     return snapToSteps(sum / phase.tasks.length);
   }
-  // Sem tarefas: status é a fonte de verdade (progress fica sincronizado via select)
-  if (phase.status) return statusToProgress(phase.status);
-  return snapToSteps(Number(phase.progress) || 0);
+  // Sem tarefas: status é a fonte de verdade
+  return statusToProgress(phase.status || 'not_started');
 }
 
 // Progresso consolidado do projeto (previsto + realizado)
@@ -3470,6 +3462,8 @@ function renderTableView() {
       snapshot();
       ph[inp.dataset.field] = inp.value;
       save();
+      renderTableView();
+      render();
     };
   });
 
@@ -3494,8 +3488,9 @@ function renderTableView() {
       if (!t) return;
       snapshot();
       t[inp.dataset.field] = inp.value;
-      if (!inp.value) inp.classList.add('tv-empty');
       save();
+      renderTableView();
+      render();
     };
   });
 
