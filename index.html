@@ -3312,8 +3312,15 @@ function renderTableView() {
               <td>${taskStatusSelect(t, ph.id)}</td>
               <td><input type="date" class="tv-date-input" data-task="${t.id}" data-phase="${ph.id}" data-field="plannedStart" value="${t.plannedStart||''}" style="font-size:11px;padding:3px 6px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;width:118px"></td>
               <td><input type="date" class="tv-date-input" data-task="${t.id}" data-phase="${ph.id}" data-field="plannedEnd" value="${t.plannedEnd||''}" style="font-size:11px;padding:3px 6px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;width:118px"></td>
-              <td colspan="4" style="color:#94a3b8;font-size:11px;text-align:center">—</td>
-              <td>—</td>
+              <td><input type="date" class="tv-date-input" data-task="${t.id}" data-phase="${ph.id}" data-field="replannedStart" value="${t.replannedStart||''}" style="font-size:11px;padding:3px 6px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;width:118px"></td>
+              <td><input type="date" class="tv-date-input" data-task="${t.id}" data-phase="${ph.id}" data-field="replannedEnd" value="${t.replannedEnd||''}" style="font-size:11px;padding:3px 6px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;width:118px"></td>
+              <td><input type="date" class="tv-date-input" data-task="${t.id}" data-phase="${ph.id}" data-field="actualStart" value="${t.actualStart||''}" style="font-size:11px;padding:3px 6px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;width:118px"></td>
+              <td><input type="date" class="tv-date-input" data-task="${t.id}" data-phase="${ph.id}" data-field="actualEnd" value="${t.actualEnd||''}" style="font-size:11px;padding:3px 6px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;width:118px"></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:4px">
+                  ${progBar(phasePredictedProgress(t, today), '#94a3b8')}
+                </div>
+              </td>
               <td>
                 <div style="display:flex;align-items:center;gap:4px">
                   ${progBar(tReal, tc.color)}
