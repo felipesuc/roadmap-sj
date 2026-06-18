@@ -2795,53 +2795,37 @@ function phasePredictedProgress(phase, today) {
 }
 
 // Realizado de UMA fase:
-//   - com tarefas → média simples dos progressos das tarefas → snap para baixo
+//   - com tarefas → média simples dos status das tarefas, arredondada
 //   - sem tarefas → statusToProgress do status da fase
 function phaseRealizedProgress(phase) {
   const tasks = (phase.tasks || []).filter(t => !t.isMilestone);
   if (tasks.length) {
     const sum = tasks.reduce((acc, t) => acc + statusToProgress(t.status || 'not_started'), 0);
-    return snapToSteps(sum / tasks.length);
+    return Math.round(sum / tasks.length);
   }
   return statusToProgress(phase.status || 'not_started');
 }
 
 // Progresso consolidado do PROJETO
-// Previsto: média das fases que TÊM datas (fases sem data não entram na média)
-// Realizado: média de todas as fases não-marco
+// Previsto: média das fases que TÊM datas — arredondamento simples (não snapToSteps)
+// Realizado: média de todas as fases não-marco — arredondamento simples
 function projectProgress(project) {
   const phases = (project.phases || []).filter(ph => !ph.isMilestone);
   if (!phases.length) return { predicted: 0, realized: 0 };
 
   const today = new Date();
 
-  // DEBUG
-  console.group('projectProgress: ' + project.name);
-  phases.forEach(ph => {
-    const pred = phasePredictedProgress(ph, today);
-    const real = phaseRealizedProgress(ph);
-    console.log(
-      ph.name,
-      '| status:', ph.status,
-      '| tasks:', (ph.tasks||[]).length,
-      '| plannedStart:', ph.plannedStart, '| plannedEnd:', ph.plannedEnd,
-      '| replannedStart:', ph.replannedStart, '| replannedEnd:', ph.replannedEnd,
-      '| pred:', pred, '| real:', real
-    );
-  });
-  console.groupEnd();
-
-  // Previsto: só conta fases com datas
-  const predsWithDates = phases
+  // Previsto: só conta fases com datas (null = sem datas = não entra na média)
+  const preds = phases
     .map(ph => phasePredictedProgress(ph, today))
     .filter(v => v !== null);
-  const predicted = predsWithDates.length
-    ? snapToSteps(predsWithDates.reduce((a, b) => a + b, 0) / predsWithDates.length)
+  const predicted = preds.length
+    ? Math.round(preds.reduce((a, b) => a + b, 0) / preds.length)
     : 0;
 
-  // Realizado: todas as fases não-marco contribuem
-  const rSum = phases.reduce((acc, ph) => acc + phaseRealizedProgress(ph), 0);
-  const realized = snapToSteps(rSum / phases.length);
+  // Realizado: todas as fases contribuem — média simples arredondada
+  const rVals = phases.map(ph => phaseRealizedProgress(ph));
+  const realized = Math.round(rVals.reduce((a, b) => a + b, 0) / rVals.length);
 
   return { predicted, realized };
 }
