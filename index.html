@@ -3338,12 +3338,12 @@ function renderTableView() {
           <td>${dateInput(ph.replannedEnd,'replannedEnd',ph.id)}</td>
           <td>${dateInput(ph.actualStart,'actualStart',ph.id)}</td>
           <td>${dateInput(ph.actualEnd,'actualEnd',ph.id)}</td>
-          <td>
+          <td title="PREVISTO&#10;Inicio: ${ph.replannedStart||ph.plannedStart||'(vazio)'}&#10;Fim: ${ph.replannedEnd||ph.plannedEnd||'(vazio)'}&#10;Hoje: ${today.toISOString().slice(0,10)}&#10;= ${pred}%">
             <div style="display:flex;align-items:center;gap:4px">
               ${progBar(pred,'#94a3b8')}
             </div>
           </td>
-          <td>
+          <td title="REALIZADO&#10;Status entrega: ${ph.status||'(vazio)'}&#10;Qtd tarefas: ${(ph.tasks||[]).length}&#10;= ${real}%">
             <div style="display:flex;align-items:center;gap:4px">
               ${progBar(real, sc.color)}
             </div>
