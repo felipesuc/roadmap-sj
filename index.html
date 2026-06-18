@@ -1727,6 +1727,83 @@
     align-items: center;
   }
 
+  /* Indicador de cumprimento de prazo */
+  .prazo-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 16px;
+    margin-bottom: 22px;
+    align-items: start;
+  }
+  @media (max-width: 900px) { .prazo-grid { grid-template-columns: 1fr; } }
+  .prazo-gauge {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    text-align: center;
+  }
+  .prazo-gauge .idx-value {
+    font-size: 44px; font-weight: 800; line-height: 1;
+    margin: 6px 0 2px;
+  }
+  .prazo-gauge.ok  .idx-value { color: #16a34a; }
+  .prazo-gauge.bad .idx-value { color: var(--red); }
+  .prazo-gauge .idx-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--muted);
+  }
+  .prazo-gauge .idx-meta {
+    font-size: 12px; margin-top: 8px; font-weight: 600;
+  }
+  .prazo-gauge.ok  .idx-meta { color: #16a34a; }
+  .prazo-gauge.bad .idx-meta { color: var(--red); }
+  .prazo-gauge .idx-pr {
+    display: flex; justify-content: space-around; margin-top: 14px;
+    padding-top: 14px; border-top: 1px solid var(--border);
+  }
+  .prazo-gauge .idx-pr div { font-size: 11px; color: var(--muted); }
+  .prazo-gauge .idx-pr strong { display: block; font-size: 18px; color: var(--navy); margin-top: 2px; }
+  .prazo-bar-track {
+    height: 8px; background: #e9edf2; border-radius: 5px;
+    position: relative; margin: 12px 0 4px; overflow: visible;
+  }
+  .prazo-bar-fill { height: 100%; border-radius: 5px; }
+  .prazo-bar-meta-mark {
+    position: absolute; top: -3px; bottom: -3px; width: 2px;
+    background: var(--navy);
+  }
+  .ofensores-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .ofensores-wrap table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .ofensores-wrap th {
+    background: #0D1F3C; color: #e8edf5; text-align: left;
+    padding: 8px 12px; font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .ofensores-wrap td { padding: 7px 12px; border-bottom: 1px solid #edf0f4; }
+  .ofensores-wrap tr:last-child td { border-bottom: none; }
+  .ofensores-wrap tr:hover td { background: #fafbfc; }
+  .ofensores-wrap .gap-badge {
+    font-weight: 700; padding: 2px 8px; border-radius: 10px; font-size: 11px;
+    background: #fef2f2; color: var(--red);
+  }
+  .ofensores-empty {
+    padding: 20px; text-align: center; color: #16a34a;
+    font-size: 13px; font-weight: 600;
+  }
+  .prazo-mini {
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .prazo-mini .mbar { width: 50px; height: 6px; border-radius: 3px; background: #e9edf2; overflow: hidden; }
+  .prazo-mini .mbar span { display: block; height: 100%; }
+
   /* Project status table */
   .sr-table-wrap {
     background: var(--card);
@@ -1916,7 +1993,7 @@
 <header>
   <h1>📍 Roadmap Empresas SJ</h1>
   <div style="display:flex;align-items:center;gap:10px">
-    <span style="background:#22c55e;color:#fff;font-size:11px;font-weight:800;padding:4px 12px;border-radius:20px;letter-spacing:0.5px">CÁLCULO v11 ✓</span>
+    <span style="background:#22c55e;color:#fff;font-size:11px;font-weight:800;padding:4px 12px;border-radius:20px;letter-spacing:0.5px">CÁLCULO v12 ✓</span>
     <span id="sync-indicator" class="sync-indicator"></span>
     <span class="badge">Gestão de Projetos</span>
   </div>
@@ -2060,6 +2137,10 @@
         <tbody id="sr-table-body"></tbody>
       </table>
     </div>
+
+    <!-- Indicador de Cumprimento de Prazo -->
+    <div class="sr-section-title" style="margin-top:8px">Cumprimento de Prazo (Realizado × Previsto · Meta 85%)</div>
+    <div id="sr-prazo"></div>
 
     <!-- Upcoming milestones -->
     <div class="sr-section-title" style="margin-top:4px">Marcos nos Próximos 90 Dias</div>
@@ -5749,6 +5830,7 @@ function renderStatusReport() {
   renderSRFarolBar(projects);
   renderSRTable(projects, portfolios);
   initSRSort();
+  renderSRPrazo();
   renderSRMilestones(projects, today);
   renderSRGrid3(highlights, risks, decisions);
 }
@@ -5845,6 +5927,88 @@ function renderSRKpis(projects) {
       <span class="kpi-sub">realizado consolidado</span>
     </div>
   `;
+}
+
+const PRAZO_META = 0.85;
+
+// Indicador de cumprimento de prazo: Realizado x Previsto, por entrega, consolidado.
+// Ofensor = entrega cujo Realizado < Previsto (atrasada em relacao ao plano).
+function renderSRPrazo() {
+  const el = document.getElementById('sr-prazo');
+  if (!el) return;
+  const today = new Date();
+
+  // Coletar todas as entregas (nao-marco) de todos os projetos
+  const rows = [];
+  let totalPrev = 0, totalReal = 0;
+  (state.projects || []).forEach(p => {
+    const portfolio = (state.portfolios || []).find(pt => pt.id === p.portfolioId);
+    (p.phases || []).filter(ph => !ph.isMilestone).forEach(ph => {
+      const prev = phasePredictedProgress(ph, today) ?? 0;
+      const real = phaseRealizedProgress(ph);
+      totalPrev += prev;
+      totalReal += real;
+      if (real < prev) {
+        rows.push({
+          projeto: p.name,
+          portfolio: portfolio ? portfolio.name : '\u2014',
+          entrega: ph.name,
+          prev, real,
+          gap: prev - real
+        });
+      }
+    });
+  });
+
+  // Indice consolidado: soma realizado / soma previsto (0..1)
+  const indice = totalPrev > 0 ? (totalReal / totalPrev) : 1;
+  const indicePct = Math.round(indice * 100);
+  const metaPct = Math.round(PRAZO_META * 100);
+  const ok = indice >= PRAZO_META;
+
+  const fillColor = ok ? '#16a34a' : '#ef4444';
+  const fillWidth = Math.min(100, Math.round(indice * 100));
+
+  // Ordenar ofensores pelo maior gap
+  rows.sort((a, b) => b.gap - a.gap);
+
+  const miniBar = (val, color) =>
+    `<span class="prazo-mini"><span class="mbar"><span style="width:${val}%;background:${color}"></span></span>${val}%</span>`;
+
+  const ofensoresHtml = rows.length
+    ? `<table>
+        <thead><tr><th>Projeto</th><th>Entrega</th><th>Previsto</th><th>Realizado</th><th>Gap</th></tr></thead>
+        <tbody>
+          ${rows.map(r => `<tr>
+            <td><strong style="color:var(--navy)">${escapeHtml(r.projeto)}</strong><div style="font-size:10px;color:var(--muted)">${escapeHtml(r.portfolio)}</div></td>
+            <td>${escapeHtml(r.entrega)}</td>
+            <td>${miniBar(r.prev, '#94a3b8')}</td>
+            <td>${miniBar(r.real, '#3b82f6')}</td>
+            <td><span class="gap-badge">-${r.gap} pts</span></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`
+    : `<div class="ofensores-empty">\u2713 Nenhum ofensor \u2014 todas as entregas estao no prazo ou adiantadas.</div>`;
+
+  el.innerHTML = `
+    <div class="prazo-grid">
+      <div class="prazo-gauge ${ok ? 'ok' : 'bad'}">
+        <div class="idx-label">\u00cdndice de Cumprimento</div>
+        <div class="idx-value">${(indice).toFixed(2).replace('.', ',')}</div>
+        <div class="prazo-bar-track">
+          <div class="prazo-bar-fill" style="width:${fillWidth}%;background:${fillColor}"></div>
+          <div class="prazo-bar-meta-mark" style="left:${metaPct}%" title="Meta ${metaPct}%"></div>
+        </div>
+        <div class="idx-meta">${ok ? '\u2713 Acima da meta' : '\u25bc Abaixo da meta'} (${metaPct}%)</div>
+        <div class="idx-pr">
+          <div>Previsto<strong>${Math.round(totalPrev / Math.max(1, (state.projects||[]).reduce((a,p)=>a+(p.phases||[]).filter(ph=>!ph.isMilestone).length,0)))}%</strong></div>
+          <div>Realizado<strong>${Math.round(totalReal / Math.max(1, (state.projects||[]).reduce((a,p)=>a+(p.phases||[]).filter(ph=>!ph.isMilestone).length,0)))}%</strong></div>
+        </div>
+      </div>
+      <div class="ofensores-wrap">
+        ${ofensoresHtml}
+      </div>
+    </div>`;
 }
 
 function renderSRFarolBar(projects) {
