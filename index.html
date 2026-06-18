@@ -1916,7 +1916,7 @@
 <header>
   <h1>📍 Roadmap Empresas SJ</h1>
   <div style="display:flex;align-items:center;gap:10px">
-    <span style="background:#22c55e;color:#fff;font-size:11px;font-weight:800;padding:4px 12px;border-radius:20px;letter-spacing:0.5px">CÁLCULO v7 ✓</span>
+    <span style="background:#22c55e;color:#fff;font-size:11px;font-weight:800;padding:4px 12px;border-radius:20px;letter-spacing:0.5px">CÁLCULO v8 ✓</span>
     <span id="sync-indicator" class="sync-indicator"></span>
     <span class="badge">Gestão de Projetos</span>
   </div>
@@ -2828,23 +2828,23 @@ function taskRealizedProgress(task) {
 }
 
 // ── Progresso consolidado do PROJETO ──
-// Previsto: média das entregas que TÊM previsto (não-null).
-// Realizado: média de todas as entregas não-marco.
+// Média simples: cada entrega (não-marco) pesa igual.
+// Mesma base para previsto e realizado. Entrega sem datas conta 0% no previsto.
 function projectProgress(project) {
   const phases = (project.phases || []).filter(ph => !ph.isMilestone);
   if (!phases.length) return { predicted: 0, realized: 0 };
 
   const today = new Date();
+  const n = phases.length;
 
-  const preds = phases
-    .map(ph => phasePredictedProgress(ph, today))
-    .filter(v => v !== null);
-  const predicted = preds.length
-    ? Math.round(preds.reduce((a, b) => a + b, 0) / preds.length)
-    : 0;
+  const predSum = phases.reduce((acc, ph) => {
+    const v = phasePredictedProgress(ph, today);
+    return acc + (v === null ? 0 : v);
+  }, 0);
+  const predicted = Math.round(predSum / n);
 
-  const rVals = phases.map(ph => phaseRealizedProgress(ph));
-  const realized = Math.round(rVals.reduce((a, b) => a + b, 0) / rVals.length);
+  const realSum = phases.reduce((acc, ph) => acc + phaseRealizedProgress(ph), 0);
+  const realized = Math.round(realSum / n);
 
   return { predicted, realized };
 }
