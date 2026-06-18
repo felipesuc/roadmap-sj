@@ -1916,7 +1916,7 @@
 <header>
   <h1>📍 Roadmap Empresas SJ</h1>
   <div style="display:flex;align-items:center;gap:10px">
-    <span style="background:#22c55e;color:#fff;font-size:11px;font-weight:800;padding:4px 12px;border-radius:20px;letter-spacing:0.5px">CÁLCULO v10 ✓</span>
+    <span style="background:#22c55e;color:#fff;font-size:11px;font-weight:800;padding:4px 12px;border-radius:20px;letter-spacing:0.5px">CÁLCULO v11 ✓</span>
     <span id="sync-indicator" class="sync-indicator"></span>
     <span class="badge">Gestão de Projetos</span>
   </div>
@@ -2789,12 +2789,12 @@ function snapToSteps(pct) {
 }
 
 // PREVISTO por datas: proporção de tempo decorrido (replanejado tem prioridade sobre planejado)
-// Retorna null se não houver par de datas início+fim
+// Sem par de datas → segue o status do item (item Pronto sem data = 100%)
 function predictedByDates(item, today) {
   today = today || new Date();
   const start = parseDate(item.replannedStart || item.plannedStart);
   const end   = parseDate(item.replannedEnd   || item.plannedEnd);
-  if (!start || !end) return null;
+  if (!start || !end) return statusToProgress(item.status || 'not_started');
   if (end <= start)   return today >= end ? 100 : 0;
   if (today <= start) return 0;
   if (today >= end)   return 100;
