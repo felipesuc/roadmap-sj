@@ -1916,7 +1916,7 @@
 <header>
   <h1>📍 Roadmap Empresas SJ</h1>
   <div style="display:flex;align-items:center;gap:10px">
-    <span style="background:#22c55e;color:#fff;font-size:11px;font-weight:800;padding:4px 12px;border-radius:20px;letter-spacing:0.5px">CÁLCULO v9 ✓</span>
+    <span style="background:#22c55e;color:#fff;font-size:11px;font-weight:800;padding:4px 12px;border-radius:20px;letter-spacing:0.5px">CÁLCULO v10 ✓</span>
     <span id="sync-indicator" class="sync-indicator"></span>
     <span class="badge">Gestão de Projetos</span>
   </div>
@@ -2773,17 +2773,25 @@ function dateToPercent(d, range) {
 // PROGRESS COMPUTATION
 // ============================================================
 
-// Arredonda para baixo no degrau 0/25/50/75/100
+// ============================================================
+// PROGRESSO — REGRA ÚNICA
+//   Tarefa e Entrega: Previsto = proporção das datas em degraus (0/25/50/75/100, p/ baixo)
+//                     Realizado = status (já é um degrau)
+//   Projeto: média simples das entregas (cada entrega pesa igual)
+// ============================================================
+
+const PROGRESS_STEPS = [0, 25, 50, 75, 100];
+
+// Arredonda PARA BAIXO no degrau
 function snapToSteps(pct) {
-  const STEPS = [0, 25, 50, 75, 100];
   const n = Math.max(0, Math.min(100, Number(pct) || 0));
-  return STEPS.filter(s => s <= n).pop() ?? 0;
+  return PROGRESS_STEPS.filter(s => s <= n).pop() ?? 0;
 }
 
-// ── PREVISTO POR DATAS (item isolado, sem olhar filhos) ──
-// Proporção de tempo decorrido → degrau para baixo.
-// Retorna null se não há datas.
-function datePredicted(item, today) {
+// PREVISTO por datas: proporção de tempo decorrido (replanejado tem prioridade sobre planejado)
+// Retorna null se não houver par de datas início+fim
+function predictedByDates(item, today) {
+  today = today || new Date();
   const start = parseDate(item.replannedStart || item.plannedStart);
   const end   = parseDate(item.replannedEnd   || item.plannedEnd);
   if (!start || !end) return null;
@@ -2793,61 +2801,39 @@ function datePredicted(item, today) {
   return snapToSteps(((today - start) / (end - start)) * 100);
 }
 
-// ── PREVISTO de uma ENTREGA ──
-// Com tarefas → média do previsto das tarefas (mesma base do realizado).
-// Sem tarefas → previsto pelas datas da própria entrega.
-function phasePredictedProgress(phase, today) {
-  today = today || new Date();
-  const tasks = (phase.tasks || []).filter(t => !t.isMilestone);
-  if (tasks.length) {
-    const vals = tasks.map(t => datePredicted(t, today)).filter(v => v !== null);
-    if (!vals.length) return null;
-    return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
-  }
-  return datePredicted(phase, today);
+// REALIZADO por status (statusToProgress já devolve 0/25/50/75/100)
+function realizedByStatus(item) {
+  return statusToProgress(item.status || 'not_started');
 }
 
-// ── REALIZADO de uma ENTREGA ──
-// Com tarefas → média do status das tarefas.
-// Sem tarefas → status da própria entrega.
-function phaseRealizedProgress(phase) {
-  const tasks = (phase.tasks || []).filter(t => !t.isMilestone);
-  if (tasks.length) {
-    const sum = tasks.reduce((acc, t) => acc + statusToProgress(t.status || 'not_started'), 0);
-    return Math.round(sum / tasks.length);
-  }
-  return statusToProgress(phase.status || 'not_started');
-}
+// ── TAREFA ──
+function taskPredictedProgress(task, today) { return predictedByDates(task, today); }
+function taskRealizedProgress(task)         { return realizedByStatus(task); }
 
-// ── PREVISTO e REALIZADO de uma TAREFA (sempre por suas próprias datas/status) ──
-function taskPredictedProgress(task, today) {
-  return datePredicted(task, today || new Date());
-}
-function taskRealizedProgress(task) {
-  return statusToProgress(task.status || 'not_started');
-}
+// ── ENTREGA (mesma regra da tarefa) ──
+function phasePredictedProgress(phase, today) { return predictedByDates(phase, today); }
+function phaseRealizedProgress(phase)         { return realizedByStatus(phase); }
 
-// ── Progresso consolidado do PROJETO ──
-// Média simples: cada entrega (não-marco) pesa igual.
-// Mesma base para previsto e realizado. Entrega sem datas conta 0% no previsto.
+// ── PROJETO: média simples das entregas (não-marco). Entrega sem datas conta 0 no previsto. ──
 function projectProgress(project) {
   const phases = (project.phases || []).filter(ph => !ph.isMilestone);
   if (!phases.length) return { predicted: 0, realized: 0 };
-
   const today = new Date();
   const n = phases.length;
 
-  const predSum = phases.reduce((acc, ph) => {
-    const v = phasePredictedProgress(ph, today);
-    return acc + (v === null ? 0 : v);
-  }, 0);
-  const predicted = Math.round(predSum / n);
+  let predSum = 0, realSum = 0;
+  phases.forEach(ph => {
+    const pv = phasePredictedProgress(ph, today);
+    predSum += (pv === null ? 0 : pv);
+    realSum += phaseRealizedProgress(ph);
+  });
 
-  const realSum = phases.reduce((acc, ph) => acc + phaseRealizedProgress(ph), 0);
-  const realized = Math.round(realSum / n);
-
-  return { predicted, realized };
+  return {
+    predicted: Math.round(predSum / n),
+    realized:  Math.round(realSum / n)
+  };
 }
+
 
 // ============================================================
 // RENDER
@@ -3273,10 +3259,10 @@ function renderTableView() {
         <td colspan="2" style="border-bottom:1px solid #dde4ee;font-size:11px;color:#64748b">${escapeHtml(p.sponsor||'—')}</td>
         <td colspan="4" style="border-bottom:1px solid #dde4ee"></td>
         <td style="border-bottom:1px solid #dde4ee">
-          <div style="display:flex;align-items:center;gap:6px" title="${(()=>{const t=new Date();const ph=(p.phases||[]).filter(x=>!x.isMilestone);const lines=ph.map(x=>{const v=phasePredictedProgress(x,t);return x.name+': '+(v===null?'0 (sem data)':v+'%');});return 'PREVISTO — '+ph.length+' entregas\\n'+lines.join('\\n')+'\\n= média '+prog.predicted+'%';})()}">${progBar(prog.predicted,'#94a3b8')}</div>
+          <div style="display:flex;align-items:center;gap:6px">${progBar(prog.predicted,'#94a3b8')}</div>
         </td>
         <td style="border-bottom:1px solid #dde4ee">
-          <div style="display:flex;align-items:center;gap:6px" title="${(()=>{const ph=(p.phases||[]).filter(x=>!x.isMilestone);const lines=ph.map(x=>{const nt=(x.tasks||[]).filter(tt=>!tt.isMilestone).length;return x.name+': '+phaseRealizedProgress(x)+'%'+(nt?' ('+nt+' tarefas)':' (status: '+(x.status||'?')+')');});return 'REALIZADO — '+ph.length+' entregas\\n'+lines.join('\\n')+'\\n= média '+prog.realized+'%';})()}">${progBar(prog.realized,'#3b82f6')}</div>
+          <div style="display:flex;align-items:center;gap:6px">${progBar(prog.realized,'#3b82f6')}</div>
         </td>
         <td style="border-bottom:1px solid #dde4ee"></td>
         <td style="border-bottom:1px solid #dde4ee">
