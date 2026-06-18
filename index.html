@@ -2779,24 +2779,36 @@ function snapToSteps(pct) {
   return STEPS.filter(s => s <= n).pop() ?? 0;
 }
 
-// Previsto de UMA fase: proporção de tempo decorrido → degrau para baixo
-// Usa replanejado se disponível, senão planejado
-// Retorna null se não há datas (fase sem referência temporal)
-function phasePredictedProgress(phase, today) {
-  today = today || new Date();
-  const start = parseDate(phase.replannedStart || phase.plannedStart);
-  const end   = parseDate(phase.replannedEnd   || phase.plannedEnd);
-  if (!start || !end) return null; // sem datas = sem previsto
+// ── PREVISTO POR DATAS (item isolado, sem olhar filhos) ──
+// Proporção de tempo decorrido → degrau para baixo.
+// Retorna null se não há datas.
+function datePredicted(item, today) {
+  const start = parseDate(item.replannedStart || item.plannedStart);
+  const end   = parseDate(item.replannedEnd   || item.plannedEnd);
+  if (!start || !end) return null;
   if (end <= start)   return today >= end ? 100 : 0;
   if (today <= start) return 0;
   if (today >= end)   return 100;
-  const pct = ((today - start) / (end - start)) * 100;
-  return snapToSteps(pct);
+  return snapToSteps(((today - start) / (end - start)) * 100);
 }
 
-// Realizado de UMA fase:
-//   - com tarefas → média simples dos status das tarefas, arredondada
-//   - sem tarefas → statusToProgress do status da fase
+// ── PREVISTO de uma ENTREGA ──
+// Com tarefas → média do previsto das tarefas (mesma base do realizado).
+// Sem tarefas → previsto pelas datas da própria entrega.
+function phasePredictedProgress(phase, today) {
+  today = today || new Date();
+  const tasks = (phase.tasks || []).filter(t => !t.isMilestone);
+  if (tasks.length) {
+    const vals = tasks.map(t => datePredicted(t, today)).filter(v => v !== null);
+    if (!vals.length) return null;
+    return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+  }
+  return datePredicted(phase, today);
+}
+
+// ── REALIZADO de uma ENTREGA ──
+// Com tarefas → média do status das tarefas.
+// Sem tarefas → status da própria entrega.
 function phaseRealizedProgress(phase) {
   const tasks = (phase.tasks || []).filter(t => !t.isMilestone);
   if (tasks.length) {
@@ -2806,16 +2818,23 @@ function phaseRealizedProgress(phase) {
   return statusToProgress(phase.status || 'not_started');
 }
 
-// Progresso consolidado do PROJETO
-// Previsto: média das fases que TÊM datas — arredondamento simples (não snapToSteps)
-// Realizado: média de todas as fases não-marco — arredondamento simples
+// ── PREVISTO e REALIZADO de uma TAREFA (sempre por suas próprias datas/status) ──
+function taskPredictedProgress(task, today) {
+  return datePredicted(task, today || new Date());
+}
+function taskRealizedProgress(task) {
+  return statusToProgress(task.status || 'not_started');
+}
+
+// ── Progresso consolidado do PROJETO ──
+// Previsto: média das entregas que TÊM previsto (não-null).
+// Realizado: média de todas as entregas não-marco.
 function projectProgress(project) {
   const phases = (project.phases || []).filter(ph => !ph.isMilestone);
   if (!phases.length) return { predicted: 0, realized: 0 };
 
   const today = new Date();
 
-  // Previsto: só conta fases com datas (null = sem datas = não entra na média)
   const preds = phases
     .map(ph => phasePredictedProgress(ph, today))
     .filter(v => v !== null);
@@ -2823,7 +2842,6 @@ function projectProgress(project) {
     ? Math.round(preds.reduce((a, b) => a + b, 0) / preds.length)
     : 0;
 
-  // Realizado: todas as fases contribuem — média simples arredondada
   const rVals = phases.map(ph => phaseRealizedProgress(ph));
   const realized = Math.round(rVals.reduce((a, b) => a + b, 0) / rVals.length);
 
@@ -3338,12 +3356,12 @@ function renderTableView() {
           <td>${dateInput(ph.replannedEnd,'replannedEnd',ph.id)}</td>
           <td>${dateInput(ph.actualStart,'actualStart',ph.id)}</td>
           <td>${dateInput(ph.actualEnd,'actualEnd',ph.id)}</td>
-          <td title="PREVISTO&#10;Inicio: ${ph.replannedStart||ph.plannedStart||'(vazio)'}&#10;Fim: ${ph.replannedEnd||ph.plannedEnd||'(vazio)'}&#10;Hoje: ${today.toISOString().slice(0,10)}&#10;= ${pred}%">
+          <td>
             <div style="display:flex;align-items:center;gap:4px">
               ${progBar(pred,'#94a3b8')}
             </div>
           </td>
-          <td title="REALIZADO&#10;Status entrega: ${ph.status||'(vazio)'}&#10;Qtd tarefas: ${(ph.tasks||[]).length}&#10;= ${real}%">
+          <td>
             <div style="display:flex;align-items:center;gap:4px">
               ${progBar(real, sc.color)}
             </div>
@@ -3361,7 +3379,7 @@ function renderTableView() {
         if (showTasks && ph.tasks && ph.tasks.length) {
           ph.tasks.forEach(t => {
             const tc = STATUS_OPTIONS.find(s=>s.value===t.status)||STATUS_OPTIONS[0];
-            const tReal = statusToProgress(t.status||'not_started');
+            const tReal = taskRealizedProgress(t);
             rows += `<tr class="tv-task-row" data-task-row="${t.id}">
               <td style="padding-left:52px">
                 <div style="display:flex;align-items:center;gap:6px">
@@ -3381,7 +3399,7 @@ function renderTableView() {
               <td>${taskDateInput(t.actualEnd,'actualEnd',t.id,ph.id)}</td>
               <td>
                 <div style="display:flex;align-items:center;gap:4px">
-                  ${progBar(phasePredictedProgress(t, today) ?? 0, '#94a3b8')}
+                  ${progBar(taskPredictedProgress(t, today) ?? 0, '#94a3b8')}
                 </div>
               </td>
               <td>
@@ -4268,7 +4286,7 @@ function renderTasksModal() {
 
 function renderTaskRow(t) {
   const today = new Date();
-  const predicted = phasePredictedProgress(t, today) ?? 0;
+  const predicted = taskPredictedProgress(t, today) ?? 0;
   if (!t.status) t.status = progressToStatus(t.progress || 0);
   const col = statusColor(t.status);
   return `
