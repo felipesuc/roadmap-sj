@@ -1634,359 +1634,297 @@
   .tab-panel.active { display: block; }
 
   /* ===== STATUS REPORT ===== */
-  .sr-wrap { padding: 20px 24px; }
+  .sr-wrap { padding: 24px 28px; max-width: 1600px; }
 
-  .sr-topbar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 18px;
-    flex-wrap: wrap;
-  }
-  .sr-topbar h2 {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--navy);
-    flex: 1;
-  }
-  .sr-topbar .sr-date {
-    font-size: 12px;
-    color: var(--muted);
-    background: #f1f5f9;
-    padding: 4px 10px;
-    border-radius: 4px;
-    border: 1px solid var(--border);
-  }
+  /* Topbar */
+  .sr-topbar { display:flex; align-items:center; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
+  .sr-topbar h2 { font-size:16px; font-weight:700; color:var(--navy); flex:1; margin:0; }
+  .sr-topbar .sr-date { font-size:11.5px; color:var(--muted); background:#f1f5f9; padding:4px 12px; border-radius:20px; border:1px solid var(--border); }
 
-  /* KPI cards row */
+  /* Section title */
+  .sr-section-title {
+    font-size:10px; font-weight:800; color:var(--navy); text-transform:uppercase;
+    letter-spacing:1.2px; margin:28px 0 12px; padding-bottom:8px;
+    border-bottom:2px solid var(--yellow); display:flex;
+    justify-content:space-between; align-items:center;
+  }
+  .sr-section-title:first-of-type { margin-top: 0; }
+
+  /* KPI row */
   .sr-kpis {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 12px;
-    margin-bottom: 20px;
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:12px; margin-bottom:14px;
   }
   .sr-kpi {
-    background: var(--card);
-    border: 1px solid var(--border);
+    background:#fff; border:1px solid #e8edf4; border-radius:10px;
+    padding:16px 18px; display:flex; flex-direction:column; gap:5px;
+    box-shadow:0 1px 4px rgba(13,31,60,0.06);
+  }
+  .sr-kpi .kpi-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--muted); }
+  .sr-kpi .kpi-value { font-size:28px; font-weight:800; color:var(--navy); line-height:1; }
+  .sr-kpi .kpi-sub { font-size:11px; color:var(--muted); }
+  .sr-kpi.kpi-green { border-top:3px solid #16a34a; }
+  .sr-kpi.kpi-green .kpi-value { color:#16a34a; }
+  .sr-kpi.kpi-yellow { border-top:3px solid #d97706; }
+  .sr-kpi.kpi-yellow .kpi-value { color:#d97706; }
+  .sr-kpi.kpi-red { border-top:3px solid var(--red); }
+  .sr-kpi.kpi-red .kpi-value { color:var(--red); }
+
+  /* Farol bar */
+  .sr-farol-bar {
+    height:8px; border-radius:6px; overflow:hidden;
+    margin-bottom:4px; display:flex; gap:3px;
+    border:1px solid #e4e9f0;
+  }
+  .sr-farol-bar .seg { transition:flex 0.4s; }
+  .sr-farol-bar .seg.green { background:var(--green); }
+  .sr-farol-bar .seg.yellow { background:var(--amber); }
+  .sr-farol-bar .seg.red { background:var(--red); }
+  .sr-farol-bar .seg.gray { background:#9ca3af; }
+
+  /* Table wrapper */
+  .sr-table-wrap {
+    background:#fff; border:1px solid #e8edf4; border-radius:10px;
+    overflow:hidden; box-shadow:0 1px 4px rgba(13,31,60,0.06); margin-bottom:0;
+  }
+  .sr-table { width:100%; border-collapse:collapse; font-size:12.5px; }
+  .sr-table thead tr { background:#0D1F3C; color:#c8d4e8; }
+  .sr-table th {
+    padding:9px 13px; font-weight:700; font-size:10px; text-transform:uppercase;
+    letter-spacing:0.6px; text-align:left; border-right:1px solid #1e3f63; white-space:nowrap;
+  }
+  .sr-table th:last-child { border-right:none; }
+  .sr-table td { padding:10px 13px; border-bottom:1px solid #f0f2f5; border-right:1px solid #f5f6f8; vertical-align:middle; }
+  .sr-table td:last-child { border-right:none; }
+  .sr-table tr:last-child td { border-bottom:none; }
+  .sr-table tr:hover td { background:#fafbfc; }
+  .sr-table .proj-name-cell { font-weight:600; color:var(--navy); }
+  .sr-table .portfolio-tag { font-size:10px; color:var(--muted); display:block; margin-top:2px; }
+  .sr-table .prog-cell { min-width:110px; }
+  .sr-table .mini-bar-wrap { height:7px; background:#e9edf2; border-radius:4px; overflow:hidden; margin-top:4px; position:relative; }
+  .sr-table .mini-bar-pred { position:absolute; top:0; bottom:0; left:0; background:var(--amber); opacity:0.5; border-radius:4px; }
+  .sr-table .mini-bar-real { position:absolute; top:0; bottom:0; left:0; background:var(--navy); border-radius:4px; }
+  .sr-table .prog-nums { font-size:10px; color:var(--muted); margin-top:2px; }
+  .sr-table .flag-pills-cell { display:flex; flex-wrap:wrap; gap:3px; max-width:220px; }
+  .sr-table .next-milestone { font-size:11.5px; color:var(--text); }
+  .sr-table .next-milestone .ms-date { font-size:10.5px; color:var(--muted); display:block; }
+  .sr-table .farol-comment { font-size:11.5px; color:var(--text); max-width:260px; line-height:1.4; }
+  .sr-table .farol-comment.empty { color:var(--muted); font-style:italic; }
+  .sr-sortable { cursor:pointer; user-select:none; }
+  .sr-sortable:hover { background:#162d4a; }
+
+  /* Grid 3: Destaques / Riscos / Decisões */
+  .sr-grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:0; }
+  @media (max-width:900px) { .sr-grid3 { grid-template-columns:1fr; } }
+  .sr-card { background:#fff; border:1px solid #e8edf4; border-radius:10px; overflow:hidden; box-shadow:0 1px 4px rgba(13,31,60,0.06); }
+  .sr-card-header { padding:10px 16px 9px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:8px; }
+
+  /* Indicador de prazo */
+  .prazo-grid { display:grid; grid-template-columns:240px 1fr; gap:14px; margin-bottom:0; align-items:start; }
+  @media (max-width:900px) { .prazo-grid { grid-template-columns:1fr; } }
+  .prazo-gauge { background:#fff; border:1px solid #e8edf4; border-radius:10px; padding:20px; box-shadow:0 1px 4px rgba(13,31,60,0.06); text-align:center; }
+  .prazo-gauge .idx-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--muted); }
+  .prazo-gauge .idx-value { font-size:44px; font-weight:800; line-height:1; margin:8px 0 4px; }
+  .prazo-gauge.ok .idx-value { color:#16a34a; }
+  .prazo-gauge.bad .idx-value { color:var(--red); }
+  .prazo-gauge .idx-meta { font-size:12px; font-weight:600; margin-top:6px; }
+  .prazo-gauge.ok .idx-meta { color:#16a34a; }
+  .prazo-gauge.bad .idx-meta { color:var(--red); }
+  .prazo-gauge .idx-pr { display:flex; justify-content:space-around; margin-top:14px; padding-top:14px; border-top:1px solid #f0f2f5; }
+  .prazo-gauge .idx-pr div { font-size:11px; color:var(--muted); }
+  .prazo-gauge .idx-pr strong { display:block; font-size:18px; color:var(--navy); margin-top:2px; }
+  .prazo-bar-track { height:8px; background:#e9edf2; border-radius:5px; position:relative; margin:12px 0 4px; overflow:visible; }
+  .prazo-bar-fill { height:100%; border-radius:5px; }
+  .prazo-bar-meta-mark { position:absolute; top:-4px; bottom:-4px; width:2px; background:var(--navy); opacity:0.5; }
+  .ofensores-wrap { background:#fff; border:1px solid #e8edf4; border-radius:10px; overflow:hidden; box-shadow:0 1px 4px rgba(13,31,60,0.06); }
+  .ofensores-wrap table { width:100%; border-collapse:collapse; font-size:12px; }
+  .ofensores-wrap th { background:#0D1F3C; color:#c8d4e8; text-align:left; padding:9px 13px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
+  .ofensores-wrap td { padding:8px 13px; border-bottom:1px solid #f0f2f5; }
+  .ofensores-wrap tr:last-child td { border-bottom:none; }
+  .ofensores-wrap tr:hover td { background:#fafbfc; }
+  .ofensores-wrap .gap-badge { font-weight:700; padding:2px 8px; border-radius:10px; font-size:11px; background:#fef2f2; color:var(--red); }
+  .ofensores-empty { padding:22px; text-align:center; color:#16a34a; font-size:13px; font-weight:600; }
+  .prazo-mini { display:inline-flex; align-items:center; gap:5px; }
+  .prazo-mini .mbar { width:50px; height:6px; border-radius:3px; background:#e9edf2; overflow:hidden; }
+  .prazo-mini .mbar span { display:block; height:100%; }
+
+  /* Marcos */
+  .sr-milestones-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 10px;
+    margin-bottom: 0;
+  }
+  .sr-milestone-card {
+    background: #fff;
+    border: 1px solid #e8edf4;
+    border-left: 4px solid #e8edf4;
     border-radius: 8px;
-    padding: 14px 16px;
+    padding: 12px 14px;
     display: flex;
     flex-direction: column;
     gap: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 3px rgba(13,31,60,0.05);
   }
-  .sr-kpi .kpi-label {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: var(--muted);
+  .sr-milestone-card.soon  { border-left-color: #f59e0b; }
+  .sr-milestone-card.overdue { border-left-color: var(--red); }
+  .sr-milestone-card.upcoming { border-left-color: #3b82f6; }
+  .sr-milestone-card .ms-label {
+    font-size: 9px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.6px;
   }
-  .sr-kpi .kpi-value {
-    font-size: 26px;
-    font-weight: 700;
-    color: var(--navy);
-    line-height: 1.1;
+  .sr-milestone-card.soon .ms-label    { color: #d97706; }
+  .sr-milestone-card.overdue .ms-label { color: var(--red); }
+  .sr-milestone-card.upcoming .ms-label { color: #3b82f6; }
+  .sr-milestone-card .ms-name {
+    font-size: 12.5px; font-weight: 700; color: var(--navy); line-height: 1.3;
   }
-  .sr-kpi .kpi-sub {
-    font-size: 11px;
-    color: var(--muted);
+  .sr-milestone-card .ms-proj {
+    font-size: 11px; color: var(--muted);
   }
-  .sr-kpi.kpi-green .kpi-value { color: #16a34a; }
-  .sr-kpi.kpi-yellow .kpi-value { color: #d97706; }
-  .sr-kpi.kpi-red .kpi-value { color: var(--red); }
+  .sr-milestone-card .ms-date {
+    font-size: 11px; font-weight: 600; margin-top: 2px;
+  }
+  .sr-milestone-card.soon .ms-date    { color: #d97706; }
+  .sr-milestone-card.overdue .ms-date { color: var(--red); }
+  .sr-milestone-card.upcoming .ms-date { color: #3b82f6; }
 
-  /* Farol summary bar */
-  .sr-farol-bar {
-    display: flex;
-    gap: 6px;
-    height: 10px;
-    border-radius: 6px;
-    overflow: hidden;
-    margin-bottom: 18px;
-    border: 1px solid #e4e9f0;
-  }
-  .sr-farol-bar .seg { transition: flex 0.4s; }
-  .sr-farol-bar .seg.green { background: var(--green); }
-  .sr-farol-bar .seg.yellow { background: var(--amber); }
-  .sr-farol-bar .seg.red { background: var(--red); }
-  .sr-farol-bar .seg.gray { background: #9ca3af; }
-
-  /* Section titles */
-  .sr-section-title {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--navy);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin: 0 0 10px;
-    padding-bottom: 6px;
-    border-bottom: 1.5px solid var(--yellow);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  /* Indicador de cumprimento de prazo */
-  .prazo-grid {
-    display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 16px;
-    margin-bottom: 22px;
-    align-items: start;
-  }
-  @media (max-width: 900px) { .prazo-grid { grid-template-columns: 1fr; } }
-  .prazo-gauge {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 18px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    text-align: center;
-  }
-  .prazo-gauge .idx-value {
-    font-size: 44px; font-weight: 800; line-height: 1;
-    margin: 6px 0 2px;
-  }
-  .prazo-gauge.ok  .idx-value { color: #16a34a; }
-  .prazo-gauge.bad .idx-value { color: var(--red); }
-  .prazo-gauge .idx-label {
-    font-size: 10px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.8px; color: var(--muted);
-  }
-  .prazo-gauge .idx-meta {
-    font-size: 12px; margin-top: 8px; font-weight: 600;
-  }
-  .prazo-gauge.ok  .idx-meta { color: #16a34a; }
-  .prazo-gauge.bad .idx-meta { color: var(--red); }
-  .prazo-gauge .idx-pr {
-    display: flex; justify-content: space-around; margin-top: 14px;
-    padding-top: 14px; border-top: 1px solid var(--border);
-  }
-  .prazo-gauge .idx-pr div { font-size: 11px; color: var(--muted); }
-  .prazo-gauge .idx-pr strong { display: block; font-size: 18px; color: var(--navy); margin-top: 2px; }
-  .prazo-bar-track {
-    height: 8px; background: #e9edf2; border-radius: 5px;
-    position: relative; margin: 12px 0 4px; overflow: visible;
-  }
-  .prazo-bar-fill { height: 100%; border-radius: 5px; }
-  .prazo-bar-meta-mark {
-    position: absolute; top: -3px; bottom: -3px; width: 2px;
-    background: var(--navy);
-  }
-  .ofensores-wrap {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  }
-  .ofensores-wrap table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  .ofensores-wrap th {
-    background: #0D1F3C; color: #e8edf5; text-align: left;
-    padding: 8px 12px; font-size: 10px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.5px;
-  }
-  .ofensores-wrap td { padding: 7px 12px; border-bottom: 1px solid #edf0f4; }
-  .ofensores-wrap tr:last-child td { border-bottom: none; }
-  .ofensores-wrap tr:hover td { background: #fafbfc; }
-  .ofensores-wrap .gap-badge {
-    font-weight: 700; padding: 2px 8px; border-radius: 10px; font-size: 11px;
-    background: #fef2f2; color: var(--red);
-  }
-  .ofensores-empty {
-    padding: 20px; text-align: center; color: #16a34a;
-    font-size: 13px; font-weight: 600;
-  }
-  .prazo-mini {
-    display: inline-flex; align-items: center; gap: 5px;
-  }
-  .prazo-mini .mbar { width: 50px; height: 6px; border-radius: 3px; background: #e9edf2; overflow: hidden; }
-  .prazo-mini .mbar span { display: block; height: 100%; }
-
-  /* Project status table */
-  .sr-table-wrap {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-    margin-bottom: 20px;
-  }
-  .sr-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12.5px;
-  }
-  .sr-table thead tr {
-    background: #16304f;
-    color: #c8d4e8;
-  }
-  .sr-table th {
-    padding: 8px 12px;
-    font-weight: 600;
-    font-size: 10.5px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    text-align: left;
-    border-right: 1px solid #1e3f63;
-    white-space: nowrap;
-  }
-  .sr-table th:last-child { border-right: none; }
-  .sr-table td {
-    padding: 9px 12px;
-    border-bottom: 1px solid var(--border);
-    border-right: 1px solid #f1f3f5;
-    vertical-align: middle;
-  }
-  .sr-table td:last-child { border-right: none; }
-  .sr-table tr:last-child td { border-bottom: none; }
-  .sr-table tr:hover td { background: #fafbfc; }
-  .sr-table .proj-name-cell { font-weight: 600; color: var(--navy); }
-  .sr-table .portfolio-tag {
-    font-size: 10px;
-    color: var(--muted);
-    font-weight: 400;
-    display: block;
-    margin-top: 1px;
-  }
-  .sr-table .prog-cell { min-width: 110px; }
-  .sr-table .mini-bar-wrap {
-    height: 7px;
-    background: #e9edf2;
-    border-radius: 4px;
-    overflow: hidden;
-    margin-top: 4px;
-    position: relative;
-  }
-  .sr-table .mini-bar-pred {
-    position: absolute; top: 0; bottom: 0; left: 0;
-    background: var(--amber);
-    opacity: 0.55;
-    border-radius: 4px;
-  }
-  .sr-table .mini-bar-real {
-    position: absolute; top: 0; bottom: 0; left: 0;
-    background: var(--navy);
-    border-radius: 4px;
-  }
-  .sr-table .prog-nums {
-    font-size: 10px;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-  .sr-table .flag-pills-cell {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 3px;
-    max-width: 220px;
-  }
-  .sr-table .next-milestone {
-    font-size: 11.5px;
-    color: var(--text);
-  }
-  .sr-table .next-milestone .ms-date {
-    font-size: 10.5px;
-    color: var(--muted);
-    display: block;
-  }
-  .sr-table .farol-comment {
-    font-size: 11.5px;
-    color: var(--text);
-    max-width: 260px;
-    line-height: 1.4;
-  }
-  .sr-table .farol-comment.empty { color: var(--muted); font-style: italic; }
-
-  /* Highlights / Risks / Decisions grid */
-  .sr-grid3 {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-    margin-bottom: 20px;
-  }
-  @media (max-width: 900px) { .sr-grid3 { grid-template-columns: 1fr; } }
-
+  /* Grid3: Destaques / Riscos / Decisões */
+  .sr-grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:0; }
+  @media (max-width:900px) { .sr-grid3 { grid-template-columns:1fr; } }
   .sr-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    background: #fff; border: 1px solid #e8edf4; border-radius: 10px;
+    overflow: hidden; box-shadow: 0 1px 4px rgba(13,31,60,0.06);
+    display: flex; flex-direction: column;
   }
   .sr-card-header {
-    padding: 10px 14px 8px;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 7px;
+    padding: 11px 16px; font-size: 10px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 1px;
+    display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f0f2f5;
   }
   .sr-card-header.green { background: #f0fdf4; color: #15803d; border-bottom-color: #bbf7d0; }
-  .sr-card-header.red { background: #fef2f2; color: #b91c1c; border-bottom-color: #fecaca; }
-  .sr-card-header.blue { background: #eff6ff; color: #1d4ed8; border-bottom-color: #bfdbfe; }
-  .sr-card-header.amber { background: #fffbeb; color: #92400e; border-bottom-color: #fde68a; }
-
-  .sr-card-body { padding: 10px 14px; }
+  .sr-card-header.red   { background: #fff7ed; color: #b45309; border-bottom-color: #fed7aa; }
+  .sr-card-header.blue  { background: #eff6ff; color: #1d4ed8; border-bottom-color: #bfdbfe; }
+  .sr-card-body { padding: 8px 0; flex: 1; overflow-y: auto; max-height: 320px; }
   .sr-item {
-    display: flex;
-    gap: 8px;
-    padding: 6px 0;
-    border-bottom: 1px solid #f3f4f6;
-    align-items: flex-start;
-    font-size: 12px;
-    line-height: 1.45;
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 9px 16px; border-bottom: 1px solid #f5f6f8;
   }
   .sr-item:last-child { border-bottom: none; }
-  .sr-item .sr-icon { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
-  .sr-item .sr-text { color: var(--text); }
-  .sr-item .sr-text .sr-proj-ref {
-    font-weight: 600;
-    color: var(--navy);
-    font-size: 10.5px;
-    display: block;
-    margin-bottom: 1px;
+  .sr-icon { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+  .sr-text { font-size: 12px; color: var(--text); line-height: 1.45; }
+  .sr-proj-ref {
+    display: block; font-size: 10px; font-weight: 700; color: var(--navy);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;
   }
 
-  /* Milestones upcoming */
-  .sr-milestone-row {
-    display: flex;
-    align-items: center;
-    padding: 7px 12px;
-    border-bottom: 1px solid var(--border);
-    gap: 10px;
-    font-size: 12.5px;
-  }
-  .sr-milestone-row:last-child { border-bottom: none; }
-  .sr-milestone-row .ms-diamond {
-    width: 12px; height: 12px;
-    background: var(--yellow);
-    border: 2px solid var(--navy);
-    transform: rotate(45deg);
-    flex-shrink: 0;
-  }
-  .sr-milestone-row .ms-name { font-weight: 600; color: var(--navy); flex: 1; }
-  .sr-milestone-row .ms-proj { font-size: 10.5px; color: var(--muted); }
-  .sr-milestone-row .ms-date-badge {
-    font-size: 10.5px;
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-weight: 600;
-    white-space: nowrap;
-  }
-  .sr-milestone-row .ms-date-badge.upcoming { background: #eff6ff; color: #1d4ed8; }
-  .sr-milestone-row .ms-date-badge.overdue { background: #fef2f2; color: #b91c1c; }
-  .sr-milestone-row .ms-date-badge.soon { background: #fffbeb; color: #92400e; }
+  /* Governança */
+  .gov-wrap { margin-bottom:0; }
+  .gov-group { background:#fff; border:1px solid #e8edf4; border-radius:10px; overflow:hidden; box-shadow:0 1px 4px rgba(13,31,60,0.06); }
+  .gov-group-header { background:#0D1F3C; color:#c8d4e8; padding:9px 14px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; display:flex; justify-content:space-between; align-items:center; }
+  .gov-cadencia-badge { font-size:9px; background:rgba(255,255,255,0.15); border-radius:8px; padding:2px 8px; font-weight:600; }
+  .gov-item { padding:10px 14px; border-bottom:1px solid #f0f2f5; display:flex; align-items:flex-start; gap:10px; }
+  .gov-item:last-child { border-bottom:none; }
+  .gov-item.done { background:#f0fdf4; }
+  .gov-item.done .gov-item-name { color:#15803d; }
+  .gov-check { width:18px; height:18px; border-radius:4px; border:2px solid #d1d5db; flex-shrink:0; cursor:pointer; display:flex; align-items:center; justify-content:center; margin-top:1px; transition:all 0.15s; background:#fff; font-size:11px; font-weight:700; }
+  .gov-check.checked { background:#16a34a; border-color:#16a34a; color:#fff; }
+  .gov-item-body { flex:1; min-width:0; }
+  .gov-item-name { font-size:11.5px; font-weight:700; color:var(--navy); }
+  .gov-item-tipo { font-size:10px; color:var(--muted); margin-bottom:3px; }
+  .gov-item-detail { display:none; margin-top:6px; flex-direction:column; gap:6px; }
+  .gov-item.done .gov-item-detail { display:flex; }
+  .gov-item-done-summary { font-size:11px; color:#15803d; display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:4px; }
+  .gov-done-date { background:#dcfce7; border-radius:8px; padding:1px 7px; font-weight:600; }
+  .gov-done-how { color:#166534; font-style:italic; }
 
-  /* Print */
-  @media print {
-    .toolbar, .tab-nav, header .badge { display: none; }
-    .tab-panel { display: block !important; }
-    .sr-wrap { padding: 0; }
+  /* ── Governança PMO ── */
+  .gov-wrap { margin-bottom: 22px; }
+  .gov-header {
+    display: flex; align-items: center; gap: 16px; margin-bottom: 14px;
   }
+  .gov-gauge {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 20px; display: flex; align-items: center; gap: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); min-width: 260px;
+  }
+  .gov-gauge .gov-pct {
+    font-size: 36px; font-weight: 800; line-height: 1; min-width: 64px; text-align: center;
+  }
+  .gov-gauge.gov-ok  .gov-pct { color: #16a34a; }
+  .gov-gauge.gov-warn .gov-pct { color: #d97706; }
+  .gov-gauge.gov-bad .gov-pct { color: var(--red); }
+  .gov-gauge .gov-meta { font-size: 11px; color: var(--muted); }
+  .gov-gauge .gov-meta strong { display: block; font-size: 13px; color: var(--navy); margin-bottom: 2px; }
+  .gov-track { flex: 1; height: 8px; background: #e9edf2; border-radius: 5px; overflow: hidden; margin-top: 6px; }
+  .gov-track-fill { height: 100%; border-radius: 5px; transition: width 0.4s; }
+  .gov-period-nav {
+    display: flex; align-items: center; gap: 8px; margin-left: auto;
+    font-size: 12px; color: var(--navy); font-weight: 600;
+  }
+  .gov-period-nav button {
+    background: none; border: 1px solid var(--border); border-radius: 5px;
+    padding: 3px 8px; cursor: pointer; font-size: 13px; color: var(--navy);
+  }
+  .gov-period-nav button:hover { background: var(--yellow-soft); }
+  .gov-period-label { min-width: 110px; text-align: center; }
+  .gov-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 12px;
+  }
+  .gov-group {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .gov-group-header {
+    background: #0D1F3C; color: #e8edf5; padding: 8px 14px;
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.6px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .gov-group-header .gov-cadencia-badge {
+    font-size: 9px; background: rgba(255,255,255,0.15); border-radius: 8px;
+    padding: 2px 7px; font-weight: 600; letter-spacing: 0.4px;
+  }
+  .gov-item {
+    padding: 10px 14px; border-bottom: 1px solid #edf0f4;
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .gov-item:last-child { border-bottom: none; }
+  .gov-item.done { background: #f0fdf4; }
+  .gov-item.done .gov-item-name { color: #15803d; }
+  .gov-check {
+    width: 18px; height: 18px; border-radius: 4px; border: 2px solid #d1d5db;
+    flex-shrink: 0; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; margin-top: 1px; transition: all 0.15s;
+    background: #fff;
+  }
+  .gov-check.checked { background: #16a34a; border-color: #16a34a; color: #fff; font-size: 11px; }
+  .gov-item-body { flex: 1; min-width: 0; }
+  .gov-item-name { font-size: 12px; font-weight: 600; color: var(--navy); }
+  .gov-item-tipo { font-size: 10px; color: var(--muted); margin-bottom: 4px; }
+  .gov-item-detail {
+    display: none; margin-top: 6px; gap: 6px; flex-direction: column;
+  }
+  .gov-item.done .gov-item-detail,
+  .gov-item-detail.open { display: flex; }
+  .gov-item-detail input[type=date], .gov-item-detail textarea {
+    font-size: 11px; border: 1px solid #e2e8f0; border-radius: 5px;
+    padding: 4px 8px; font-family: inherit; background: #fff; width: 100%;
+  }
+  .gov-item-detail input[type=date] { width: auto; }
+  .gov-item-detail textarea { resize: vertical; min-height: 44px; }
+  .gov-item-done-summary {
+    font-size: 11px; color: #15803d; display: flex; gap: 8px;
+    flex-wrap: wrap; align-items: center; margin-top: 4px;
+  }
+  .gov-item-done-summary .gov-done-date {
+    background: #dcfce7; border-radius: 8px; padding: 1px 7px; font-weight: 600;
+  }
+  .gov-item-done-summary .gov-done-how {
+    color: #166534; font-style: italic;
+  }
+
+
 </style>
 </head>
 <body>
@@ -2071,6 +2009,8 @@
 <!-- STATUS REPORT PANEL -->
 <div class="tab-panel" id="panel-status">
   <div class="sr-wrap">
+
+    <!-- Topbar -->
     <div class="sr-topbar">
       <h2>📊 Status Report — Portfólios SJ</h2>
       <span class="sr-date" id="sr-date-label"></span>
@@ -2080,7 +2020,7 @@
       <button class="ghost" onclick="window.print()" style="font-size:11px;padding:5px 10px">🖨 Imprimir</button>
     </div>
 
-    <!-- Version preview bar (shown when viewing a saved version) -->
+    <!-- Version preview bar -->
     <div id="sr-ver-preview" style="display:none" class="ver-preview-bar">
       <span>👁 Visualizando versão salva:</span>
       <strong id="sr-ver-preview-label"></strong>
@@ -2088,16 +2028,21 @@
       <span class="ver-dismiss" onclick="dismissVersionPreview()" title="Fechar">✕</span>
     </div>
 
-    <!-- KPI cards -->
+    <!-- 1. NÚMEROS PRINCIPAIS -->
     <div class="sr-kpis" id="sr-kpis"></div>
-
-    <!-- Farol bar -->
     <div class="sr-farol-bar" id="sr-farol-bar"></div>
 
-    <!-- Projects status table -->
+    <!-- 2. MARCOS -->
+    <div class="sr-section-title">Marcos nos Próximos 90 Dias</div>
+    <div class="sr-table-wrap" id="sr-milestones"></div>
+
+    <!-- 3. STATUS QUALITATIVO -->
+    <div class="sr-grid3" id="sr-grid3"></div>
+
+    <!-- 4. EXTRATO DOS PROJETOS -->
     <div class="sr-section-title" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
       <span>Situação dos Projetos</span>
-      <div style="display:flex;gap:8px;align-items:center">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <select id="sr-filter-portfolio" onchange="applySRFilters()" style="font-size:11px;padding:4px 8px;border:1px solid var(--border);border-radius:4px;background:#fff">
           <option value="">Todos os portfólios</option>
         </select>
@@ -2138,16 +2083,13 @@
       </table>
     </div>
 
-    <!-- Indicador de Cumprimento de Prazo -->
-    <div class="sr-section-title" style="margin-top:8px">Cumprimento de Prazo (Realizado × Previsto · Meta 85%)</div>
+    <!-- 5. INDICADOR DE PRAZO -->
+    <div class="sr-section-title">Cumprimento de Prazo · Meta 85%</div>
     <div id="sr-prazo"></div>
 
-    <!-- Upcoming milestones -->
-    <div class="sr-section-title" style="margin-top:4px">Marcos nos Próximos 90 Dias</div>
-    <div class="sr-table-wrap" id="sr-milestones"></div>
-
-    <!-- 3-column grid: Destaques / Riscos / Decisões -->
-    <div class="sr-grid3" id="sr-grid3"></div>
+    <!-- 6. INDICADOR DE GOVERNANÇA -->
+    <div class="sr-section-title">Governança PMO — Rituais &amp; Artefatos · Meta 85%</div>
+    <div id="sr-gov"></div>
 
   </div>
 </div><!-- /panel-status -->
@@ -2281,7 +2223,7 @@
 // ============================================================
 // STATE
 // ============================================================
-let state = { projects: [], portfolios: [], flags: [] };
+let state = { projects: [], portfolios: [], flags: [], governance: {} };
 let currentProjectId = null;
 let currentPhaseId = null;
 let currentPortfolioId = null;
@@ -2682,6 +2624,7 @@ function defaultFlags() {
 }
 
 function migrateData() {
+  if (!state.governance) state.governance = {};
   // Ensure flags
   if (!state.flags || !state.flags.length) state.flags = defaultFlags();
   // Ensure dev flag exists for migration purposes
@@ -5828,11 +5771,12 @@ function renderStatusReport() {
 
   renderSRKpis(projects);
   renderSRFarolBar(projects);
+  renderSRMilestones(projects, today);
+  renderSRGrid3(highlights, risks, decisions);
   renderSRTable(projects, portfolios);
   initSRSort();
   renderSRPrazo();
-  renderSRMilestones(projects, today);
-  renderSRGrid3(highlights, risks, decisions);
+  renderSRGov();
 }
 
 function buildSRProjects() {
@@ -5929,6 +5873,298 @@ function renderSRKpis(projects) {
   `;
 }
 
+
+// ── ITENS DE GOVERNANÇA (slide PMO Corporativo) ──
+const GOV_ITEMS = [
+  // RITUAIS — ordenados por peso desc
+  { id: 'ritual_trimestral', tipo: 'Ritual', cadencia: 'Trimestral', peso: 25,
+    nome: 'Reunião Trimestral de Portfólio',
+    descricao: 'Revisão e planejamento do portfólio e dos OKRs + análise de impactos',
+    envolvidos: 'Diretoria, PMO Corporativo, GP e Líderes de Iniciativas' },
+  { id: 'ritual_mensal', tipo: 'Ritual', cadencia: 'Mensal', peso: 7,
+    nome: 'Reunião Mensal de Reporte',
+    descricao: 'Reporte do progresso e (re)planejamento do portfólio + análise de impactos',
+    envolvidos: 'PMO, GP, time e Líderes de Iniciativas' },
+  { id: 'ritual_quinzenal', tipo: 'Ritual', cadencia: 'Quinzenal', peso: 1,
+    nome: 'Reunião Quinzenal de Iniciativas',
+    descricao: 'Revisão e planejamento das iniciativas e do plano de ação',
+    envolvidos: 'GP e time, Líderes de Iniciativas' },
+  { id: 'ritual_diaria', tipo: 'Ritual', cadencia: 'Diária', peso: 0.5,
+    nome: 'Daily — Alinhamento e Impedimentos',
+    descricao: 'Alinhamento do time e remoção de impedimentos',
+    envolvidos: 'GP e time' },
+  { id: 'ritual_extraordinaria', tipo: 'Ritual', cadencia: 'Extraordinária', peso: 0.5,
+    nome: 'Reunião Extraordinária',
+    descricao: 'Tratar problemas emergentes → Plano de contingência',
+    envolvidos: 'Conforme o contexto' },
+  // ARTEFATOS — ordenados por peso desc
+  { id: 'artefato_portfolio', tipo: 'Artefato', cadencia: 'Mensal', peso: 25,
+    nome: 'Portfólio de Iniciativas Atualizado',
+    descricao: 'Portfólio revisado com iniciativas priorizadas e alinhadas ao roadmap' },
+  { id: 'artefato_plano_acao', tipo: 'Artefato', cadencia: 'Mensal', peso: 25,
+    nome: 'Plano de Ação — Riscos e Impedimentos',
+    descricao: 'Plano de ação atualizado para gerenciamento de riscos, impedimentos e dependências' },
+  { id: 'artefato_status_report', tipo: 'Artefato', cadencia: 'Quinzenal', peso: 10,
+    nome: 'Status Report Formalizado',
+    descricao: 'Formalização do Status Report do portfólio para o período' },
+  { id: 'artefato_metricas', tipo: 'Artefato', cadencia: 'Mensal', peso: 4,
+    nome: 'Métricas e Iniciativas Atualizadas',
+    descricao: 'KPIs e métricas das iniciativas atualizados para o período' },
+  { id: 'artefato_backlog', tipo: 'Artefato', cadencia: 'Quinzenal', peso: 2,
+    nome: 'Backlog das Iniciativas Atualizado',
+    descricao: 'Backlog revisado com impedimentos, riscos e métricas' },
+];
+// Soma dos pesos = 100
+const GOV_TOTAL_PESO = GOV_ITEMS.reduce((a, it) => a + it.peso, 0);
+
+// Chave do período: 'YYYY-WW' para semana, 'YYYY-MM' para mês
+function govPeriodKey(offset) {
+  const d = new Date();
+  d.setDate(d.getDate() + (offset || 0) * 7);
+  const year = d.getFullYear();
+  const start = new Date(year, 0, 1);
+  const week = Math.ceil(((d - start) / 86400000 + start.getDay() + 1) / 7);
+  return year + '-W' + String(week).padStart(2,'0');
+}
+
+function govPeriodLabel(key) {
+  const m = key.match(/^(\d{4})-W(\d+)$/);
+  if (!m) return key;
+  // Calcular a data de segunda-feira dessa semana
+  const year = parseInt(m[1]), week = parseInt(m[2]);
+  const jan1 = new Date(year, 0, 1);
+  const d = new Date(jan1.getTime() + (week - 1) * 7 * 86400000);
+  d.setDate(d.getDate() - d.getDay() + 1); // segunda
+  const end = new Date(d); end.setDate(end.getDate() + 6);
+  const fmt = dt => dt.toLocaleDateString('pt-BR', { day:'2-digit', month:'short' });
+  return fmt(d) + ' – ' + fmt(end);
+}
+
+let govPeriodOffset = 0;
+
+function govCurrentKey() { return govPeriodKey(govPeriodOffset); }
+
+function govGetData(key) {
+  if (!state.governance) state.governance = {};
+  if (!state.governance[key]) state.governance[key] = {};
+  return state.governance[key];
+}
+
+function govToggleItem(id) {
+  const key = govCurrentKey();
+  const data = govGetData(key);
+  if (data[id] && data[id].done) {
+    data[id].done = false;
+  } else {
+    if (!data[id]) data[id] = {};
+    data[id].done = true;
+    if (!data[id].date) data[id].date = new Date().toISOString().slice(0,10);
+  }
+  snapshot(); save();
+  renderSRGov();
+}
+
+function govSaveField(id, field, value) {
+  const key = govCurrentKey();
+  const data = govGetData(key);
+  if (!data[id]) data[id] = {};
+  data[id][field] = value;
+  snapshot(); save();
+}
+
+function renderSRGov() {
+  const el = document.getElementById('sr-gov');
+  if (!el) return;
+
+  const key = govCurrentKey();
+  const data = govGetData(key);
+
+  const done = GOV_ITEMS.filter(it => data[it.id] && data[it.id].done).length;
+  const pesoAtendido = GOV_ITEMS
+    .filter(it => data[it.id] && data[it.id].done)
+    .reduce((a, it) => a + it.peso, 0);
+  const total = GOV_ITEMS.length;
+  const pct = Math.round((pesoAtendido / GOV_TOTAL_PESO) * 100);
+  const metaGovPct = Math.round(GOV_META * 100);
+  const isOk = pct >= metaGovPct;
+  const isWarn = !isOk && pct >= 50;
+  const fillColor = isOk ? '#16a34a' : isWarn ? '#d97706' : '#ef4444';
+  const statusText = isOk ? '✓ Meta atingida' : isWarn ? '⚠ Abaixo da meta' : '✗ Governança frágil';
+  const statusColor = isOk ? '#16a34a' : isWarn ? '#d97706' : '#ef4444';
+
+  const rituais  = GOV_ITEMS.filter(it => it.tipo === 'Ritual');
+  const artefatos = GOV_ITEMS.filter(it => it.tipo === 'Artefato');
+
+  function renderItem(it) {
+    const itData = data[it.id] || {};
+    const isDone = !!itData.done;
+    const cadBadgeColor = {
+      'Trimestral':'#7c3aed','Mensal':'#2563eb','Quinzenal':'#0891b2',
+      'Diária':'#16a34a','Extraordinária':'#d97706'
+    }[it.cadencia] || '#64748b';
+    return `<div class="gov-item ${isDone?'done':''}" id="govitem-${it.id}">
+      <div class="gov-check ${isDone?'checked':''}" onclick="govToggleItem('${it.id}')"
+        title="${isDone?'Desmarcar':'Marcar como atendido'}">${isDone?'✓':''}</div>
+      <div class="gov-item-body">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap">
+          <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
+            background:${cadBadgeColor}22;color:${cadBadgeColor};border-radius:8px;padding:1px 7px;
+            border:1px solid ${cadBadgeColor}44">${it.cadencia}</span>
+          <span style="font-size:9px;font-weight:700;background:#f1f5f9;color:#64748b;
+            border-radius:8px;padding:1px 7px;border:1px solid #e2e8f0">peso ${it.peso}</span>
+          <span class="gov-item-name">${escapeHtml(it.nome)}</span>
+        </div>
+        <div style="font-size:10.5px;color:var(--muted);line-height:1.4">${escapeHtml(it.descricao)}</div>
+        ${it.envolvidos ? `<div style="font-size:10px;color:#94a3b8;margin-top:2px">👥 ${escapeHtml(it.envolvidos)}</div>` : ''}
+        <div class="gov-item-detail ${isDone?'open':''}">
+          <div style="display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap">
+            <label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap">📅 Quando</label>
+            <input type="date" value="${itData.date||''}"
+              onchange="govSaveField('${it.id}','date',this.value)"
+              style="font-size:11px;padding:3px 8px;border:1px solid #e2e8f0;border-radius:5px;font-family:inherit">
+          </div>
+          <div style="margin-top:5px">
+            <label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;
+              letter-spacing:0.5px;display:block;margin-bottom:3px">✍ Como foi atendido</label>
+            <textarea rows="2" placeholder="Descreva como o item foi atendido neste período..."
+              onchange="govSaveField('${it.id}','how',this.value)"
+              style="font-size:11px;border:1px solid #e2e8f0;border-radius:5px;padding:5px 8px;
+              font-family:inherit;resize:vertical;width:100%;box-sizing:border-box;
+              background:${isDone?'#f0fdf4':'#fff'}">${escapeHtml(itData.how||'')}</textarea>
+          </div>
+        </div>
+        ${isDone && (itData.date || itData.how) ? `
+          <div class="gov-item-done-summary" style="margin-top:5px">
+            ${itData.date ? `<span class="gov-done-date">📅 ${fmtDate(itData.date)}</span>` : ''}
+            ${itData.how ? `<span class="gov-done-how">"${escapeHtml(itData.how.slice(0,90))}${itData.how.length>90?'…':''}"</span>` : ''}
+          </div>` : ''}
+      </div>
+    </div>`;
+  }
+
+  function renderCol(title, icon, items) {
+    const colDone = items.filter(it => data[it.id] && data[it.id].done).length;
+    return `<div class="gov-group">
+      <div class="gov-group-header">
+        <span>${icon} ${title}</span>
+        <span class="gov-cadencia-badge">${colDone}/${items.length} atendidos</span>
+      </div>
+      ${items.map(renderItem).join('')}
+    </div>`;
+  }
+
+  // KPI cards de governança (mesma linha visual dos sr-kpis)
+  const rituaisPeso = rituais.filter(it=>data[it.id]&&data[it.id].done).reduce((a,it)=>a+it.peso,0);
+  const rituaisPesoTotal = rituais.reduce((a,it)=>a+it.peso,0);
+  const artefatosPeso = artefatos.filter(it=>data[it.id]&&data[it.id].done).reduce((a,it)=>a+it.peso,0);
+  const artefatosPesoTotal = artefatos.reduce((a,it)=>a+it.peso,0);
+  const govKpis = [
+    { label: 'Índice de Governança', value: (pesoAtendido/GOV_TOTAL_PESO).toFixed(2).replace('.',','),
+      sub: `${pct}% do peso total · meta ${metaGovPct}%`, color: fillColor },
+    { label: '🏛 Rituais', value: `${rituais.filter(it=>data[it.id]&&data[it.id].done).length}/${rituais.length}`,
+      sub: `${Math.round(rituaisPeso/rituaisPesoTotal*100)}% do peso dos rituais`, color: '#2563eb' },
+    { label: '📄 Artefatos', value: `${artefatos.filter(it=>data[it.id]&&data[it.id].done).length}/${artefatos.length}`,
+      sub: `${Math.round(artefatosPeso/artefatosPesoTotal*100)}% do peso dos artefatos`, color: '#7c3aed' },
+    { label: 'Status', value: statusText, sub: `${done} de ${total} itens atendidos`, color: statusColor, small: true },
+  ];
+
+  el.innerHTML = `<div class="gov-wrap">
+
+    <!-- KPI row + nav -->
+    <div style="display:flex;align-items:stretch;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+      ${govKpis.map(k=>`
+        <div class="sr-kpi" style="border-left:3px solid ${k.color};flex:1;min-width:160px">
+          <span class="kpi-label">${k.label}</span>
+          <span class="kpi-value" style="color:${k.color};font-size:${k.small?'16px':'26px'}">${k.value}</span>
+          <span class="kpi-sub">${k.sub}</span>
+        </div>`).join('')}
+      <div class="sr-kpi" style="flex:0;min-width:200px;justify-content:center;align-items:center;display:flex;flex-direction:column;gap:8px;border:1px dashed var(--border)">
+        <span class="kpi-label">Período de referência</span>
+        <div style="display:flex;align-items:center;gap:6px">
+          <button onclick="govPeriodOffset--;renderSRGov()"
+            style="background:none;border:1px solid var(--border);border-radius:5px;padding:3px 9px;cursor:pointer;font-size:14px;color:var(--navy)">‹</button>
+          <span style="font-size:11px;font-weight:700;color:var(--navy);white-space:nowrap;pointer-events:none;user-select:none">${govPeriodLabel(key)}</span>
+          <button onclick="govPeriodOffset++;renderSRGov()"
+            style="background:none;border:1px solid var(--border);border-radius:5px;padding:3px 9px;cursor:pointer;font-size:14px;color:var(--navy)">›</button>
+        </div>
+        <button onclick="govPeriodOffset=0;renderSRGov()"
+          style="font-size:10px;padding:2px 10px;background:var(--yellow-soft);border:1px solid var(--yellow);
+          border-radius:5px;cursor:pointer;font-weight:600;color:var(--navy)">Semana atual</button>
+      </div>
+    </div>
+
+    <!-- Barra de progresso geral -->
+    <div style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px">
+        <span>Conformidade do período</span>
+        <span style="font-weight:700;color:${fillColor}">${pct}% · meta ${metaGovPct}%</span>
+      </div>
+      <div style="height:10px;background:#e9edf2;border-radius:6px;overflow:hidden;position:relative">
+        <div style="height:100%;width:${pct}%;background:${fillColor};border-radius:6px;transition:width 0.4s"></div>
+        <div style="position:absolute;top:0;bottom:0;left:${metaGovPct}%;width:2px;background:var(--navy);opacity:0.5" title="Meta ${metaGovPct}%"></div>
+      </div>
+    </div>
+
+    <!-- Checklist: todos os itens em linha, full-width -->
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:8px">
+      ${GOV_ITEMS.map(it => {
+        const itData = data[it.id] || {};
+        const isDone = !!itData.done;
+        const cadBadgeColor = {
+          'Trimestral':'#7c3aed','Mensal':'#2563eb','Quinzenal':'#0891b2',
+          'Diária':'#16a34a','Extraordinária':'#d97706'
+        }[it.cadencia] || '#64748b';
+        const isTop = it.peso >= 20;
+        return `<div style="background:${isDone?'#f0fdf4':'#fff'};border:1.5px solid ${isDone?'#86efac':isTop?'#fbbf24':'#e2e8f0'};
+          border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;
+          box-shadow:${isTop?'0 2px 8px rgba(245,196,0,0.15)':'0 1px 3px rgba(0,0,0,0.04)'};
+          position:relative;overflow:hidden">
+          ${isTop ? `<div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--yellow)"></div>` : ''}
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+            <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+              <span style="font-size:9px;font-weight:700;background:${cadBadgeColor}18;color:${cadBadgeColor};
+                border-radius:6px;padding:1px 6px;border:1px solid ${cadBadgeColor}33">${it.cadencia}</span>
+              <span style="font-size:9px;font-weight:700;background:#f1f5f9;color:#64748b;
+                border-radius:6px;padding:1px 6px">p.${it.peso}</span>
+              ${isTop ? `<span style="font-size:9px;font-weight:800;color:#d97706">★ prioritário</span>` : ''}
+            </div>
+            <div onclick="govToggleItem('${it.id}')"
+              style="width:20px;height:20px;border-radius:5px;border:2px solid ${isDone?'#16a34a':'#d1d5db'};
+              background:${isDone?'#16a34a':'#fff'};cursor:pointer;display:flex;align-items:center;
+              justify-content:center;font-size:11px;color:#fff;flex-shrink:0;font-weight:700">
+              ${isDone?'✓':''}
+            </div>
+          </div>
+          <div style="font-size:11.5px;font-weight:700;color:${isDone?'#15803d':'var(--navy)'};line-height:1.3">
+            ${escapeHtml(it.nome)}
+          </div>
+          <div style="font-size:10px;color:var(--muted);line-height:1.4;flex:1">
+            ${escapeHtml(it.descricao)}
+          </div>
+          ${it.envolvidos ? `<div style="font-size:9.5px;color:#94a3b8">👥 ${escapeHtml(it.envolvidos)}</div>` : ''}
+          <div style="border-top:1px solid ${isDone?'#bbf7d0':'#f1f5f9'};padding-top:6px;margin-top:2px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:${isDone?'6px':'0'}">
+              <label style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;white-space:nowrap">📅 Quando</label>
+              <input type="date" value="${itData.date||''}"
+                onchange="govSaveField('${it.id}','date',this.value)"
+                style="font-size:10px;padding:2px 6px;border:1px solid #e2e8f0;border-radius:4px;
+                font-family:inherit;flex:1;min-width:0;background:${isDone?'#f0fdf4':'#fff'}">
+            </div>
+            ${isDone ? `
+            <textarea rows="2" placeholder="Como foi atendido..."
+              onchange="govSaveField('${it.id}','how',this.value)"
+              style="font-size:10px;border:1px solid #bbf7d0;border-radius:4px;padding:4px 6px;
+              font-family:inherit;resize:vertical;width:100%;box-sizing:border-box;
+              background:#f0fdf4;color:#166534">${escapeHtml(itData.how||'')}</textarea>` : ''}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+
+const GOV_META = 0.85;
 const PRAZO_META = 0.85;
 
 // Indicador de cumprimento de prazo: Realizado x Previsto, por entrega, consolidado.
@@ -6198,37 +6434,49 @@ function renderSRMilestones(projects, today) {
   });
   items.sort((a, b) => a.d - b.d);
 
-  const html = items.length ? items.map(it => {
-    let cls = 'upcoming', dLabel = '';
-    if (it.diffDays < 0) { cls = 'overdue'; dLabel = `Vencido há ${Math.abs(it.diffDays)}d`; }
-    else if (it.diffDays <= 14) { cls = 'soon'; dLabel = `Em ${it.diffDays}d`; }
-    else { dLabel = fmtDate(it.date); }
-    return `<div class="sr-milestone-row">
-      <div class="ms-diamond"></div>
-      <span class="ms-name">${escapeHtml(it.name)}</span>
-      <span class="ms-proj">${escapeHtml(it.projName)}</span>
-      <span class="ms-date-badge ${cls}">${dLabel}</span>
-    </div>`;
-  }).join('') : `<div style="padding:16px;color:var(--muted);font-size:12px;text-align:center">Nenhum marco nos próximos 90 dias.</div>`;
+  const html = items.length
+    ? `<div class="sr-milestones-grid">${items.map(it => {
+        let cls, dLabel, icon;
+        if (it.diffDays < 0) {
+          cls = 'overdue'; icon = '🔴';
+          dLabel = `Vencido há ${Math.abs(it.diffDays)} dia${Math.abs(it.diffDays)>1?'s':''}`;
+        } else if (it.diffDays <= 14) {
+          cls = 'soon'; icon = '🟡';
+          dLabel = it.diffDays === 0 ? 'Hoje' : `Em ${it.diffDays} dia${it.diffDays>1?'s':''}`;
+        } else {
+          cls = 'upcoming'; icon = '🔷';
+          dLabel = fmtDate(it.date);
+        }
+        return `<div class="sr-milestone-card ${cls}">
+          <div class="ms-label">${icon} ${cls === 'overdue' ? 'Vencido' : cls === 'soon' ? 'Em breve' : 'Programado'}</div>
+          <div class="ms-name">${escapeHtml(it.name)}</div>
+          <div class="ms-proj">📁 ${escapeHtml(it.projName)}</div>
+          <div class="ms-date">${dLabel}</div>
+        </div>`;
+      }).join('')}</div>`
+    : `<div style="padding:20px;color:var(--muted);font-size:12px;text-align:center;background:#fff;border:1px solid #e8edf4;border-radius:10px">Nenhum marco nos próximos 90 dias.</div>`;
 
   document.getElementById('sr-milestones').innerHTML = html;
 }
 
 function renderSRGrid3(highlights, risks, decisions) {
   function card(header, cls, icon, items, emptyMsg) {
-    const content = items.length
+    const rows = items.length
       ? items.map(it => `<div class="sr-item">
           <span class="sr-icon">${icon}</span>
-          <span class="sr-text">
+          <div class="sr-text">
             ${it.proj ? `<span class="sr-proj-ref">${escapeHtml(it.proj)}</span>` : ''}
-            ${escapeHtml(it.text)}
-          </span>
+            <span>${escapeHtml(it.text)}</span>
+          </div>
         </div>`).join('')
-      : `<div style="padding:10px;color:var(--muted);font-size:11.5px;font-style:italic">${emptyMsg}</div>`;
+      : `<div style="padding:14px 16px;color:var(--muted);font-size:11.5px;font-style:italic">${emptyMsg}</div>`;
 
     return `<div class="sr-card">
-      <div class="sr-card-header ${cls}">${header}</div>
-      <div class="sr-card-body">${content}</div>
+      <div class="sr-card-header ${cls}">
+        <span>${icon}</span><span>${header.replace(/^.+?\s/,'')}</span>
+        <span style="margin-left:auto;background:rgba(0,0,0,0.08);border-radius:10px;padding:1px 8px;font-size:10px">${items.length}</span>
+      </div>
+      <div class="sr-card-body">${rows}</div>
     </div>`;
   }
 
