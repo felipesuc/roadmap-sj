@@ -1312,6 +1312,15 @@
   .tap-btn-save { background:linear-gradient(135deg,#0D1F3C,#1a3558);color:#fff;border:none;padding:10px 26px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer; }
   .tap-btn-save:hover { opacity:0.88; }
   .tap-saved-msg { font-size:12px;color:#22c55e;font-weight:600;display:none; }
+  /* ===== GRADE DE RISCOS (TAP) ===== */
+  .tap-risk-grid { width:100%; border-collapse:collapse; font-size:12px; }
+  .tap-risk-grid th { text-align:left; font-size:9.5px; text-transform:uppercase; letter-spacing:0.4px; color:#64748b; font-weight:700; padding:4px 6px; border-bottom:1px solid #e2e8f0; }
+  .tap-risk-grid td { padding:3px 4px; vertical-align:middle; }
+  .tap-risk-grid input, .tap-risk-grid select { width:100%; padding:6px 7px; border:1px solid #cbd5e1; border-radius:5px; font-size:12px; font-family:inherit; background:#fff; box-sizing:border-box; }
+  .tap-risk-grid select.rk-tipo[data-v="Oportunidade"] { color:#15803d; }
+  .tap-risk-grid select.rk-tipo[data-v="Ameaça"] { color:#b91c1c; }
+  .tap-risk-grid .rk-del { width:26px;height:26px;border:none;background:transparent;color:#94a3b8;cursor:pointer;border-radius:4px;font-size:15px;line-height:1; }
+  .tap-risk-grid .rk-del:hover { background:#fee2e2;color:#ef4444; }
 
   /* ===== STATUS SELECT ===== */
   select.ph-status, select.t-status {
@@ -7117,12 +7126,69 @@ async function loadTap(pid) {
   } catch(e) { return {project_id:pid}; }
 }
 
+// ============================================================
+// TABELA DE RISCOS DO TAP (Tipo | Risco | Impacto | Probabilidade | Ação)
+// Persistida como texto no campo project_tap.riscos (uma linha por risco).
+// Compatível com o formato antigo (Risco | Impacto | Probabilidade | Mitigador).
+// ============================================================
+function parseRisks(txt) {
+  return (txt||'').split('\n').map(s => s.trim()).filter(Boolean).map(line => {
+    const c = line.split('|').map(x => x.trim());
+    if (c.length >= 5) return { tipo:c[0]||'Ameaça', risco:c[1]||'', impacto:c[2]||'', prob:c[3]||'', acao:c[4]||'' };
+    // formato antigo: Risco | Impacto | Probabilidade | Mitigador
+    return { tipo:'Ameaça', risco:c[0]||'', impacto:c[1]||'', prob:c[2]||'', acao:c[3]||'' };
+  });
+}
+function riskSelect(opts, value, cls, blank) {
+  let html = '<select class="'+cls+'"';
+  if (cls === 'rk-tipo') html += ' data-v="'+escapeHtml(value||'Ameaça')+'" onchange="this.setAttribute(\'data-v\',this.value)"';
+  html += '>';
+  if (blank) html += '<option value=""'+(!value?' selected':'')+'>—</option>';
+  let matched = false;
+  opts.forEach(o => { const s = (value===o); if (s) matched = true; html += '<option value="'+escapeHtml(o)+'"'+(s?' selected':'')+'>'+escapeHtml(o)+'</option>'; });
+  if (value && !matched) html += '<option value="'+escapeHtml(value)+'" selected>'+escapeHtml(value)+'</option>';
+  html += '</select>';
+  return html;
+}
+function riskRowHtml(r) {
+  r = r || { tipo:'Ameaça', risco:'', impacto:'', prob:'', acao:'' };
+  return '<tr>'
+    + '<td>'+riskSelect(['Ameaça','Oportunidade'], r.tipo||'Ameaça', 'rk-tipo', false)+'</td>'
+    + '<td><input class="rk-risco" value="'+escapeHtml(r.risco||'')+'" placeholder="Descreva o risco"></td>'
+    + '<td>'+riskSelect(['Alto','Médio','Baixo'], r.impacto, 'rk-impacto', true)+'</td>'
+    + '<td>'+riskSelect(['Alta','Média','Baixa'], r.prob, 'rk-prob', true)+'</td>'
+    + '<td><input class="rk-acao" value="'+escapeHtml(r.acao||'')+'" placeholder="Ação / mitigador"></td>'
+    + '<td><button type="button" class="rk-del" title="Remover" onclick="this.closest(\'tr\').remove()">×</button></td>'
+    + '</tr>';
+}
+function renderRiskRows(rows) {
+  if (!rows || !rows.length) return riskRowHtml(null);
+  return rows.map(riskRowHtml).join('');
+}
+function tapAddRiskRow() {
+  const tb = document.getElementById('tap-risk-tbody');
+  if (tb) tb.insertAdjacentHTML('beforeend', riskRowHtml(null));
+}
+function serializeRisks() {
+  const tb = document.getElementById('tap-risk-tbody');
+  if (!tb) return '';
+  const lines = [];
+  tb.querySelectorAll('tr').forEach(tr => {
+    const g = cls => { const el = tr.querySelector('.'+cls); return el ? el.value.trim() : ''; };
+    const risco = g('rk-risco'), acao = g('rk-acao');
+    if (!risco && !acao) return; // ignora linhas em branco
+    lines.push([g('rk-tipo')||'Ameaça', risco, g('rk-impacto'), g('rk-prob'), acao].join(' | '));
+  });
+  return lines.join('\n');
+}
+
 async function saveTap(pid) {
   const fields = ['objetivo','justificativa','escopo_incluido','escopo_excluido',
     'premissas','restricoes','riscos','criterios_sucesso',
     'esforco','dependencia','sponsor','gerente','data_inicio','data_fim','versao','horizonte'];
   const payload = {project_id:pid, id:'tap-'+pid};
   fields.forEach(f => { const el = document.getElementById('tap-'+f); payload[f] = el ? el.value : ''; });
+  payload.riscos = serializeRisks();
   payload.tamanho = (SIZE_MATRIX[payload.esforco]||{})[payload.dependencia]||'';
   payload.updated_at = new Date().toISOString();
 
@@ -7161,6 +7227,130 @@ async function saveTap(pid) {
     const msg = document.getElementById('tap-saved-msg');
     if (msg) { msg.textContent='⚠ Falha ao salvar — verifique a conexão'; msg.style.color='#ef4444'; msg.style.display='inline'; setTimeout(()=>msg.style.display='none', 4000); }
   }
+}
+
+// ============================================================
+// EXPORTAR TAP PARA WORD (.doc nativo, sem dependências)
+// ============================================================
+function exportTapWord(pid) {
+  const proj = state.projects.find(p => p.id === pid) || {};
+  const val = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+  const esc = s => escapeHtml(s == null ? '' : String(s));
+  const dash = '<span style="color:#94a3b8">—</span>';
+
+  // Lê o que está na tela (reflete edições não salvas)
+  const d = {
+    nome: val('tap-proj-name') || proj.name || '',
+    patrocinador: val('tap-sponsor') || proj.sponsor || '',
+    gerente: val('tap-gerente'),
+    empresa: val('tap-proj-company') || proj.company || '',
+    dataInicio: val('tap-data_inicio'),
+    horizonte: val('tap-horizonte'),
+    versao: val('tap-versao') || '1.0',
+    tecnologia: val('tap-proj-technology') || proj.technology || '',
+    capacidades: val('tap-proj-businessCapabilities') || proj.businessCapabilities || '',
+    objetivo: val('tap-objetivo'),
+    justificativa: val('tap-justificativa'),
+    escopoInc: val('tap-escopo_incluido'),
+    escopoExc: val('tap-escopo_excluido'),
+    premissas: val('tap-premissas'),
+    restricoes: val('tap-restricoes'),
+    riscos: serializeRisks(),
+    criterios: val('tap-criterios_sucesso'),
+  };
+  const selText = id => { const s = document.getElementById(id); return (s && s.selectedIndex >= 0) ? s.options[s.selectedIndex].text : ''; };
+  const esforco = selText('tap-esforco');
+  const dependencia = selText('tap-dependencia');
+  const sizeLetter = (SIZE_MATRIX[val('tap-esforco')]||{})[val('tap-dependencia')] || '';
+  const sizeLabel = sizeLetter && SIZE_LABELS[sizeLetter] ? SIZE_LABELS[sizeLetter].label : '';
+
+  const asList = txt => {
+    const items = (txt||'').split('\n').map(s => s.trim()).filter(Boolean);
+    if (!items.length) return '<p class="empty">'+dash+'</p>';
+    return '<ul>' + items.map(i => '<li>'+esc(i)+'</li>').join('') + '</ul>';
+  };
+  const asText = txt => (txt||'').trim() ? '<p>'+esc(txt).replace(/\n/g,'<br>')+'</p>' : '<p class="empty">'+dash+'</p>';
+  const risksTable = txt => {
+    const rows = parseRisks(txt);
+    if (!rows.length) return '<p class="empty">'+dash+'</p>';
+    const body = rows.map(r =>
+      '<tr><td>'+esc(r.tipo)+'</td><td>'+esc(r.risco)+'</td><td>'+esc(r.impacto)+'</td><td>'+esc(r.prob)+'</td><td>'+esc(r.acao)+'</td></tr>'
+    ).join('');
+    return '<table class="risk"><thead><tr><th>Tipo</th><th>Risco</th><th>Impacto</th><th>Probabilidade</th><th>Ação</th></tr></thead><tbody>'+body+'</tbody></table>';
+  };
+
+  const row = (label, value) => '<tr><td class="lbl">'+esc(label)+'</td><td class="vbl">'+(value ? esc(value) : dash)+'</td></tr>';
+  const section = (n, title, body) => '<h2><span class="num">'+n+'</span>'+esc(title)+'</h2>'+body;
+
+  const hoje = new Date().toLocaleDateString('pt-BR');
+
+  const html =
+'<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">'
++'<head><meta charset="utf-8"><title>TAP - '+esc(d.nome)+'</title>'
++'<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->'
++'<style>'
++'@page { size:21cm 29.7cm; margin:2cm 2.2cm; }'
++'body { font-family:Calibri,Arial,sans-serif; font-size:11pt; color:#1e293b; line-height:1.45; }'
++'.cover { border-bottom:3px solid #0D1F3C; padding-bottom:12px; margin-bottom:22px; }'
++'.cover .kicker { font-size:9.5pt; letter-spacing:2px; text-transform:uppercase; color:#64748b; font-weight:bold; }'
++'.cover h1 { font-size:22pt; color:#0D1F3C; margin:6px 0 4px; }'
++'.cover .meta { font-size:9.5pt; color:#64748b; }'
++'h2 { font-size:13pt; color:#0D1F3C; margin:20px 0 8px; padding-bottom:4px; border-bottom:1px solid #e2e8f0; }'
++'h2 .num { display:inline-block; background:#0D1F3C; color:#fff; width:22px; height:22px; line-height:22px; text-align:center; border-radius:4px; font-size:10pt; margin-right:8px; }'
++'table { border-collapse:collapse; width:100%; margin:4px 0 6px; font-size:10.5pt; }'
++'td, th { border:1px solid #cbd5e1; padding:6px 9px; vertical-align:top; text-align:left; }'
++'table.id td.lbl { background:#f1f5f9; font-weight:bold; color:#334155; width:32%; }'
++'table.risk th { background:#0D1F3C; color:#fff; font-weight:bold; font-size:10pt; }'
++'table.risk td:nth-child(1),table.risk td:nth-child(3),table.risk td:nth-child(4){ text-align:center; white-space:nowrap; }'
++'ul { margin:4px 0 6px 0; padding-left:20px; }'
++'li { margin-bottom:3px; }'
++'p { margin:4px 0 6px; }'
++'.empty { color:#94a3b8; }'
++'.size-box { background:#FFF7D6; border:1px solid #F5C400; border-radius:6px; padding:10px 14px; margin-top:6px; }'
++'.size-box b { color:#0D1F3C; font-size:14pt; }'
++'</style></head><body>'
++'<div class="cover"><div class="kicker">Termo de Abertura de Projeto</div>'
++'<h1>'+esc(d.nome || 'Projeto')+'</h1>'
++'<div class="meta">'+esc(d.empresa)+(d.empresa?' &nbsp;·&nbsp; ':'')+'Versão '+esc(d.versao)+' &nbsp;·&nbsp; Emitido em '+esc(hoje)+'</div></div>'
++ section('1','Identificação',
+    '<table class="id">'
+    + row('Nome do Projeto', d.nome)
+    + row('Patrocinador', d.patrocinador)
+    + row('Gerente do Projeto', d.gerente)
+    + row('Empresa', d.empresa)
+    + row('Data de Início', d.dataInicio)
+    + row('Horizonte', d.horizonte)
+    + row('Versão', d.versao)
+    + row('Tecnologia', d.tecnologia)
+    + row('Capacidades de Negócio', d.capacidades)
+    + '</table>')
++ section('2','Objetivo', asText(d.objetivo))
++ section('3','Justificativa', asText(d.justificativa))
++ section('4','Escopo Incluído', asList(d.escopoInc))
++ section('5','Escopo Excluído', asList(d.escopoExc))
++ section('6','Premissas', asList(d.premissas))
++ section('7','Restrições', asList(d.restricoes))
++ section('8','Riscos', risksTable(d.riscos))
++ section('9','Critérios de Sucesso', asList(d.criterios))
++ section('10','Dimensionamento',
+    '<table class="id">'
+    + row('Esforço', esforco)
+    + row('Dependências', dependencia)
+    + '</table>'
+    + (sizeLetter ? '<div class="size-box">Tamanho do projeto: <b>'+esc(sizeLetter)+'</b> — '+esc(sizeLabel)+'</div>' : ''))
++'</body></html>';
+
+  const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const safeName = (d.nome || 'Projeto').replace(/[\\/:*?"<>|]/g, '').trim() || 'Projeto';
+  a.href = url;
+  a.download = 'TAP - ' + safeName + '.doc';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+  toast('TAP exportado para Word');
 }
 
 function tapUpdateSize() {
@@ -7294,10 +7484,21 @@ async function openTapModal(projectId) {
 
   <div id="tap-s6" class="tap-card">
     <div class="tap-card-header"><div class="tap-card-num">6</div><div>
-      <div class="tap-card-title">Riscos e Mitigadores</div>
-      <div class="tap-card-sub">Principais ameaças e como serão tratadas</div>
+      <div class="tap-card-title">Riscos</div>
+      <div class="tap-card-sub">Oportunidades e ameaças, com impacto, probabilidade e ação</div>
     </div></div>
-    <div class="tap-field"><textarea id="tap-riscos" rows="5" placeholder="Risco | Impacto | Probabilidade | Mitigador (um por linha)...">${tap.riscos||''}</textarea></div>
+    <div class="tap-field">
+      <table class="tap-risk-grid">
+        <colgroup>
+          <col style="width:120px"><col><col style="width:95px"><col style="width:118px"><col><col style="width:30px">
+        </colgroup>
+        <thead><tr>
+          <th>Tipo</th><th>Risco</th><th>Impacto</th><th>Probabilidade</th><th>Ação</th><th></th>
+        </tr></thead>
+        <tbody id="tap-risk-tbody">${renderRiskRows(parseRisks(tap.riscos))}</tbody>
+      </table>
+      <button type="button" class="ghost" onclick="tapAddRiskRow()" style="margin-top:8px;font-size:12px;padding:5px 12px">+ Adicionar risco</button>
+    </div>
   </div>
 
   <div id="tap-s7" class="tap-card">
@@ -7370,6 +7571,7 @@ async function openTapModal(projectId) {
 
   <div class="tap-footer">
     <button class="tap-btn-save" onclick="saveTap('${projectId}')">💾 Salvar TAP</button>
+    <button class="tap-btn-save" style="background:#fff;color:#0D1F3C;border:1.5px solid #0D1F3C" onclick="exportTapWord('${projectId}')">📄 Exportar Word</button>
     <span id="tap-saved-msg" class="tap-saved-msg">✓ TAP salvo!</span>
     <div style="flex:1"></div>
     <div style="font-size:11px;color:#94a3b8">Salvo por projeto no Supabase</div>
