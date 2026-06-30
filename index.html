@@ -33,14 +33,14 @@
   header {
     background: var(--navy);
     color: #fff;
-    padding: 12px 24px;
-    border-bottom: 3px solid var(--yellow);
+    padding: 7px 24px;
+    border-bottom: 2px solid var(--yellow);
     display: flex;
     align-items: center;
     justify-content: space-between;
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   }
-  header h1 { font-size: 17px; font-weight: 600; letter-spacing: 0.2px; opacity: 0.95; }
+  header h1 { font-size: 15px; font-weight: 600; letter-spacing: 0.2px; opacity: 0.95; }
   header .badge {
     background: rgba(255,193,7,0.15); color: var(--yellow);
     padding: 3px 10px; border-radius: 20px;
@@ -50,15 +50,15 @@
   }
   .toolbar {
     background: var(--card);
-    padding: 10px 24px;
+    padding: 6px 24px;
     border-bottom: 1px solid var(--border);
-    display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+    display: flex; gap: 5px; flex-wrap: wrap; align-items: center;
   }
   button, .btn-file {
     background: var(--navy);
     color: #fff; border: none;
-    padding: 6px 12px; border-radius: 5px;
-    cursor: pointer; font-size: 12.5px; font-weight: 500;
+    padding: 5px 11px; border-radius: 5px;
+    cursor: pointer; font-size: 12px; font-weight: 500;
     transition: background 0.15s, transform 0.05s, box-shadow 0.15s;
     display: inline-flex; align-items: center; gap: 5px;
     font-family: inherit;
@@ -82,14 +82,14 @@
   }
   .toolbar .spacer { flex: 1; }
 
-  main { padding: 20px 24px; }
+  main { padding: 12px 24px; }
 
   .timeline-wrap {
     background: var(--card);
     border: 1px solid #dde4ee;
     border-radius: 8px;
     overflow: auto;
-    max-height: calc(100vh - 170px);
+    max-height: calc(100vh - 124px);
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     cursor: grab;
     user-select: none;
@@ -1141,7 +1141,7 @@
   body.resizing { cursor: col-resize !important; user-select: none; }
   body.resizing * { cursor: col-resize !important; }
 
-  .tv-proj-row td { padding: 8px 14px; background: #f1f5f9; border-bottom: 1px solid #dde4ee; }
+  .tv-proj-row td { padding: 6px 11px; background: #f1f5f9; border-bottom: 1px solid #dde4ee; }
   .tv-proj-row:hover td { background: #e8edf5; }
   /* Date cell: exibe valor ou placeholder clicável */
   .tv-date-cell {
@@ -1183,14 +1183,14 @@
   .tv-table thead th {
     position: sticky; top: 0; z-index: 5;
     background: #0D1F3C; color: #e8edf5;
-    padding: 10px 14px; text-align: left;
-    font-size: 11px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 6px 11px; text-align: left;
+    font-size: 10.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.4px;
     border-right: 1px solid rgba(255,255,255,0.08);
     white-space: nowrap;
   }
   .tv-table thead tr:first-child th { top: 0; }
-  .tv-table thead tr:last-child  th { top: 37px; }
+  .tv-table thead tr:last-child  th { top: 26px; }
   .tv-portfolio-row {
     background: linear-gradient(to right,#16304f,#2a4a78);
     color: #fff;
@@ -1200,17 +1200,34 @@
     border-bottom: 2px solid #F5C400;
   }
   .tv-phase-row td {
-    padding: 8px 14px; border-bottom: 1px solid #edf0f4;
+    padding: 6px 11px; border-bottom: 1px solid #dde4ee;
     vertical-align: middle;
   }
   .tv-phase-row:hover td { background: #f8fafc; }
   .tv-task-row td {
-    padding: 6px 14px 6px 36px; border-bottom: 1px solid #f1f5f9;
+    padding: 5px 11px 5px 32px; border-bottom: 1px solid #f1f5f9;
     background: #fafbfc; vertical-align: middle;
     font-size: 11.5px; color: #4b5563;
   }
   .tv-task-row:hover td { background: #f1f5f9; }
   .tv-task-row td:first-child { border-left: 3px solid #F5C400; }
+  /* ===== LEGIBILIDADE DA TABELA ===== */
+  /* separadores verticais de coluna */
+  .tv-table tbody td { border-right: 1px solid #eef1f5; }
+  .tv-table tbody td:last-child { border-right: none; }
+  /* tons suaves por grupo de datas: 3-4 Planejado, 5-6 Replanejado, 7-8 Realizado */
+  .tv-phase-row td:nth-child(3), .tv-phase-row td:nth-child(4),
+  .tv-task-row  td:nth-child(3), .tv-task-row  td:nth-child(4) { background:#f4f8fe; }
+  .tv-phase-row td:nth-child(5), .tv-phase-row td:nth-child(6),
+  .tv-task-row  td:nth-child(5), .tv-task-row  td:nth-child(6) { background:#fcf8ef; }
+  .tv-phase-row td:nth-child(7), .tv-phase-row td:nth-child(8),
+  .tv-task-row  td:nth-child(7), .tv-task-row  td:nth-child(8) { background:#f2faf4; }
+  /* bordas mais visíveis entre Status|grupos */
+  .tv-table tbody td:nth-child(2), .tv-table tbody td:nth-child(4),
+  .tv-table tbody td:nth-child(6), .tv-table tbody td:nth-child(8) { border-right:1px solid #d3dbe7; }
+  /* hover vence os tons (linha inteira destacada) */
+  .tv-phase-row:hover td { background:#e9f1fb !important; }
+  .tv-task-row:hover  td { background:#edf2f8 !important; }
   .tv-status-pill {
     display: inline-flex; align-items: center; gap: 5px;
     padding: 3px 10px; border-radius: 20px;
@@ -1618,18 +1635,18 @@
     padding: 0 24px;
     display: flex;
     gap: 0;
-    border-bottom: 3px solid var(--yellow);
+    border-bottom: 2px solid var(--yellow);
   }
   .tab-btn {
     background: transparent;
     color: rgba(255,255,255,0.6);
     border: none;
-    padding: 10px 20px;
-    font-size: 13px;
+    padding: 6px 18px;
+    font-size: 12.5px;
     font-weight: 500;
     cursor: pointer;
-    border-bottom: 3px solid transparent;
-    margin-bottom: -3px;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
     border-radius: 0;
     letter-spacing: 0.2px;
     transition: color 0.15s, border-color 0.15s;
@@ -1987,7 +2004,7 @@
 
 <main>
   <div class="timeline-wrap" id="timeline-wrap"></div>
-  <div id="table-view" style="display:none;overflow:auto;max-height:calc(100vh - 170px);border:1px solid #dde4ee;border-radius:8px;background:#fff"></div>
+  <div id="table-view" style="display:none;overflow:auto;max-height:calc(100vh - 124px);border:1px solid #dde4ee;border-radius:8px;background:#fff"></div>
 </main>
 </div><!-- /panel-roadmap -->
 
@@ -3298,12 +3315,12 @@ function renderTableView() {
           <div style="display:flex;align-items:center;gap:6px">${progBar(prog.realized,'#3b82f6')}</div>
         </td>
         <td style="border-bottom:1px solid #dde4ee"></td>
-        <td style="border-bottom:1px solid #dde4ee">
-          <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">
-            <button class="ghost" style="font-size:11px;padding:3px 8px" data-manage-phases="${p.id}">📋 Entregas</button>
+        <td style="border-bottom:1px solid #dde4ee;white-space:nowrap">
+          <div style="display:flex;gap:5px;align-items:center;flex-wrap:nowrap">
+            <button class="ghost" style="font-size:11px;padding:3px 8px;white-space:nowrap" data-manage-phases="${p.id}">📋 Entregas</button>
             <button class="ghost" style="font-size:11px;padding:3px 8px" data-open-tap="${p.id}">🗂 TAP</button>
-            <button class="ghost" style="font-size:11px;padding:3px 8px;color:#16a34a;border-color:#86efac" data-tv-add-phase="${p.id}" title="Adicionar entrega">+ Entrega</button>
-            <button class="ghost" style="font-size:11px;padding:3px 8px;color:#ef4444;border-color:#fca5a5" data-del-project="${p.id}" title="Excluir projeto">🗑 Excluir</button>
+            <button class="ghost" style="font-size:11px;padding:3px 8px;color:#16a34a;border-color:#86efac;white-space:nowrap" data-tv-add-phase="${p.id}" title="Adicionar entrega">+ Entrega</button>
+            <button class="ghost" style="font-size:11px;padding:3px 8px" data-del-project="${p.id}" title="Excluir projeto">🗑</button>
           </div>
         </td>
       </tr>
