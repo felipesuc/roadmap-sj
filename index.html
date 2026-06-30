@@ -3620,7 +3620,8 @@ function renderTableView() {
       save();
       renderTableView();
       render();
-      toast(`Entrega "${ph.name}" excluída.`);
+      sbDelete('phases', [phId]).then(() => toast(`Entrega "${ph.name}" excluída.`))
+        .catch(err => { console.error(err); toast('Excluída localmente, mas falhou no banco'); });
     };
   });
 
@@ -3639,7 +3640,8 @@ function renderTableView() {
       save();
       renderTableView();
       render();
-      toast(`Tarefa "${t.name}" excluída.`);
+      sbDelete('tasks', [tId]).then(() => toast(`Tarefa "${t.name}" excluída.`))
+        .catch(err => { console.error(err); toast('Excluída localmente, mas falhou no banco'); });
     };
   });
 }
@@ -3957,8 +3959,18 @@ async function deleteProject(pid) {
   state.projects = state.projects.filter(p => p.id !== pid);
   expandedProjects.delete(pid);
   saveExpanded();
-  save(); render();
-  toast('Projeto excluído');
+  save();
+  render();
+  if (typeof viewMode !== 'undefined' && viewMode.startsWith('table')) renderTableView();
+  // Remove do Supabase — cascata apaga entregas, tarefas, flags e TAP.
+  // Sem isso, o projeto volta no próximo carregamento (o app lê do banco ao abrir).
+  try {
+    await sbDelete('projects', [pid]);
+    toast('Projeto excluído');
+  } catch (e) {
+    console.error('Falha ao excluir no Supabase', e);
+    toast('Excluído localmente, mas falhou no banco — recarregue e tente novamente');
+  }
 }
 
 function cycleStatus(pid) {
@@ -4659,7 +4671,8 @@ async function deleteFlag(flagId) {
   save();
   renderFlagsModal();
   render();
-  toast('Flag excluída');
+  try { await sbDelete('flags', [flagId]); toast('Flag excluída'); }
+  catch (e) { console.error(e); toast('Excluída localmente, mas falhou no banco'); }
 }
 
 // ============================================================
@@ -4790,7 +4803,8 @@ function renderPortfolioModal() {
       save();
       renderPortfolioModal();
       render();
-      toast('Projeto excluído');
+      try { await sbDelete('projects', [projId]); toast('Projeto excluído'); }
+      catch (e) { console.error(e); toast('Excluído localmente, mas falhou no banco'); }
     };
   });
 }
@@ -4807,7 +4821,10 @@ async function deletePortfolio(portId) {
   });
   save();
   render();
-  toast('Portfólio excluído');
+  // No banco, a FK projects.portfolio_id é SET NULL: apagar o portfólio
+  // desvincula os projetos automaticamente, sem excluí-los.
+  try { await sbDelete('portfolios', [portId]); toast('Portfólio excluído'); }
+  catch (e) { console.error(e); toast('Excluído localmente, mas falhou no banco'); }
 }
 
 // ============================================================
@@ -5329,7 +5346,7 @@ document.addEventListener('click', e => {
   if (delPh) {
     e.stopPropagation();
     const phId = delPh.dataset.delPhase;
-    confirmDanger('Excluir esta entrega e todas as suas tarefas?', 'Excluir Entrega').then(ok => {
+    confirmDanger('Excluir esta entrega e todas as suas tarefas?', 'Excluir Entrega').then(async ok => {
       if (!ok) return;
       const p = state.projects.find(x => x.id === currentProjectId);
       if (p) {
@@ -5338,7 +5355,8 @@ document.addEventListener('click', e => {
         save();
         renderPhasesModal();
         render();
-        toast('Fase excluída');
+        try { await sbDelete('phases', [phId]); toast('Fase excluída'); }
+        catch (err) { console.error(err); toast('Excluída localmente, mas falhou no banco'); }
       }
     });
     return;
@@ -5349,7 +5367,7 @@ document.addEventListener('click', e => {
   if (delT) {
     e.stopPropagation();
     const tId = delT.dataset.delTask;
-    confirmDanger('Excluir esta tarefa?', 'Excluir Tarefa').then(ok => {
+    confirmDanger('Excluir esta tarefa?', 'Excluir Tarefa').then(async ok => {
       if (!ok) return;
       const p = state.projects.find(x => x.id === currentProjectId);
       const ph = p?.phases.find(x => x.id === currentPhaseId);
@@ -5361,7 +5379,8 @@ document.addEventListener('click', e => {
         if (document.getElementById('phases-modal').classList.contains('open')) renderPhasesModal();
         updateProjectProgressUI(currentProjectId);
         render();
-        toast('Tarefa excluída');
+        try { await sbDelete('tasks', [tId]); toast('Tarefa excluída'); }
+        catch (err) { console.error(err); toast('Excluída localmente, mas falhou no banco'); }
       }
     });
     return;
@@ -7106,13 +7125,42 @@ async function saveTap(pid) {
   fields.forEach(f => { const el = document.getElementById('tap-'+f); payload[f] = el ? el.value : ''; });
   payload.tamanho = (SIZE_MATRIX[payload.esforco]||{})[payload.dependencia]||'';
   payload.updated_at = new Date().toISOString();
-  await fetch(SB_URL+'/rest/v1/project_tap', {
-    method:'POST',
-    headers:{...SB_H,'Prefer':'resolution=merge-duplicates'},
-    body:JSON.stringify(payload)
-  });
-  const msg = document.getElementById('tap-saved-msg');
-  if (msg) { msg.style.display='inline'; setTimeout(()=>msg.style.display='none', 2500); }
+
+  // Campos de identidade: gravam no registro do projeto (fonte única), não no TAP
+  const proj = state.projects.find(p => p.id === pid);
+  if (proj) {
+    const idMap = { name:'tap-proj-name', company:'tap-proj-company',
+                    technology:'tap-proj-technology', businessCapabilities:'tap-proj-businessCapabilities' };
+    let changed = false;
+    Object.entries(idMap).forEach(([field, elId]) => {
+      const el = document.getElementById(elId);
+      if (el && el.value !== (proj[field]||'')) { proj[field] = el.value; changed = true; }
+    });
+    // Patrocinador também sincroniza com o projeto
+    if (payload.sponsor !== (proj.sponsor||'')) { proj.sponsor = payload.sponsor; changed = true; }
+    if (changed) {
+      snapshot();
+      save();
+      render();
+      if (viewMode && viewMode.startsWith('table')) renderTableView();
+      document.getElementById('tap-modal-title').textContent = proj.name || '';
+    }
+  }
+
+  try {
+    const r = await fetch(SB_URL+'/rest/v1/project_tap', {
+      method:'POST',
+      headers:{...SB_H,'Prefer':'resolution=merge-duplicates'},
+      body:JSON.stringify(payload)
+    });
+    if (!r.ok) throw new Error('HTTP '+r.status);
+    const msg = document.getElementById('tap-saved-msg');
+    if (msg) { msg.textContent='✓ TAP salvo!'; msg.style.color=''; msg.style.display='inline'; setTimeout(()=>msg.style.display='none', 2500); }
+  } catch(e) {
+    console.error('Falha ao salvar TAP', e);
+    const msg = document.getElementById('tap-saved-msg');
+    if (msg) { msg.textContent='⚠ Falha ao salvar — verifique a conexão'; msg.style.color='#ef4444'; msg.style.display='inline'; setTimeout(()=>msg.style.display='none', 4000); }
+  }
 }
 
 function tapUpdateSize() {
@@ -7190,15 +7238,15 @@ async function openTapModal(projectId) {
       <div class="tap-card-sub">Dados básicos do projeto e responsáveis</div>
     </div></div>
     <div class="tap-grid3">
-      <div class="tap-field"><label>Nome do Projeto</label><input type="text" value="${escapeHtml(proj.name||'')}" readonly></div>
+      <div class="tap-field"><label>Nome do Projeto</label><input type="text" id="tap-proj-name" value="${escapeHtml(proj.name||'')}"></div>
       <div class="tap-field"><label>Patrocinador</label><input type="text" id="tap-sponsor" value="${v('sponsor')||escapeHtml(proj.sponsor||'')}"></div>
       <div class="tap-field"><label>Gerente do Projeto</label><input type="text" id="tap-gerente" value="${v('gerente')}"></div>
-      <div class="tap-field"><label>Empresa</label><input type="text" value="${escapeHtml(proj.company||'')}" readonly></div>
+      <div class="tap-field"><label>Empresa</label><input type="text" id="tap-proj-company" value="${escapeHtml(proj.company||'')}"></div>
       <div class="tap-field"><label>Data de Início</label><input type="text" id="tap-data_inicio" value="${v('data_inicio')}" placeholder="dd/mm/aaaa"></div>
       <div class="tap-field"><label>Horizonte do TAP</label><input type="text" id="tap-horizonte" value="${v('horizonte')}" placeholder="Ex: 90 a 150 dias"></div>
       <div class="tap-field"><label>Versão</label><input type="text" id="tap-versao" value="${v('versao')||'1.0'}"></div>
-      <div class="tap-field"><label>Tecnologia</label><input type="text" value="${escapeHtml(proj.technology||'')}" readonly></div>
-      <div class="tap-field"><label>Capacidades de Negócio</label><input type="text" value="${escapeHtml(proj.businessCapabilities||'')}" readonly></div>
+      <div class="tap-field"><label>Tecnologia</label><input type="text" id="tap-proj-technology" value="${escapeHtml(proj.technology||'')}"></div>
+      <div class="tap-field"><label>Capacidades de Negócio</label><input type="text" id="tap-proj-businessCapabilities" value="${escapeHtml(proj.businessCapabilities||'')}"></div>
     </div>
   </div>
 
