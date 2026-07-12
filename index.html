@@ -81,6 +81,31 @@
     opacity: 0; width: 100%; height: 100%; cursor: pointer;
   }
   .toolbar .spacer { flex: 1; }
+  .tb-sep { width:1px; align-self:stretch; min-height:20px; background:var(--border); margin:0 3px; }
+  /* ===== MENU DE FERRAMENTAS (ícone 4 linhas) ===== */
+  .tool-menu-wrap { position:relative; display:inline-flex; }
+  .tool-menu-btn { background:var(--navy); color:#fff; padding:6px 9px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; }
+  .tool-menu-btn:hover { background:var(--navy-light); }
+  .tool-menu {
+    position:absolute; top:calc(100% + 7px); left:0; z-index:300;
+    background:#fff; border:1px solid var(--border); border-radius:10px;
+    box-shadow:0 10px 30px rgba(13,31,60,0.18);
+    padding:8px; display:none; flex-direction:column; gap:3px; min-width:248px;
+  }
+  .tool-menu.open { display:flex; }
+  .tool-menu .ghost, .tool-menu .secondary, .tool-menu .btn-file {
+    width:100%; justify-content:flex-start; text-align:left;
+    border:none; border-radius:6px; padding:8px 11px; font-size:12.5px; font-weight:500;
+  }
+  .tool-menu .ghost { background:transparent; color:#334155; }
+  .tool-menu .ghost:hover { background:#f1f5f9; color:var(--navy); }
+  .tool-menu .secondary { background:var(--yellow); color:var(--navy); font-weight:600; }
+  .tool-menu .btn-file { background:var(--navy); color:#fff; }
+  .menu-divider { height:1px; background:#eef1f5; margin:5px 4px; }
+  .menu-label { font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.6px; color:#94a3b8; padding:3px 11px 1px; }
+  .tool-menu .view-toggle { width:100%; border:1px solid var(--border); }
+  .tool-menu .view-btn { flex:1; padding:6px 4px; font-size:11px; }
+  .tool-menu .legend { padding:4px 8px; gap:9px 12px; }
 
   main { padding: 12px 24px; }
 
@@ -89,7 +114,7 @@
     border: 1px solid #dde4ee;
     border-radius: 8px;
     overflow: auto;
-    max-height: calc(100vh - 124px);
+    max-height: calc(100vh - 96px);
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     cursor: grab;
     user-select: none;
@@ -603,9 +628,9 @@
 
   /* ===== LEGEND ===== */
   .legend {
-    display: flex; gap: 14px;
+    display: flex; gap: 11px;
     flex-wrap: wrap;
-    font-size: 11px; color: var(--muted);
+    font-size: 10.5px; color: var(--muted);
     align-items: center;
   }
   .legend .item { display: flex; align-items: center; gap: 5px; }
@@ -1630,32 +1655,31 @@
   }
   .ver-preview-bar strong { font-size: 13px; }
   .ver-preview-bar .ver-dismiss { margin-left: auto; cursor: pointer; color: var(--muted); font-size: 16px; line-height: 1; }
+  .brand-tabs { display:flex; align-items:center; gap:24px; min-width:0; }
   .tab-nav {
-    background: var(--navy);
-    padding: 0 24px;
+    background: transparent;
+    padding: 0;
     display: flex;
-    gap: 0;
-    border-bottom: 2px solid var(--yellow);
+    gap: 4px;
+    border: none;
   }
   .tab-btn {
     background: transparent;
-    color: rgba(255,255,255,0.6);
+    color: rgba(255,255,255,0.62);
     border: none;
-    padding: 6px 18px;
+    padding: 5px 13px;
     font-size: 12.5px;
     font-weight: 500;
     cursor: pointer;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -2px;
-    border-radius: 0;
+    border-radius: 6px;
     letter-spacing: 0.2px;
-    transition: color 0.15s, border-color 0.15s;
+    transition: color 0.15s, background 0.15s;
     display: inline-flex;
     align-items: center;
     gap: 6px;
   }
-  .tab-btn:hover { color: #fff; background: rgba(255,255,255,0.07); box-shadow: none; }
-  .tab-btn.active { color: #fff; border-bottom-color: var(--yellow); font-weight: 600; }
+  .tab-btn:hover { color: #fff; background: rgba(255,255,255,0.08); box-shadow: none; }
+  .tab-btn.active { color: var(--yellow); background: rgba(245,196,0,0.16); font-weight: 700; }
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
 
@@ -1955,56 +1979,66 @@
 </head>
 <body>
 <header>
-  <h1>📍 Roadmap Empresas SJ</h1>
+  <div class="brand-tabs">
+    <h1>📍 Roadmap Empresas SJ</h1>
+    <nav class="tab-nav">
+      <button class="tab-btn active" id="tab-roadmap" onclick="switchTab('roadmap')">📅 Roadmap</button>
+      <button class="tab-btn" id="tab-status" onclick="switchTab('status')">📊 Status Report</button>
+      <button class="tab-btn" id="tab-kanban" onclick="switchTab('kanban')">🗂 Kanban</button>
+    </nav>
+  </div>
   <div style="display:flex;align-items:center;gap:10px">
-    <span style="background:#22c55e;color:#fff;font-size:11px;font-weight:800;padding:4px 12px;border-radius:20px;letter-spacing:0.5px">CÁLCULO v12 ✓</span>
     <span id="sync-indicator" class="sync-indicator"></span>
-    <span class="badge">Gestão de Projetos</span>
   </div>
 </header>
 
 <div id="bar-tooltip"></div>
 
-<nav class="tab-nav">
-  <button class="tab-btn active" id="tab-roadmap" onclick="switchTab('roadmap')">📅 Roadmap</button>
-  <button class="tab-btn" id="tab-status" onclick="switchTab('status')">📊 Status Report</button>
-  <button class="tab-btn" id="tab-kanban" onclick="switchTab('kanban')">🗂 Kanban</button>
-</nav>
-
 <div class="tab-panel active" id="panel-roadmap">
 <div class="toolbar">
+  <div class="tool-menu-wrap">
+    <button id="btn-tools" class="tool-menu-btn" title="Mais ações" aria-label="Mais ações" onclick="toggleToolMenu(event)">
+      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><g stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="2.5" y1="3.5" x2="15.5" y2="3.5"/><line x1="2.5" y1="7.17" x2="15.5" y2="7.17"/><line x1="2.5" y1="10.83" x2="15.5" y2="10.83"/><line x1="2.5" y1="14.5" x2="15.5" y2="14.5"/></g></svg>
+    </button>
+    <div id="tool-menu" class="tool-menu">
+      <button id="btn-new-portfolio" class="ghost">📁 Novo Portfólio</button>
+      <button id="btn-manage-flags" class="ghost">🚩 Flags</button>
+      <div class="menu-divider"></div>
+      <button id="btn-expand-all" class="ghost">⊞ Expandir todos</button>
+      <button id="btn-collapse-all" class="ghost">⊟ Recolher todos</button>
+      <button id="btn-sort-date" class="ghost">↕ Ordenar por Data</button>
+      <button id="btn-undo" class="ghost">↶ Desfazer</button>
+      <button id="btn-sync-db" class="ghost">🔄 Sincronizar banco</button>
+      <div class="menu-divider"></div>
+      <div class="menu-label">Visualização</div>
+      <div class="view-toggle" title="Modo de visualização">
+        <button class="view-btn active" id="vbtn-gantt-phases" onclick="setViewMode('gantt-phases')">📅 Gantt</button>
+        <button class="view-btn" id="vbtn-gantt-tasks" onclick="setViewMode('gantt-tasks')">+ Tarefas</button>
+        <button class="view-btn" id="vbtn-table-phases" onclick="setViewMode('table-phases')">📋 Tabela</button>
+        <button class="view-btn" id="vbtn-table-tasks" onclick="setViewMode('table-tasks')">+ Tarefas</button>
+      </div>
+      <div class="menu-divider"></div>
+      <button id="btn-download" class="secondary">⬇ Baixar Planilha</button>
+      <label class="btn-file">⬆ Carregar Planilha
+        <input type="file" id="upload-file" accept=".xlsx,.xls">
+      </label>
+      <div class="menu-divider"></div>
+      <div class="legend">
+        <div class="item"><span class="swatch s-not_started"></span>Não iniciado</div>
+        <div class="item"><span class="swatch s-in_progress"></span>Iniciado</div>
+        <div class="item"><span class="swatch s-ready_to_validate"></span>Pronto p/ valid.</div>
+        <div class="item"><span class="swatch s-validating"></span>Validando</div>
+        <div class="item"><span class="swatch s-done"></span>Pronto</div>
+        <div class="item"><span class="ms"></span>Marco</div>
+      </div>
+    </div>
+  </div>
   <button id="btn-new-project">➕ Novo Projeto</button>
-  <button id="btn-new-portfolio" class="ghost">📁 Novo Portfólio</button>
-  <button id="btn-manage-flags" class="ghost">🚩 Flags</button>
-  <button id="btn-expand-all" class="ghost" title="Expandir todos os projetos">⊞ Expandir todos</button>
-  <button id="btn-collapse-all" class="ghost" title="Recolher todos os projetos">⊟ Recolher todos</button>
-  <button id="btn-sort-date" class="ghost" title="Ordenar projetos por data planejada de início (crescente)">↕ Ordenar por Data</button>
-  <button id="btn-undo" class="ghost" title="Desfazer (Ctrl+Z)">↶ Desfazer</button>
-  <button id="btn-sync-db" class="ghost" title="Limpa o cache local e recarrega os dados do banco">🔄 Sincronizar banco</button>
-  <div class="view-toggle" title="Modo de visualização">
-    <button class="view-btn active" id="vbtn-gantt-phases" onclick="setViewMode('gantt-phases')" title="Gantt — Só Entregas">📅 Gantt</button>
-    <button class="view-btn" id="vbtn-gantt-tasks" onclick="setViewMode('gantt-tasks')" title="Gantt — Entregas + Tarefas">📅 Gantt + Tarefas</button>
-    <button class="view-btn" id="vbtn-table-phases" onclick="setViewMode('table-phases')" title="Tabela — Entregas">📋 Tabela</button>
-    <button class="view-btn" id="vbtn-table-tasks" onclick="setViewMode('table-tasks')" title="Tabela — Entregas + Tarefas">📋 Tabela + Tarefas</button>
-  </div>
-  <button id="btn-download" class="secondary">⬇ Baixar Planilha</button>
-  <label class="btn-file">⬆ Carregar Planilha
-    <input type="file" id="upload-file" accept=".xlsx,.xls">
-  </label>
-  <div class="spacer"></div>
-  <div class="legend">
-    <div class="item"><span class="swatch s-not_started"></span>Não iniciado</div>
-    <div class="item"><span class="swatch s-in_progress"></span>Iniciado</div>
-    <div class="item"><span class="swatch s-ready_to_validate"></span>Pronto p/ validação</div>
-    <div class="item"><span class="swatch s-validating"></span>Validando</div>
-    <div class="item"><span class="swatch s-done"></span>Pronto</div>
-    <div class="item"><span class="ms"></span>Marco</div>
-  </div>
 </div>
 
 <main>
   <div class="timeline-wrap" id="timeline-wrap"></div>
-  <div id="table-view" style="display:none;overflow:auto;max-height:calc(100vh - 124px);border:1px solid #dde4ee;border-radius:8px;background:#fff"></div>
+  <div id="table-view" style="display:none;overflow:auto;max-height:calc(100vh - 96px);border:1px solid #dde4ee;border-radius:8px;background:#fff"></div>
 </main>
 </div><!-- /panel-roadmap -->
 
@@ -3166,6 +3200,24 @@ function initTvCollapsed() {
     collapsedTvFields.add(p.id);
   });
 }
+
+function toggleToolMenu(e) {
+  if (e) e.stopPropagation();
+  const m = document.getElementById('tool-menu');
+  if (m) m.classList.toggle('open');
+}
+document.addEventListener('click', (e) => {
+  const m = document.getElementById('tool-menu');
+  if (!m || !m.classList.contains('open')) return;
+  const btn = document.getElementById('btn-tools');
+  if (btn && btn.contains(e.target)) return; // o próprio botão alterna
+  if (m.contains(e.target)) {
+    // clique dentro do menu: fecha se foi num item acionável
+    if (e.target.closest('button, .btn-file')) m.classList.remove('open');
+    return;
+  }
+  m.classList.remove('open'); // clique fora fecha
+});
 
 function setViewMode(mode) {
   viewMode = mode;
