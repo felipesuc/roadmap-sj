@@ -4,137 +4,77 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Roadmap Empresas SJ</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root {
-    /* ── Identidade SJ (usados no Gantt e acentos) ── */
     --navy: #0d2240;
     --navy-light: #1a365d;
     --navy-soft: #2d4a7c;
     --yellow: #ffc107;
     --yellow-soft: #fff3cd;
     --yellow-dark: #d4a000;
-    /* ── Sistema de texto editorial ── */
-    --ink: #0D1B2A;
-    --ink-soft: #43536A;
-    --ink-faint: #8A96A8;
-    /* ── Acento refinado ── */
-    --gold: #C9A84C;
-    --gold-soft: #F5EDD8;
-    /* ── Superfícies ── */
-    --bg: #F8FAFC;
+    --bg: #f4f6f9;
     --card: #ffffff;
-    --border: #E4E8EE;
-    --border-soft: #F0F3F7;
-    --text: #0D1B2A;
-    --muted: #8A96A8;
-    /* ── Semânticas ── */
-    --red: #D64545;
-    --green: #1B9E4B;
-    --amber: #D99000;
-    /* ── Layout ── */
-    --radius: 10px;
-    --shadow-sm: 0 1px 2px rgba(13,27,42,.06), 0 3px 10px rgba(13,27,42,.06);
-    --shadow-lg: 0 8px 40px rgba(13,27,42,.16);
+    --border: #e4e9f0;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --red: #ef4444;
+    --green: #22c55e;
+    --amber: #f59e0b;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; }
   body {
-    font-family: 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
     background: var(--bg);
-    color: var(--ink);
-    font-size: 15px;
-    -webkit-font-smoothing: antialiased;
+    color: var(--text);
+    font-size: 14px;
   }
   header {
-    background: #fff;
-    color: var(--ink);
-    padding: 0 24px;
-    height: 52px;
-    border-bottom: 1px solid var(--border);
+    background: var(--navy);
+    color: #fff;
+    padding: 7px 24px;
+    border-bottom: 2px solid var(--yellow);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: var(--shadow-sm);
-    position: sticky;
-    top: 0;
-    z-index: 50;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   }
-  header h1 {
-    font-size: 14px; font-weight: 700; letter-spacing: -0.01em;
-    color: var(--ink); display: flex; align-items: center; gap: 8px;
-  }
-  header h1 .brand-mark {
-    width: 10px; height: 10px; background: var(--gold);
-    border-radius: 2px; transform: rotate(45deg); flex-shrink: 0;
-  }
+  header h1 { font-size: 15px; font-weight: 600; letter-spacing: 0.2px; opacity: 0.95; }
   header .badge {
-    background: var(--gold-soft); color: var(--gold);
-    padding: 2px 9px; border-radius: 20px;
-    font-size: 9px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 1.2px;
-    border: 1px solid rgba(201,168,76,0.35);
-    font-family: 'IBM Plex Mono', monospace;
+    background: rgba(255,193,7,0.15); color: var(--yellow);
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1px;
+    border: 1px solid rgba(255,193,7,0.3);
   }
   .toolbar {
-    background: transparent;
-    padding: 0;
-    border-bottom: none;
-    display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+    background: var(--card);
+    padding: 6px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 5px; flex-wrap: wrap; align-items: center;
   }
-  /* ── Subbar: título da view + ações visíveis ── */
-  .subbar {
-    display: flex; align-items: center; gap: 10px;
-    padding: 0 24px; height: 46px;
-    background: #fff; border-bottom: 1px solid var(--border);
-    flex-wrap: nowrap;
-  }
-  .subbar-title {
-    font-size: 13px; font-weight: 700; color: var(--ink);
-    letter-spacing: -0.01em; white-space: nowrap;
-    font-family: 'IBM Plex Mono', monospace;
-    text-transform: uppercase; font-size: 10px; letter-spacing: .08em;
-    color: var(--ink-faint);
-  }
-  .subbar-sep { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; margin: 0 2px; }
-  /* ── View switch pill ── */
-  .view-switch {
-    display: flex; border: 1px solid var(--border);
-    border-radius: 9px; overflow: hidden; flex-shrink: 0;
-  }
-  .view-switch .vbtn {
-    padding: 5px 13px; font-size: 12px; font-weight: 600;
-    color: var(--ink-soft); border: none; background: #fff;
-    border-right: 1px solid var(--border); border-radius: 0;
-    cursor: pointer; transition: .12s;
-  }
-  .view-switch .vbtn:last-child { border-right: none; }
-  .view-switch .vbtn.active { background: var(--ink); color: #fff; }
-  .view-switch .vbtn:hover:not(.active) { background: var(--bg-soft, #f8fafc); }
   button, .btn-file {
     background: var(--navy);
     color: #fff; border: none;
-    padding: 6px 13px; border-radius: 8px;
-    cursor: pointer; font-size: 12.5px; font-weight: 600;
-    transition: background 0.12s, transform 0.05s, box-shadow 0.12s;
-    display: inline-flex; align-items: center; gap: 6px;
-    font-family: 'IBM Plex Sans', inherit;
-    letter-spacing: 0;
-    white-space: nowrap;
+    padding: 5px 11px; border-radius: 5px;
+    cursor: pointer; font-size: 12px; font-weight: 500;
+    transition: background 0.15s, transform 0.05s, box-shadow 0.15s;
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: inherit;
+    letter-spacing: 0.1px;
   }
-  button:hover, .btn-file:hover { background: var(--navy-light); box-shadow: 0 1px 4px rgba(0,0,0,0.10); }
+  button:hover, .btn-file:hover { background: var(--navy-light); box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
   button:active { transform: scale(0.98); }
-  button.secondary { background: var(--gold); color: var(--ink); font-weight: 700; }
-  button.secondary:hover { background: #b8962e; }
+  button.secondary { background: var(--yellow); color: var(--navy); font-weight: 600; }
+  button.secondary:hover { background: var(--yellow-dark); }
   button.danger { background: var(--red); }
-  button.danger:hover { background: #b83535; }
+  button.danger:hover { background: #c82a2a; }
   button.ghost {
-    background: #fff; color: var(--ink-soft);
-    border: 1px solid var(--border);
+    background: transparent; color: #475569;
+    border: 1px solid #e2e8f0;
   }
-  button.ghost:hover { background: var(--bg); color: var(--ink); border-color: var(--ink-faint); }
+  button.ghost:hover { background: #f8fafc; color: var(--navy); border-color: #cbd5e1; }
   .btn-file { position: relative; overflow: hidden; }
   .btn-file input[type=file] {
     position: absolute; left: 0; top: 0;
@@ -144,45 +84,37 @@
   .tb-sep { width:1px; align-self:stretch; min-height:20px; background:var(--border); margin:0 3px; }
   /* ===== MENU DE FERRAMENTAS (ícone 4 linhas) ===== */
   .tool-menu-wrap { position:relative; display:inline-flex; }
-  .tool-menu-btn {
-    background:#fff; color:var(--ink-soft); padding:6px 9px;
-    border-radius:8px; border:1px solid var(--border);
-    display:inline-flex; align-items:center; justify-content:center;
-  }
-  .tool-menu-btn:hover { background:var(--bg); color:var(--ink); border-color:var(--ink-faint); }
+  .tool-menu-btn { background:var(--navy); color:#fff; padding:6px 9px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; }
+  .tool-menu-btn:hover { background:var(--navy-light); }
   .tool-menu {
-    position:absolute; top:calc(100% + 6px); left:0; z-index:300;
-    background:#fff; border:1px solid var(--border); border-radius:var(--radius);
-    box-shadow:var(--shadow-lg);
-    padding:8px; display:none; flex-direction:column; gap:3px; min-width:240px;
+    position:absolute; top:calc(100% + 7px); left:0; z-index:300;
+    background:#fff; border:1px solid var(--border); border-radius:10px;
+    box-shadow:0 10px 30px rgba(13,31,60,0.18);
+    padding:8px; display:none; flex-direction:column; gap:3px; min-width:248px;
   }
   .tool-menu.open { display:flex; }
   .tool-menu .ghost, .tool-menu .secondary, .tool-menu .btn-file {
     width:100%; justify-content:flex-start; text-align:left;
-    border:none; border-radius:7px; padding:8px 11px; font-size:12.5px; font-weight:500;
+    border:none; border-radius:6px; padding:8px 11px; font-size:12.5px; font-weight:500;
   }
-  .tool-menu .ghost { background:transparent; color:var(--ink-soft); border:none; }
-  .tool-menu .ghost:hover { background:var(--bg); color:var(--ink); }
-  .tool-menu .secondary { background:var(--gold); color:var(--ink); font-weight:700; }
+  .tool-menu .ghost { background:transparent; color:#334155; }
+  .tool-menu .ghost:hover { background:#f1f5f9; color:var(--navy); }
+  .tool-menu .secondary { background:var(--yellow); color:var(--navy); font-weight:600; }
   .tool-menu .btn-file { background:var(--navy); color:#fff; }
-  .menu-divider { height:1px; background:var(--border-soft); margin:5px 4px; }
-  .menu-label {
-    font-size:9px; font-weight:700; text-transform:uppercase;
-    letter-spacing:.1em; color:var(--ink-faint);
-    padding:3px 11px 1px; font-family:'IBM Plex Mono',monospace;
-  }
+  .menu-divider { height:1px; background:#eef1f5; margin:5px 4px; }
+  .menu-label { font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.6px; color:#94a3b8; padding:3px 11px 1px; }
   .tool-menu .view-toggle { width:100%; border:1px solid var(--border); }
   .tool-menu .view-btn { flex:1; padding:6px 4px; font-size:11px; }
   .tool-menu .legend { padding:4px 8px; gap:9px 12px; }
 
-  main { padding: 14px 24px; }
+  main { padding: 12px 24px; }
 
   .timeline-wrap {
     background: var(--card);
     border: 1px solid #dde4ee;
     border-radius: 8px;
     overflow: auto;
-    max-height: calc(100vh - 112px);
+    max-height: calc(100vh - 96px);
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     cursor: grab;
     user-select: none;
@@ -1010,31 +942,25 @@
   }
 
   /* ===== MODAL ===== */
-  @keyframes pop {
-    from { transform: scale(0.96); opacity: 0; }
-    to   { transform: scale(1);    opacity: 1; }
-  }
   .modal-backdrop {
     position: fixed; inset: 0;
-    background: rgba(13, 27, 42, 0.52);
+    background: rgba(13, 34, 64, 0.6);
     display: none;
     align-items: flex-start;
     justify-content: center;
     z-index: 100;
     padding: 16px;
     overflow-y: auto;
-    backdrop-filter: blur(2px);
   }
   .modal-backdrop.open { display: flex; }
   .modal {
     background: var(--card);
-    border-radius: 14px;
+    border-radius: 6px;
     width: 100%;
     max-width: 98vw;
-    border-top: 3px solid var(--gold);
-    box-shadow: 0 20px 50px rgba(13,27,42,0.25);
+    border-top: 4px solid var(--yellow);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
     margin: auto 0;
-    animation: pop .14s ease-out;
   }
   /* Modal de fases e tarefas: altura quase total da tela */
   #phases-modal .modal,
@@ -1056,8 +982,7 @@
   #versions-modal .modal  { max-width: 760px; min-height: unset; }
   #portfolio-modal .modal { max-width: 780px; min-height: unset; }
   .modal-header {
-    background: var(--navy); color: #e8edf5;
-    border-bottom: 2px solid var(--gold);
+    background: #16304f; color: #e8edf5;
     padding: 12px 20px;
     display: flex; align-items: center; justify-content: space-between;
     border-radius: 6px 6px 0 0;
@@ -2050,59 +1975,12 @@
   }
 
 
-  /* ── Sync badge (dot) ── */
-  .sync-badge {
-    display: none; align-items: center; gap: 6px;
-    font-family: 'IBM Plex Mono', monospace; font-size: .68rem;
-    color: var(--ink-soft); border: 1px solid var(--border);
-    border-radius: 12px; padding: 3px 10px; white-space: nowrap;
-  }
-  .sync-badge i {
-    width: 7px; height: 7px; border-radius: 50%; background: var(--ink-faint); flex-shrink: 0;
-  }
-  .sync-badge.ok   i { background: var(--green); }
-  .sync-badge.saving i { background: var(--amber); }
-  .sync-badge.err  i { background: var(--red); }
-
-  /* ── Farol chips na tabela ── */
-  .farol-chip {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 3px 9px; border-radius: 999px;
-    font-size: 11px; font-weight: 600; white-space: nowrap;
-    font-family: 'IBM Plex Mono', monospace;
-  }
-  .farol-chip .fc-dot {
-    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-  }
-  .farol-chip.fc-green  { background: #e7f6ec; color: #15803d; }
-  .farol-chip.fc-green  .fc-dot { background: var(--green); }
-  .farol-chip.fc-yellow { background: #fcf3dd; color: #92400e; }
-  .farol-chip.fc-yellow .fc-dot { background: var(--amber); }
-  .farol-chip.fc-red    { background: #fbe9e9; color: #b91c1c; }
-  .farol-chip.fc-red    .fc-dot { background: var(--red); }
-  .farol-chip.fc-gray   { background: #f3f4f6; color: #6b7280; }
-  .farol-chip.fc-gray   .fc-dot { background: #9ca3af; }
-
-  /* ── TAP column chip ── */
-  .tap-chip {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 4px 11px; border-radius: 8px;
-    font-size: 11.5px; font-weight: 600;
-    background: var(--gold-soft); color: var(--gold);
-    border: 1px solid rgba(201,168,76,0.35); cursor: pointer;
-    white-space: nowrap; transition: .12s;
-  }
-  .tap-chip:hover { background: var(--gold); color: var(--ink); }
-
-
 </style>
 </head>
 <body>
 <header>
   <div class="brand-tabs">
-    <h1><span class="brand-mark"></span>Roadmap&nbsp;SJ</h1>
-    <span class="badge" style="margin-left:6px">Empresas SJ</span>
-    <div class="tb-sep" style="margin:0 8px"></div>
+    <h1>📍 Roadmap Empresas SJ</h1>
     <nav class="tab-nav">
       <button class="tab-btn active" id="tab-roadmap" onclick="switchTab('roadmap')">📅 Roadmap</button>
       <button class="tab-btn" id="tab-status" onclick="switchTab('status')">📊 Status Report</button>
@@ -2110,69 +1988,57 @@
     </nav>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
-    <span id="sync-indicator" class="sync-badge"></span>
+    <span id="sync-indicator" class="sync-indicator"></span>
   </div>
 </header>
 
 <div id="bar-tooltip"></div>
 
 <div class="tab-panel active" id="panel-roadmap">
-<!-- Subbar: ações visíveis + switch de visualização -->
-<div class="subbar">
-  <span class="subbar-title">Portfólios</span>
-  <div class="subbar-sep"></div>
-  <button id="btn-new-project" style="background:var(--ink);color:#fff;font-size:12.5px;padding:5px 13px;border-radius:8px">➕ Novo Projeto</button>
-  <div class="subbar-sep"></div>
-  <!-- View switch visível -->
-  <div class="view-switch" id="subbar-view-switch" title="Modo de visualização">
-    <button class="vbtn active" id="vbtn-gantt-phases" onclick="setViewMode('gantt-phases')">📅 Gantt</button>
-    <button class="vbtn" id="vbtn-gantt-tasks" onclick="setViewMode('gantt-tasks')">+ Tarefas</button>
-    <button class="vbtn" id="vbtn-table-phases" onclick="setViewMode('table-phases')">📋 Tabela</button>
-    <button class="vbtn" id="vbtn-table-tasks" onclick="setViewMode('table-tasks')">+ Tarefas</button>
-  </div>
-  <div style="flex:1"></div>
-  <!-- Hamburger: apenas ações admin -->
-  <div class="toolbar">
+<div class="toolbar">
   <div class="tool-menu-wrap">
     <button id="btn-tools" class="tool-menu-btn" title="Mais ações" aria-label="Mais ações" onclick="toggleToolMenu(event)">
-      <svg width="16" height="16" viewBox="0 0 18 18" aria-hidden="true"><g stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="2.5" y1="3.5" x2="15.5" y2="3.5"/><line x1="2.5" y1="7.17" x2="15.5" y2="7.17"/><line x1="2.5" y1="10.83" x2="15.5" y2="10.83"/><line x1="2.5" y1="14.5" x2="15.5" y2="14.5"/></g></svg>
+      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><g stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="2.5" y1="3.5" x2="15.5" y2="3.5"/><line x1="2.5" y1="7.17" x2="15.5" y2="7.17"/><line x1="2.5" y1="10.83" x2="15.5" y2="10.83"/><line x1="2.5" y1="14.5" x2="15.5" y2="14.5"/></g></svg>
     </button>
-    <div id="tool-menu" class="tool-menu" style="left:auto;right:0">
-      <div class="menu-label">Portfólios &amp; Flags</div>
+    <div id="tool-menu" class="tool-menu">
       <button id="btn-new-portfolio" class="ghost">📁 Novo Portfólio</button>
       <button id="btn-manage-flags" class="ghost">🚩 Flags</button>
       <div class="menu-divider"></div>
-      <div class="menu-label">Visualização</div>
       <button id="btn-expand-all" class="ghost">⊞ Expandir todos</button>
       <button id="btn-collapse-all" class="ghost">⊟ Recolher todos</button>
       <button id="btn-sort-date" class="ghost">↕ Ordenar por Data</button>
-      <div class="menu-divider"></div>
-      <div class="menu-label">Dados</div>
-      <button id="btn-download" class="secondary" style="font-size:12px">⬇ Baixar Planilha</button>
-      <label class="btn-file" style="font-size:12px">⬆ Carregar Planilha
-        <input type="file" id="upload-file" accept=".xlsx,.xls">
-      </label>
-      <div class="menu-divider"></div>
-      <div class="menu-label">Sistema</div>
       <button id="btn-undo" class="ghost">↶ Desfazer</button>
       <button id="btn-sync-db" class="ghost">🔄 Sincronizar banco</button>
       <div class="menu-divider"></div>
+      <div class="menu-label">Visualização</div>
+      <div class="view-toggle" title="Modo de visualização">
+        <button class="view-btn" id="vbtn-gantt-phases" onclick="setViewMode('gantt-phases')">📅 Gantt</button>
+        <button class="view-btn" id="vbtn-gantt-tasks" onclick="setViewMode('gantt-tasks')">+ Tarefas</button>
+        <button class="view-btn" id="vbtn-table-phases" onclick="setViewMode('table-phases')">📋 Tabela</button>
+        <button class="view-btn active" id="vbtn-table-tasks" onclick="setViewMode('table-tasks')">+ Tarefas</button>
+      </div>
+      <div class="menu-divider"></div>
+      <button id="btn-download" class="secondary">⬇ Baixar Planilha</button>
+      <label class="btn-file">⬆ Carregar Planilha
+        <input type="file" id="upload-file" accept=".xlsx,.xls">
+      </label>
+      <div class="menu-divider"></div>
       <div class="legend">
-        <div class="item"><span class="swatch s-not_started"></span>Fila</div>
-        <div class="item"><span class="swatch s-in_progress"></span>Em andamento</div>
-        <div class="item"><span class="swatch s-ready_to_validate"></span>Pronto p/ validar</div>
+        <div class="item"><span class="swatch s-not_started"></span>Não iniciado</div>
+        <div class="item"><span class="swatch s-in_progress"></span>Iniciado</div>
+        <div class="item"><span class="swatch s-ready_to_validate"></span>Pronto p/ valid.</div>
         <div class="item"><span class="swatch s-validating"></span>Validando</div>
-        <div class="item"><span class="swatch s-done"></span>Feito</div>
+        <div class="item"><span class="swatch s-done"></span>Pronto</div>
         <div class="item"><span class="ms"></span>Marco</div>
       </div>
     </div>
   </div>
-  </div>
+  <button id="btn-new-project">➕ Novo Projeto</button>
 </div>
 
 <main>
   <div class="timeline-wrap" id="timeline-wrap"></div>
-  <div id="table-view" style="display:none;overflow:auto;max-height:calc(100vh - 112px);border:1px solid #dde4ee;border-radius:8px;background:#fff"></div>
+  <div id="table-view" style="display:none;overflow:auto;max-height:calc(100vh - 96px);border:1px solid #dde4ee;border-radius:8px;background:#fff"></div>
 </main>
 </div><!-- /panel-roadmap -->
 
@@ -2443,19 +2309,10 @@ let _syncT = null;
 function setSyncStatus(s) {
   const el = document.getElementById('sync-indicator');
   if (!el) return;
-  const map = {
-    saving: ['saving',  'salvando…'],
-    saved:  ['ok',      'sincronizado'],
-    error:  ['err',     'offline']
-  };
+  const map = { saving:['⏳ Salvando…','saving'], saved:['☁ Salvo','saved'], error:['⚠ Offline','error'] };
   const m = map[s];
-  if (m) {
-    el.className = 'sync-badge ' + m[0];
-    el.innerHTML = `<i></i>${m[1]}`;
-    el.style.display = 'inline-flex';
-  } else {
-    el.style.display = 'none';
-  }
+  if (m) { el.textContent = m[0]; el.className = 'sync-indicator ' + m[1]; }
+  else   { el.textContent = ''; el.className = 'sync-indicator'; }
 }
 
 // ── UPSERT helpers ───────────────────────────────────────────
@@ -2670,7 +2527,7 @@ async function loadFromSupabase() {
 
     lsSave();
     migrateData();
-    render();
+    if (viewMode && viewMode.startsWith('table')) renderTableView(); else render();
     updateVersionBadge();
     setSyncStatus('saved');
     setTimeout(() => setSyncStatus('idle'), 2000);
@@ -2698,14 +2555,6 @@ function load() {
   try { const ex = localStorage.getItem(EXPANDED_KEY); if (ex) expandedProjects = new Set(JSON.parse(ex)); } catch(e) {}
   try { const cp = localStorage.getItem(COLLAPSED_PT_KEY); if (cp) collapsedPortfolios = new Set(JSON.parse(cp)); } catch(e) {}
   applyStateDefaults();
-  // Restaurar última aba ativa
-  try {
-    const lastTab = localStorage.getItem(ACTIVE_TAB_KEY);
-    if (lastTab && ['roadmap','status','kanban'].includes(lastTab)) {
-      // Aplica após o DOM estar pronto
-      requestAnimationFrame(() => switchTab(lastTab));
-    }
-  } catch(e) {}
 }
 
 function applyStateDefaults() {
@@ -2784,11 +2633,11 @@ function togglePortfolio(portId) {
 const PROGRESS_OPTIONS = [0, 25, 50, 75, 100];
 
 const STATUS_OPTIONS = [
-  { value: 'not_started',      label: 'Fila',              progress: 0,   color: '#9ca3af' },
-  { value: 'in_progress',      label: 'Em andamento',      progress: 25,  color: '#3b82f6' },
-  { value: 'ready_to_validate',label: 'Pronto p/ validar', progress: 50,  color: '#f59e0b' },
-  { value: 'validating',       label: 'Validando',         progress: 75,  color: '#8b5cf6' },
-  { value: 'done',             label: 'Feito',             progress: 100, color: '#22c55e' },
+  { value: 'not_started',      label: 'Não iniciado',          progress: 0,   color: '#9ca3af' },
+  { value: 'in_progress',      label: 'Iniciado',              progress: 25,  color: '#3b82f6' },
+  { value: 'ready_to_validate',label: 'Pronto p/ validação',   progress: 50,  color: '#f59e0b' },
+  { value: 'validating',       label: 'Validando',             progress: 75,  color: '#8b5cf6' },
+  { value: 'done',             label: 'Pronto',                progress: 100, color: '#22c55e' },
 ];
 
 function statusToProgress(statusValue) {
@@ -3341,7 +3190,7 @@ function renderProjectRow(p, range) {
 // ============================================================
 // VIEW MODE: 'gantt-phases' | 'gantt-tasks' | 'table-phases' | 'table-tasks'
 // ============================================================
-let viewMode = 'gantt-phases';
+let viewMode = 'table-tasks';
 const collapsedTvProjects = new Set();
 const collapsedTvFields   = new Set();
 
@@ -3436,26 +3285,12 @@ function renderTableView() {
     <span style="font-size:10.5px;color:#64748b;margin-left:4px">${pct}%</span>`;
   }
 
-  function farolChip(status) {
-    const map = {
-      green:  ['fc-green',  'Verde'],
-      yellow: ['fc-yellow', 'Atenção'],
-      red:    ['fc-red',    'Crítico'],
-      gray:   ['fc-gray',   '— —'],
-    };
-    const [cls, lbl] = map[status] || map.gray;
-    return `<span class="farol-chip ${cls}"><span class="fc-dot"></span>${lbl}</span>`;
-  }
-
   function farolSelect(p) {
-    const opts = {gray:'— —', green:'🟢 Verde', yellow:'🟡 Atenção', red:'🔴 Crítico'};
-    return `<div style="display:flex;align-items:center;gap:8px">
-      ${farolChip(p.status||'gray')}
-      <select class="tv-farol-select" data-pid="${p.id}"
-        style="font-size:11px;padding:3px 8px;border-radius:5px;border:1px solid var(--border);background:#fff;cursor:pointer;color:var(--ink-soft)">
-        ${Object.entries(opts).map(([v,l])=>`<option value="${v}" ${p.status===v?'selected':''}>${l}</option>`).join('')}
-      </select>
-    </div>`;
+    const opts = {gray:'— —', green:'🟢 Verde', yellow:'🟡 Amarelo', red:'🔴 Vermelho'};
+    return `<select class="tv-farol-select" data-pid="${p.id}"
+      style="font-size:11px;padding:3px 8px;border-radius:5px;border:1px solid #e2e8f0;background:#fff;cursor:pointer">
+      ${Object.entries(opts).map(([v,l])=>`<option value="${v}" ${p.status===v?'selected':''}>${l}</option>`).join('')}
+    </select>`;
   }
 
   function flagPills(flagIds) {
@@ -3535,7 +3370,7 @@ function renderTableView() {
         <td style="border-bottom:1px solid #dde4ee;white-space:nowrap">
           <div style="display:flex;gap:5px;align-items:center;flex-wrap:nowrap">
             <button class="ghost" style="font-size:11px;padding:3px 8px;white-space:nowrap" data-manage-phases="${p.id}">📋 Entregas</button>
-            <button class="tap-chip" data-open-tap="${p.id}">📋 TAP</button>
+            <button class="ghost" style="font-size:11px;padding:3px 8px" data-open-tap="${p.id}">🗂 TAP</button>
             <button class="ghost" style="font-size:11px;padding:3px 8px;color:#16a34a;border-color:#86efac;white-space:nowrap" data-tv-add-phase="${p.id}" title="Adicionar entrega">+ Entrega</button>
             <button class="ghost" style="font-size:11px;padding:3px 8px" data-del-project="${p.id}" title="Excluir projeto">🗑</button>
           </div>
@@ -5738,8 +5573,6 @@ window.addEventListener('resize', closeFlagPopup);
 
 // ============================================================
 // ============================================================
-const ACTIVE_TAB_KEY = 'roadmap-sj-active-tab';
-
 function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -5747,8 +5580,6 @@ function switchTab(tab) {
   document.getElementById('panel-' + tab).classList.add('active');
   if (tab === 'status') renderStatusReport();
   if (tab === 'kanban') renderKanban();
-  // Persiste aba ativa
-  try { localStorage.setItem(ACTIVE_TAB_KEY, tab); } catch(e) {}
 }
 
 // ============================================================
@@ -6772,6 +6603,29 @@ function renderSRGrid3(highlights, risks, decisions) {
 // ============================================================
 // FREEZE COLUNAS — congela projeto e entregas no scroll horizontal
 // ============================================================
+function freezeColumns() {
+  const wrap = document.getElementById('timeline-wrap');
+  if (!wrap) return;
+
+  function onScroll() {
+    const sl = wrap.scrollLeft;
+    // Congela project-info na borda esquerda
+    wrap.querySelectorAll('.project-info').forEach(el => {
+      el.style.transform = `translateX(${sl}px)`;
+    });
+    // Congela deliverables-col logo após project-info
+    wrap.querySelectorAll('.deliverables-col').forEach(el => {
+      el.style.transform = `translateX(${sl}px)`;
+    });
+  }
+
+  // Remove listener antigo se existir
+  if (wrap._freezeScroll) wrap.removeEventListener('scroll', wrap._freezeScroll);
+  wrap._freezeScroll = onScroll;
+  wrap.addEventListener('scroll', onScroll, { passive: true });
+  onScroll(); // aplica imediatamente
+}
+
 // ============================================================
 // INIT
 // ============================================================
@@ -7811,7 +7665,7 @@ async function openTapModal(projectId) {
 load();
 migrateData();
 seedIfEmpty();
-render();
+setViewMode('table-tasks');
 updateVersionBadge();
 initBarTooltip();
 freezeColumns();
