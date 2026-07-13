@@ -2592,8 +2592,8 @@ table.items td, .tv-phase-row td, .tv-task-row td { padding-top:var(--row-py); p
   </div>
   <div style="width:1px;height:22px;background:#e8ecf2;margin:0 2px"></div>
   <!-- Expandir / Recolher sempre visíveis -->
-  <button id="pb-expand-all"   class="ghost" style="font-size:11px;padding:4px 10px" onclick="document.getElementById('btn-expand-all').click()">Expandir todos</button>
-  <button id="pb-collapse-all" class="ghost" style="font-size:11px;padding:4px 10px" onclick="document.getElementById('btn-collapse-all').click()">Recolher todos</button>
+  <button id="pb-expand-all"   class="ghost" style="font-size:11px;padding:4px 10px" onclick="sjExpandAll()">Expandir todos</button>
+  <button id="pb-collapse-all" class="ghost" style="font-size:11px;padding:4px 10px" onclick="sjCollapseAll()">Recolher todos</button>
 </div>
 
 <div id="bar-tooltip"></div>
@@ -8315,6 +8315,22 @@ loadFromSupabase();
 // NOVOS MÓDULOS SJ 2025 — adicionados sem alterar o código original
 // ═══════════════════════════════════════════════════════════════
 
+
+// ── Expandir / Recolher todos (barra persistente) ────────────
+function sjExpandAll() {
+  try {
+    (state.projects || []).forEach(function(p){ expandedProjects.add(p.id); });
+    try { localStorage.setItem('roadmap-empresas-sj-expanded', JSON.stringify([...expandedProjects])); } catch(e){}
+    if (viewMode && viewMode.startsWith('table')) renderTableView(); else render();
+  } catch(e){ console.error('sjExpandAll:', e); }
+}
+function sjCollapseAll() {
+  try {
+    expandedProjects.clear();
+    try { localStorage.setItem('roadmap-empresas-sj-expanded', JSON.stringify([])); } catch(e){}
+    if (viewMode && viewMode.startsWith('table')) renderTableView(); else render();
+  } catch(e){ console.error('sjCollapseAll:', e); }
+}
 // ── Estado dos novos módulos ─────────────────────────────────
 var sjDensity     = 'normal';
 var sjHiddenCols  = {};
