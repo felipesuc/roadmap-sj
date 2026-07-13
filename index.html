@@ -2400,6 +2400,11 @@
 </style>
 
 <style id="sj-design-2025">
+  /* Compensa a barra persistente (46px header + ~37px barra) */
+  .timeline-header { top: 83px !important; }
+  .year-row { top: 0 !important; }
+  .portfolio-header { top: 83px !important; }
+
 /* SJ Design 2025 — override visual sobre o CSS original */
 
 /* Tokens */
@@ -2581,6 +2586,20 @@ table.items td, .tv-phase-row td, .tv-task-row td { padding-top:var(--row-py); p
   </div>
 </header>
 
+<div id="sj-persistent-bar" style="background:#fff;border-bottom:1px solid #e8ecf2;padding:5px 20px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;position:sticky;top:46px;z-index:40">
+  <!-- View toggle sempre visível -->
+  <div style="display:flex;background:#f1f5f9;border-radius:6px;padding:2px;gap:1px">
+    <button class="view-btn" id="vbtn-gantt-phases"  onclick="setViewMode('gantt-phases')"  style="padding:4px 10px;font-size:11px">Gantt</button>
+    <button class="view-btn" id="vbtn-gantt-tasks"   onclick="setViewMode('gantt-tasks')"   style="padding:4px 10px;font-size:11px">Gantt+Tarefas</button>
+    <button class="view-btn" id="vbtn-table-phases"  onclick="setViewMode('table-phases')"  style="padding:4px 10px;font-size:11px">Tabela</button>
+    <button class="view-btn active" id="vbtn-table-tasks" onclick="setViewMode('table-tasks')" style="padding:4px 10px;font-size:11px">Tabela+Tarefas</button>
+  </div>
+  <div style="width:1px;height:22px;background:#e8ecf2;margin:0 2px"></div>
+  <!-- Expandir / Recolher sempre visíveis -->
+  <button id="pb-expand-all"   class="ghost" style="font-size:11px;padding:4px 10px" onclick="document.getElementById('btn-expand-all').click()">Expandir todos</button>
+  <button id="pb-collapse-all" class="ghost" style="font-size:11px;padding:4px 10px" onclick="document.getElementById('btn-collapse-all').click()">Recolher todos</button>
+</div>
+
 <div id="bar-tooltip"></div>
 
 <!-- Dashboard panel -->
@@ -2606,13 +2625,6 @@ table.items td, .tv-phase-row td, .tv-task-row td { padding-top:var(--row-py); p
       <button id="btn-undo" class="ghost">Desfazer</button>
       <button id="btn-sync-db" class="ghost">Sincronizar banco</button>
       <div class="menu-divider"></div>
-      <div class="menu-label">Visualização</div>
-      <div class="view-toggle" title="Modo de visualização">
-        <button class="view-btn" id="vbtn-gantt-phases" onclick="setViewMode('gantt-phases')">Gantt</button>
-        <button class="view-btn" id="vbtn-gantt-tasks" onclick="setViewMode('gantt-tasks')">Gantt+Tarefas</button>
-        <button class="view-btn" id="vbtn-table-phases" onclick="setViewMode('table-phases')">Tabela</button>
-        <button class="view-btn active" id="vbtn-table-tasks" onclick="setViewMode('table-tasks')">Tabela+Tarefas</button>
-      </div>
       <div class="menu-divider"></div>
       <button id="btn-download" class="secondary">Baixar Planilha</button>
       <label class="btn-file">⬆ Carregar Planilha
