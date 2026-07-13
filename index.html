@@ -7230,23 +7230,6 @@ function renderSRGrid3(highlights, risks, decisions) {
 }
 
 
-// ============================================================
-// FREEZE COLUNAS — congela projeto e entregas no scroll horizontal
-// ============================================================
-px)`;
-    });
-    // Congela deliverables-col logo após project-info
-    wrap.querySelectorAll('.deliverables-col').forEach(el => {
-      el.style.transform = `translateX(${sl}px)`;
-    });
-  }
-
-  // Remove listener antigo se existir
-  if (wrap._freezeScroll) wrap.removeEventListener('scroll', wrap._freezeScroll);
-  wrap._freezeScroll = onScroll;
-  wrap.addEventListener('scroll', onScroll, { passive: true });
-  onScroll(); // aplica imediatamente
-}
 
 // ============================================================
 // INIT
