@@ -659,7 +659,7 @@
   .portfolio-header {
     position: sticky; top: 79px; z-index: 9;
     min-width: max-content;
-    background: linear-gradient(to right, #16304f 0%, #2a4a78 100%);
+    background: #0d2240;
     color: #fff;
     padding: 9px 16px;
     display: flex;
@@ -1975,16 +1975,537 @@
   }
 
 
+
+  /* ════════════════════════════════════════════════════════════
+     REDESIGN 2025 — Clean Minimalist SJ
+     Paleta: Branco · Navy #0d2240 · Amarelo #ffc107
+     ════════════════════════════════════════════════════════════ */
+
+  /* 1. Root */
+  :root {
+    --bg:       #f5f7fb;
+    --card:     #ffffff;
+    --border:   #e8ecf2;
+    --muted:    #64748b;
+    --text:     #1e293b;
+  }
+  body { font-size: 13px; }
+
+  /* 2. Header — mais enxuto */
+  header {
+    padding: 0 24px;
+    height: 46px;
+    box-shadow: none;
+    border-bottom: 2px solid var(--yellow);
+  }
+  header h1 {
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: 0;
+    opacity: 1;
+  }
+  header .badge {
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: rgba(255,193,7,0.12);
+    color: var(--yellow);
+    border: 1px solid rgba(255,193,7,0.25);
+  }
+
+  /* 3. Abas no header — underline style */
+  .brand-tabs { gap: 20px; }
+  .tab-btn {
+    padding: 0 10px;
+    height: 46px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 0;
+    border-bottom: 2px solid transparent;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 0;
+    transition: color 0.12s, border-color 0.12s;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .tab-btn:hover {
+    background: transparent;
+    color: rgba(255,255,255,0.85);
+    border-bottom-color: rgba(255,193,7,0.35);
+    box-shadow: none;
+  }
+  .tab-btn.active {
+    color: #fff;
+    font-weight: 700;
+    background: transparent;
+    border-bottom-color: var(--yellow);
+  }
+
+  /* 4. Sync indicator */
+  .sync-indicator { font-size: 11px; border-radius: 8px; padding: 2px 8px; }
+
+  /* 5. Toolbar */
+  .toolbar {
+    padding: 7px 20px;
+    gap: 5px;
+    border-bottom: 1px solid var(--border);
+    background: #fff;
+  }
+
+  /* 6. Botões — planos, sem sombra */
+  button, .btn-file {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    letter-spacing: 0;
+    box-shadow: none !important;
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
+  }
+  button:hover  { transform: none !important; box-shadow: none !important; }
+  button:active { transform: none !important; }
+  button.ghost {
+    background: #fff;
+    color: #374151;
+    border: 1px solid #dde3eb;
+  }
+  button.ghost:hover {
+    background: #fffbeb;
+    color: var(--navy);
+    border-color: var(--yellow);
+    box-shadow: none !important;
+  }
+  button.secondary { box-shadow: none !important; }
+  button.secondary:hover { background: var(--yellow-dark); box-shadow: none !important; }
+
+  /* 7. Tool-menu */
+  .tool-menu {
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(13,31,60,0.12);
+    border: 1px solid var(--border);
+  }
+  .tool-menu .ghost {
+    border: none;
+    color: #334155;
+  }
+  .tool-menu .ghost:hover { background: #f8fafc; border: none; }
+
+  /* 8. Timeline wrap */
+  .timeline-wrap {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: none;
+  }
+
+  /* 9. Year row */
+  .year-row { background: var(--navy); }
+  .year-row .col-info {
+    background: var(--navy);
+    border-right: 1px solid rgba(255,255,255,0.08);
+  }
+
+  /* 10. Timeline header */
+  .timeline-header {
+    background: #18324f;
+    border-bottom: 2px solid var(--yellow);
+  }
+  .timeline-header .col-info {
+    background: #18324f;
+    font-size: 10.5px;
+    letter-spacing: 0.3px;
+    border-right: 1px solid rgba(255,255,255,0.08);
+  }
+
+  /* 11. Portfolio header — flat, sem gradiente */
+  .portfolio-header {
+    background: var(--navy);
+    border-left: 3px solid var(--yellow);
+    padding: 9px 16px;
+  }
+  .portfolio-header:hover { filter: brightness(1.06); }
+  .portfolio-header .name { font-size: 13px; font-weight: 600; letter-spacing: 0; }
+  .portfolio-header .icon { font-size: 14px; }
+  .portfolio-header .counts {
+    background: rgba(255,193,7,0.1);
+    color: var(--yellow);
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-size: 9.5px;
+    border: 1px solid rgba(255,193,7,0.18);
+  }
+  .portfolio-header .actions button {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.75);
+    font-size: 10.5px;
+    padding: 3px 8px;
+    box-shadow: none !important;
+  }
+  .portfolio-header .actions button:hover {
+    background: rgba(255,255,255,0.14);
+    box-shadow: none !important;
+  }
+
+  /* 12. Portfolio meta */
+  .portfolio-meta {
+    background: #fafbfd;
+    border-bottom: 1px solid var(--border);
+    padding: 8px 16px;
+  }
+  .portfolio-meta .meta-block {
+    border-left: 2px solid var(--yellow);
+    padding: 5px 10px;
+    background: #fff;
+    border-radius: 4px;
+  }
+  .portfolio-meta .meta-label { font-size: 9px; letter-spacing: 0.6px; }
+
+  /* 13. Program header */
+  .program-header {
+    background: #f8fafc;
+    border-left: 3px solid #cbd5e1;
+    border-bottom: 1px solid var(--border);
+    padding: 5px 14px 5px 26px;
+    font-size: 11.5px;
+  }
+  .program-header:hover { background: #f1f5f9; }
+  .program-header .counts { font-size: 9.5px; padding: 1px 7px; }
+
+  /* 14. Project rows */
+  .project-row {
+    min-height: 58px;
+    border-bottom: 1px solid #eef1f6;
+  }
+  .project-row:hover { background: #fafbfd; }
+
+  /* 15. Project info */
+  .project-info {
+    padding: 9px 12px;
+    box-shadow: none;
+    border-right: 1px solid #eef1f6;
+  }
+  .project-row:hover .project-info { background: #fafbfd; }
+  .proj-name { font-size: 13px; font-weight: 600; }
+
+  /* 16. ══ STATUS PILL — outline limpo ══ */
+  .status-pill {
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    border-width: 1.5px;
+    box-shadow: none !important;
+    text-transform: uppercase;
+  }
+  .status-pill:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  .status-pill .dot {
+    width: 7px;
+    height: 7px;
+    background: currentColor;
+    box-shadow: none;
+    opacity: 0.85;
+  }
+  .status-pill.green {
+    background: #f0fdf4;
+    color: #15803d;
+    border-color: #86efac;
+    box-shadow: none !important;
+  }
+  .status-pill.yellow {
+    background: #fffbeb;
+    color: #b45309;
+    border-color: #fde68a;
+    box-shadow: none !important;
+  }
+  .status-pill.red {
+    background: #fef2f2;
+    color: #dc2626;
+    border-color: #fca5a5;
+    box-shadow: none !important;
+  }
+  .status-pill.gray {
+    background: #f8fafc;
+    color: #64748b;
+    border-color: #e2e8f0;
+  }
+
+  /* 17. Farol reason */
+  .farol-reason { border-left-width: 3px; border-radius: 4px; }
+
+  /* 18. Progress bars */
+  .progress-bar-wrap {
+    height: 7px;
+    background: #eef1f6;
+    border-radius: 4px;
+  }
+  .progress-bar-fill.realized { background: #2d4a7c; }
+  .progress-bar-fill.predicted { background: var(--yellow); opacity: 0.35; }
+  .progress-labels { font-size: 10px; }
+
+  /* 19. Phase bars — sem borda, mais arredondadas */
+  .phase-bar {
+    border: none;
+    border-radius: 5px;
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+  .phase-bar:hover {
+    filter: brightness(1.06);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.14);
+    z-index: 10;
+  }
+  .phase-bar.status-not_started      { background: #94a3b8; color: #fff; }
+  .phase-bar.status-in_progress      { background: #3b82f6; color: #fff; }
+  .phase-bar.status-ready_to_validate{ background: #f59e0b; color: #fff; }
+  .phase-bar.status-validating       { background: #8b5cf6; color: #fff; }
+  .phase-bar.status-done             { background: #22c55e; color: #fff; }
+
+  /* 20. Milestone */
+  .milestone { border-width: 2px; }
+
+  /* 21. Deliverables col */
+  .deliverables-col {
+    box-shadow: none;
+    border-right: 1px solid #eef1f6;
+    background: #fafbfc;
+  }
+  .project-row:hover .deliverables-col { background: #f7f9fc; }
+  .deliv-item { border-bottom: 1px solid #f3f5f8; font-size: 10.5px; }
+
+  /* 22. Proj-toggle / buttons da info */
+  .proj-toggle {
+    width: 24px; height: 24px;
+    border-radius: 5px;
+    background: #f5f7fa;
+    border: 1px solid #e4e9f0;
+  }
+  .proj-toggle:hover { background: var(--yellow-soft); border-color: var(--yellow); }
+  .proj-del-btn { border-radius: 4px; }
+  .proj-actions button { font-size: 11px; }
+
+  /* 23. Editable */
+  .editable:focus {
+    border-color: var(--yellow);
+    box-shadow: 0 0 0 2px rgba(255,193,7,0.15);
+  }
+
+  /* 24. TABLE VIEW */
+  #table-view {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: none;
+  }
+  table.items th {
+    background: #18324f;
+    font-size: 9.5px;
+    padding: 8px 10px;
+    letter-spacing: 0.4px;
+    border-right: 1px solid #1e3f63;
+  }
+  table.items td {
+    padding: 5px 8px;
+    border-bottom: 1px solid #f0f3f8;
+    border-right: 1px solid #f4f7fb;
+  }
+  table.items tr:hover td { background: #fafbfd; }
+  table.items td.calc-cell { background: #f0f5ff; }
+
+  /* 25. TV rows (tabela view) */
+  .tv-proj-row td {
+    background: #f1f5f9;
+    border-bottom: 1px solid #dde4ee;
+    padding: 6px 11px;
+  }
+  .tv-proj-row:hover td { background: #e8edf5; }
+  .tv-phase-row td { padding: 6px 11px; border-bottom: 1px solid #edf0f4; }
+  .tv-phase-row:hover td { background: #f8fafc; }
+  .tv-task-row td { border-bottom: 1px solid #f3f5f8; }
+
+  /* 26. Flag pills */
+  .flag-pill { border-radius: 6px; font-size: 10px; padding: 2px 7px; }
+  .flag-add-btn { border-radius: 6px; font-size: 10.5px; }
+
+  /* 27. MODAL */
+  .modal {
+    border-top-width: 3px;
+    border-radius: 10px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+  }
+  .modal-header {
+    background: var(--navy);
+    padding: 12px 20px;
+    border-radius: 7px 7px 0 0;
+  }
+  .modal-header h2 { font-size: 14px; font-weight: 600; }
+  .modal-footer {
+    background: #fafbfc;
+    border-top: 1px solid var(--border);
+    padding: 12px 20px;
+  }
+
+  /* 28. Toast */
+  .toast {
+    border-radius: 7px;
+    font-size: 12.5px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.14);
+  }
+
+  /* 29. STATUS REPORT */
+  .sr-wrap { padding: 16px 24px; }
+  .sr-topbar { margin-bottom: 16px; }
+  .sr-topbar h2 { font-size: 15px; }
+  .sr-section-title {
+    font-size: 9.5px;
+    letter-spacing: 1.4px;
+    padding-bottom: 7px;
+    border-bottom: 2px solid var(--yellow);
+    margin: 22px 0 10px;
+  }
+  .sr-kpi { border-radius: 8px; box-shadow: none; padding: 14px 16px; }
+  .sr-kpi .kpi-value { font-size: 26px; }
+  .sr-table-wrap { border-radius: 8px; }
+  .sr-table th { font-size: 9.5px; letter-spacing: 0.4px; padding: 8px 12px; }
+  .sr-table td { padding: 9px 12px; }
+  .sr-card { border-radius: 8px; box-shadow: none; }
+  .sr-milestone-card { border-radius: 8px; box-shadow: none; }
+
+  /* 30. KANBAN */
+  .kb-topbar { padding: 12px 16px 10px; }
+  .kb-topbar h2 { font-size: 15px; }
+  .kb-col { border-radius: 8px; }
+  .kb-col-header { border-radius: 8px 8px 0 0; }
+  .kb-card {
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    box-shadow: none;
+  }
+  .kb-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    transform: none;
+  }
+
+  /* 31. Empty state */
+  .empty-state h3 { font-size: 15px; }
+  .empty-state p { font-size: 12.5px; }
+
+  /* 32. main padding */
+  main { padding: 12px 20px; }
+
+  /* ════════════════════════════════════════════════════════════ */
+  /* ── ADIÇÕES BACKLOG 2025 (injetadas após CSS base) ───────────── */
+
+  /* Status pills — outline (backlog #2) */
+  .status-pill.green  { background: #f0fdf4; color: #15803d; border-color: #86efac; box-shadow: none !important; }
+  .status-pill.yellow { background: #fffbeb; color: #b45309; border-color: #fde68a; box-shadow: none !important; }
+  .status-pill.red    { background: #fef2f2; color: #dc2626; border-color: #fca5a5; box-shadow: none !important; }
+  .status-pill.gray   { background: #f8fafc; color: #64748b; border-color: #e2e8f0; }
+  .status-pill        { box-shadow: none !important; }
+  .status-pill:hover  { transform: none !important; box-shadow: none !important; }
+  .status-pill .dot   { background: currentColor; box-shadow: none; }
+
+  /* Portfolio header — flat, sem gradiente (backlog #3) */
+  .portfolio-header { background: #0d2240 !important; }
+
+  /* Phase bars — sem borda (backlog #12) */
+  .phase-bar { border: none !important; border-radius: 5px !important; }
+
+  /* Progress bar — monocromática (backlog #13) */
+  .progress-bar-fill.predicted { display: none !important; }
+  .progress-bar-fill.realized  { height: 6px; background: #2d4a7c; border-radius: 3px; display: block; position: relative; border: none; }
+
+  /* Hover states uniformes (backlog #11) */
+  .project-row:hover           { background: #f7f9fc !important; }
+  .project-row:hover .project-info { background: #f7f9fc !important; }
+  .project-row:hover .deliverables-col { background: #f4f6fa !important; }
+  table.items tr:hover td      { background: #f7f9fc !important; }
+  .tv-phase-row:hover td       { background: #f7f9fc !important; }
+  .tv-task-row:hover td        { background: #f4f6fa !important; }
+
+  /* Sombras zeradas (backlog #14) */
+  button, .btn-file            { box-shadow: none !important; }
+  button:hover, .btn-file:hover{ box-shadow: none !important; }
+  .timeline-wrap               { box-shadow: none !important; }
+  .portfolio-header            { box-shadow: none !important; }
+  .modal                       { box-shadow: 0 16px 40px rgba(0,0,0,.18) !important; }
+  .toast                       { box-shadow: 0 2px 8px rgba(0,0,0,.12) !important; }
+
+  /* Deadline badges (backlog #7) */
+  .dl-badge    { display:inline-flex;align-items:center;padding:1px 6px;border-radius:3px;font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;flex-shrink:0; }
+  .dl-overdue  { background:#fef2f2;color:#dc2626;border:1px solid #fca5a5; }
+  .dl-urgent   { background:#fffbeb;color:#b45309;border:1px solid #fde68a; }
+  .row-overdue td:first-child { border-left:3px solid #dc2626 !important; }
+  .row-urgent  td:first-child { border-left:3px solid #b45309 !important; }
+
+  /* Dashboard (backlog #6) */
+  .dash-wrap       { padding:20px 24px;max-width:1100px; }
+  .dash-header     { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px; }
+  .dash-title      { font-size:17px;font-weight:700;color:#0d2240; }
+  .dash-date       { font-size:11px;color:#64748b;display:block;margin-top:2px; }
+  .dash-kpis       { display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px; }
+  .dash-kpi        { background:#fff;border:1px solid #e8ecf2;border-radius:10px;padding:14px 16px;min-width:100px;flex:1;display:flex;flex-direction:column;gap:3px; }
+  .dash-kpi-value  { font-size:26px;font-weight:800;color:#0d2240;line-height:1; }
+  .dash-kpi-label  { font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#64748b; }
+  .dash-kpi-sub    { font-size:10px;color:#64748b; }
+  .dash-grid       { display:grid;grid-template-columns:1fr 1fr;gap:14px; }
+  @media(max-width:800px){.dash-grid{grid-template-columns:1fr}}
+  .dash-card       { background:#fff;border:1px solid #e8ecf2;border-radius:10px;overflow:hidden; }
+  .dash-card-title { padding:10px 14px 8px;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#0d2240;border-bottom:1px solid #e8ecf2; }
+  .dash-card-body  { padding:6px 0; }
+  .dash-alert-row  { display:flex;align-items:center;gap:8px;padding:7px 14px;border-bottom:1px solid #eef1f6;font-size:12px; }
+  .dash-alert-row:last-child { border-bottom:none; }
+  .dl-overdue-row  { background:#fef2f2; }
+  .dl-urgent-row   { background:#fffbeb; }
+  .dash-alert-name { font-weight:600;color:#0d2240;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+  .dash-alert-proj { font-size:10px;color:#64748b;flex-shrink:0; }
+  .dash-alert-date { font-size:10px;font-weight:600;color:#64748b;flex-shrink:0; }
+  .dash-alert-empty{ padding:14px;color:#15803d;font-size:12px;font-weight:500; }
+  .dash-ms-dot     { width:8px;height:8px;background:#ffc107;border:1.5px solid #0d2240;transform:rotate(45deg);display:inline-block;flex-shrink:0; }
+
+  /* Tour (backlog #17) */
+  #tour-overlay  { position:fixed;inset:0;z-index:1000;display:none;align-items:flex-end;justify-content:center;padding-bottom:32px;pointer-events:none; }
+  .tour-backdrop { position:absolute;inset:0;background:rgba(13,34,64,.4);pointer-events:all; }
+  .tour-card     { position:relative;z-index:1;background:#fff;border-radius:10px;border-top:3px solid #ffc107;box-shadow:0 16px 40px rgba(0,0,0,.2);padding:20px 22px;width:380px;pointer-events:all; }
+  .tour-header   { display:flex;justify-content:space-between;align-items:center;margin-bottom:10px; }
+  .tour-count    { font-size:9.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px; }
+  .tour-close    { background:transparent;color:#64748b;border:none;font-size:12px;font-weight:600;cursor:pointer;padding:2px 6px; }
+  .tour-close:hover { color:#0d2240; }
+  .tour-title    { font-size:14px;font-weight:700;color:#0d2240;margin-bottom:7px; }
+  .tour-body     { font-size:12.5px;color:#1e293b;line-height:1.6;margin-bottom:16px; }
+  .tour-footer   { display:flex;justify-content:space-between;align-items:center; }
+  .tour-btn      { padding:7px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:inherit; }
+  .tour-btn-primary { background:#0d2240;color:#fff; }
+  .tour-btn-primary:hover { background:#18324f; }
+  .tour-btn-ghost { background:transparent;color:#64748b;border:1px solid #e8ecf2; }
+  .tour-btn-ghost:hover { background:#f8fafc; }
+  .tour-highlight { outline:2px solid #ffc107 !important;outline-offset:3px;border-radius:6px; }
+
+  /* Kanban cards tipografia-first (backlog #21) */
+  .kb-card { background:#fff;border:1px solid #e8ecf2;border-left:3px solid #e8ecf2;border-radius:6px;padding:9px 11px;cursor:pointer;transition:box-shadow .12s;box-shadow:none; }
+  .kb-card:hover { box-shadow:0 2px 8px rgba(0,0,0,.07);transform:none !important; }
+  .kb-card-name  { font-size:12.5px;font-weight:600;color:#0d2240;line-height:1.4;margin-bottom:5px; }
+  .kb-card-type-label { font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b; }
+
+  /* Abas — underline (backlog #9) */
+  .tab-btn.active { color:#fff !important; font-weight:700; border-bottom:2px solid #ffc107 !important; background:transparent !important; }
+  .tab-btn:hover  { background:transparent !important; box-shadow:none !important; }
+
 </style>
 </head>
+
 <body>
 <header>
   <div class="brand-tabs">
-    <h1>📍 Roadmap Empresas SJ</h1>
+    <h1>Roadmap Empresas SJ</h1>
     <nav class="tab-nav">
-      <button class="tab-btn active" id="tab-roadmap" onclick="switchTab('roadmap')">📅 Roadmap</button>
-      <button class="tab-btn" id="tab-status" onclick="switchTab('status')">📊 Status Report</button>
-      <button class="tab-btn" id="tab-kanban" onclick="switchTab('kanban')">🗂 Kanban</button>
+      <button class="tab-btn" id="tab-dashboard" onclick="switchTab('dashboard')">Visão Geral</button>
+      <button class="tab-btn active" id="tab-roadmap" onclick="switchTab('roadmap')">Roadmap</button>
+      <button class="tab-btn" id="tab-status" onclick="switchTab('status')">Status Report</button>
+      <button class="tab-btn" id="tab-kanban" onclick="switchTab('kanban')">Kanban</button>
     </nav>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
@@ -1994,32 +2515,50 @@
 
 <div id="bar-tooltip"></div>
 
+<!-- DASHBOARD PANEL (backlog #6) -->
+<div class="tab-panel" id="panel-dashboard">
+  <div id="panel-dashboard-content">
+    <div style="padding:32px;text-align:center;color:#64748b">Carregando...</div>
+  </div>
+</div>
+
 <div class="tab-panel active" id="panel-roadmap">
 <div class="toolbar">
+  <!-- Ações primárias sempre visíveis (backlog #5) -->
+  <button id="btn-new-project">+ Novo Projeto</button>
+  <button id="btn-new-portfolio" class="ghost">+ Novo Portfólio</button>
+  <div class="tb-sep"></div>
+  <!-- View toggle direto na toolbar (backlog #8) -->
+  <div class="view-toggle" title="Modo de visualização" style="display:flex;background:#f1f5f9;border-radius:6px;padding:2px">
+    <button class="view-btn" id="vbtn-gantt-phases" onclick="setViewMode('gantt-phases')">Gantt</button>
+    <button class="view-btn" id="vbtn-gantt-tasks" onclick="setViewMode('gantt-tasks')">Gantt + Tarefas</button>
+    <button class="view-btn" id="vbtn-table-phases" onclick="setViewMode('table-phases')">Tabela</button>
+    <button class="view-btn active" id="vbtn-table-tasks" onclick="setViewMode('table-tasks')">Tabela + Tarefas</button>
+  </div>
+  <div class="tb-sep"></div>
+  <!-- Ações secundárias no menu -->
   <div class="tool-menu-wrap">
-    <button id="btn-tools" class="tool-menu-btn" title="Mais ações" aria-label="Mais ações" onclick="toggleToolMenu(event)">
-      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><g stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="2.5" y1="3.5" x2="15.5" y2="3.5"/><line x1="2.5" y1="7.17" x2="15.5" y2="7.17"/><line x1="2.5" y1="10.83" x2="15.5" y2="10.83"/><line x1="2.5" y1="14.5" x2="15.5" y2="14.5"/></g></svg>
+    <button id="btn-tools" class="tool-menu-btn ghost" title="Mais ações" onclick="toggleToolMenu(event)"
+      style="padding:5px 10px;font-size:11px">
+      Mais
+      <svg width="12" height="12" viewBox="0 0 12 12" style="margin-left:2px" aria-hidden="true">
+        <polyline points="2,4 6,8 10,4" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      </svg>
     </button>
     <div id="tool-menu" class="tool-menu">
-      <button id="btn-new-portfolio" class="ghost">📁 Novo Portfólio</button>
-      <button id="btn-manage-flags" class="ghost">🚩 Flags</button>
+      <button id="btn-manage-flags" class="ghost">Gerenciar Flags</button>
       <div class="menu-divider"></div>
-      <button id="btn-expand-all" class="ghost">⊞ Expandir todos</button>
-      <button id="btn-collapse-all" class="ghost">⊟ Recolher todos</button>
-      <button id="btn-sort-date" class="ghost">↕ Ordenar por Data</button>
-      <button id="btn-undo" class="ghost">↶ Desfazer</button>
-      <button id="btn-sync-db" class="ghost">🔄 Sincronizar banco</button>
+      <button id="btn-expand-all" class="ghost">Expandir todos</button>
+      <button id="btn-collapse-all" class="ghost">Recolher todos</button>
+      <button id="btn-sort-date" class="ghost">Ordenar por Data</button>
+      <button id="btn-undo" class="ghost">Desfazer</button>
+      <button id="btn-sync-db" class="ghost">Sincronizar banco</button>
       <div class="menu-divider"></div>
-      <div class="menu-label">Visualização</div>
-      <div class="view-toggle" title="Modo de visualização">
-        <button class="view-btn" id="vbtn-gantt-phases" onclick="setViewMode('gantt-phases')">📅 Gantt</button>
-        <button class="view-btn" id="vbtn-gantt-tasks" onclick="setViewMode('gantt-tasks')">+ Tarefas</button>
-        <button class="view-btn" id="vbtn-table-phases" onclick="setViewMode('table-phases')">📋 Tabela</button>
-        <button class="view-btn active" id="vbtn-table-tasks" onclick="setViewMode('table-tasks')">+ Tarefas</button>
-      </div>
+      <button class="ghost" onclick="startTour()">Iniciar Tour Guiado</button>
+      <button class="ghost" onclick="openColumnConfig()">Configurar Colunas</button>
       <div class="menu-divider"></div>
-      <button id="btn-download" class="secondary">⬇ Baixar Planilha</button>
-      <label class="btn-file">⬆ Carregar Planilha
+      <button id="btn-download" class="secondary">Baixar Planilha</button>
+      <label class="btn-file">Carregar Planilha
         <input type="file" id="upload-file" accept=".xlsx,.xls">
       </label>
       <div class="menu-divider"></div>
@@ -2033,12 +2572,32 @@
       </div>
     </div>
   </div>
-  <button id="btn-new-project">➕ Novo Projeto</button>
+</div>
+<!-- Filter bar (backlog #18) -->
+<div class="filter-bar" id="filter-bar">
+  <label>Filtrar:</label>
+  <select id="rf-portfolio" onchange="applyRoadmapFilters()"><option value="">Todos os portfólios</option></select>
+  <select id="rf-status" onchange="applyRoadmapFilters()">
+    <option value="">Todos os farois</option>
+    <option value="green">Verde</option>
+    <option value="yellow">Amarelo</option>
+    <option value="red">Vermelho</option>
+    <option value="gray">Sem farol</option>
+  </select>
+  <select id="rf-company" onchange="applyRoadmapFilters()"><option value="">Todas as empresas</option></select>
+  <button class="ghost" onclick="clearRoadmapFilters()" style="font-size:11px;padding:4px 9px">Limpar</button>
+  <span id="rf-badge"></span>
+  <!-- Densidade de tabela (backlog #23) -->
+  <div class="density-toggle" title="Densidade da tabela">
+    <button id="td-density-normal"    onclick="setTableDensity('normal')"        class="active" title="Normal">N</button>
+    <button id="td-density-compact"   onclick="setTableDensity('compact')"               title="Compacto">C</button>
+    <button id="td-density-ultra"     onclick="setTableDensity('ultracompact')"           title="Ultra-compacto">U</button>
+  </div>
 </div>
 
 <main>
   <div class="timeline-wrap" id="timeline-wrap"></div>
-  <div id="table-view" style="display:none;overflow:auto;max-height:calc(100vh - 96px);border:1px solid #dde4ee;border-radius:8px;background:#fff"></div>
+  <div id="table-view" style="display:none"></div>
 </main>
 </div><!-- /panel-roadmap -->
 
@@ -2072,12 +2631,12 @@
 
     <!-- Topbar -->
     <div class="sr-topbar">
-      <h2>📊 Status Report — Portfólios SJ</h2>
+      <h2>Status Report — Portfólios SJ</h2>
       <span class="sr-date" id="sr-date-label"></span>
-      <button class="ghost" onclick="renderStatusReport()" style="font-size:11px;padding:5px 10px">↻ Atualizar</button>
-      <button class="secondary" onclick="saveStatusVersion()" style="font-size:11px;padding:5px 10px">💾 Salvar Versão</button>
+      <button class="ghost" onclick="renderStatusReport()" style="font-size:11px;padding:5px 10px">Atualizar</button>
+      <button class="secondary" onclick="saveStatusVersion()" style="font-size:11px;padding:5px 10px">Salvar Versão</button>
       <button class="sr-ver-badge" onclick="openVersionsModal()" id="sr-ver-count">🗂 Versões</button>
-      <button class="ghost" onclick="window.print()" style="font-size:11px;padding:5px 10px">🖨 Imprimir</button>
+      <button class="ghost" onclick="exportStatusReportPDF()" style="font-size:11px;padding:5px 10px">Exportar PDF</button>
     </div>
 
     <!-- Version preview bar -->
@@ -2158,7 +2717,7 @@
 <div class="tab-panel" id="panel-kanban">
   <div class="kb-wrap">
     <div class="kb-topbar">
-      <h2>🗂 Kanban — Entregas &amp; Tarefas</h2>
+      <h2>Kanban — Entregas &amp; Tarefas</h2>
       <div class="kb-filters">
         <select id="kb-filter-project" onchange="renderKanban()">
           <option value="">Todos os projetos</option>
@@ -2261,6 +2820,21 @@
 </div>
 
 
+
+<!-- Column Config Modal (backlog #15) -->
+<div class="modal-backdrop" id="col-config-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Configurar Colunas da Tabela</h2>
+      <button class="close" data-close="col-config-modal">×</button>
+    </div>
+    <div class="modal-body" id="col-config-body"></div>
+    <div class="modal-footer">
+      <button class="ghost" data-close="col-config-modal">Fechar</button>
+    </div>
+  </div>
+</div>
+
 <!-- Custom confirm dialog (replaces window.confirm which is blocked in sandboxes) -->
 <div class="modal-backdrop" id="confirm-modal" style="z-index:999">
   <div class="modal">
@@ -2278,6 +2852,7 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
 
 <script>
 // ============================================================
@@ -2528,6 +3103,7 @@ async function loadFromSupabase() {
     lsSave();
     migrateData();
     if (viewMode && viewMode.startsWith('table')) renderTableView(); else render();
+    renderDashboard();
     updateVersionBadge();
     setSyncStatus('saved');
     setTimeout(() => setSyncStatus('idle'), 2000);
@@ -2554,6 +3130,9 @@ function load() {
   try { const c = localStorage.getItem(COLS_KEY); if (c) colWidths = JSON.parse(c); } catch(e) {}
   try { const ex = localStorage.getItem(EXPANDED_KEY); if (ex) expandedProjects = new Set(JSON.parse(ex)); } catch(e) {}
   try { const cp = localStorage.getItem(COLLAPSED_PT_KEY); if (cp) collapsedPortfolios = new Set(JSON.parse(cp)); } catch(e) {}
+  try { const vm = localStorage.getItem('sj-view-mode'); if (vm) viewMode = vm; } catch(e) {}
+  try { const td = localStorage.getItem('sj-table-density'); if (td) tableDensity = td; } catch(e) {}
+  try { const hc = localStorage.getItem('sj-hidden-cols'); if (hc) hiddenTableCols = new Set(JSON.parse(hc)); } catch(e) {}
   applyStateDefaults();
 }
 
@@ -2901,7 +3480,51 @@ function phaseRealizedProgress(phase)         { return realizedByStatus(phase); 
 // ── PROJETO: média simples das entregas (não-marco). Entrega sem datas conta 0 no previsto. ──
 function projectProgress(project) {
   const phases = (project.phases || []).filter(ph => !ph.isMilestone);
-  if (!phases.length) return { predicted: 0, realized: 0 };
+  if (!phases.length) return { predicted: 0, realized: 0 }
+
+// ── DETECÇÃO DE PRAZO (backlog #7) ───────────────────────────────────────────
+// Retorna 'overdue' | 'urgent' | null para cada entrega/tarefa
+function deadlineStatus(phase) {
+  if (phase.isMilestone) return null;
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const endStr = phase.actualEnd || phase.replannedEnd || phase.plannedEnd;
+  if (!endStr) return null;
+  const end = parseDate(endStr);
+  if (!end) return null;
+  if (phase.status === 'done') return null;
+  const diff = Math.round((end - today) / 864e5);
+  if (diff < 0) return 'overdue';
+  if (diff <= 7) return 'urgent';
+  return null;
+}
+
+function deadlineBadge(status) {
+  if (!status) return '';
+  const map = {
+    overdue: '<span class="dl-badge dl-overdue">Vencida</span>',
+    urgent:  '<span class="dl-badge dl-urgent">Urgente</span>',
+  };
+  return map[status] || '';
+}
+
+// Conta alertas de prazo de um projeto
+function projectDeadlineAlerts(p) {
+  let overdue = 0, urgent = 0;
+  (p.phases || []).forEach(ph => {
+    const s = deadlineStatus(ph);
+    if (s === 'overdue') overdue++;
+    else if (s === 'urgent') urgent++;
+    (ph.tasks || []).forEach(t => {
+      const ts = deadlineStatus(t);
+      if (ts === 'overdue') overdue++;
+      else if (ts === 'urgent') urgent++;
+    });
+  });
+  return { overdue, urgent };
+}
+// ─────────────────────────────────────────────────────────────────────────────
+;
   const today = new Date();
   const n = phases.length;
 
@@ -2934,7 +3557,7 @@ function render() {
   if (!hasAny) {
     wrap.innerHTML = `<div class="empty-state">
       <h3>Nenhum projeto ou portfólio cadastrado</h3>
-      <p>Comece criando um <strong>📁 Novo Portfólio</strong> ou um <strong>➕ Novo Projeto</strong>, ou carregue uma planilha existente.</p>
+      <p>Comece criando um <strong>Novo Portfólio</strong> ou um <strong>Novo Projeto</strong>, ou carregue uma planilha existente.</p>
     </div>`;
     updateUndoButton();
     return;
@@ -3112,12 +3735,12 @@ function renderProjectRow(p, range) {
 
         <div class="proj-progress">
           <div class="progress-labels">
-            <span>Previsto: <strong>${prog.predicted}%</strong></span>
-            <span>Realizado: <strong>${prog.realized}%</strong></span>
+            <span class="prog-label">Realizado</span>
+            <strong class="prog-value">${prog.realized}%</strong>
+            <span class="prog-label prog-pred">/ prev. ${prog.predicted}%</span>
           </div>
-          <div class="progress-bar-wrap" title="Amarelo = previsto · Azul = realizado">
-            <div class="progress-bar-fill predicted" style="width:${prog.predicted}%"></div>
-            <div class="progress-bar-fill realized" style="width:${prog.realized}%"></div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" style="width:${prog.realized}%"></div>
           </div>
         </div>
 
@@ -3154,19 +3777,19 @@ function renderProjectRow(p, range) {
 
           <div class="sr-inline-fields">
             <div class="sr-inline-field sr-inline-green">
-              <span class="sr-inline-label">✅ Destaque do período</span>
+              <span class="sr-inline-label">Destaque do período</span>
               <textarea class="editable" data-pid="${p.id}" data-field="srHighlight"
                         placeholder="Conquista ou avanço relevante neste ciclo"
                         rows="2">${escapeHtml(p.srHighlight||'')}</textarea>
             </div>
             <div class="sr-inline-field sr-inline-red">
-              <span class="sr-inline-label">⚠️ Risco identificado</span>
+              <span class="sr-inline-label">Risco identificado</span>
               <textarea class="editable" data-pid="${p.id}" data-field="srRisk"
                         placeholder="Risco que pode impactar prazo, escopo ou custo"
                         rows="2">${escapeHtml(p.srRisk||'')}</textarea>
             </div>
             <div class="sr-inline-field sr-inline-blue">
-              <span class="sr-inline-label">📌 Decisão pendente</span>
+              <span class="sr-inline-label">Decisão pendente</span>
               <textarea class="editable" data-pid="${p.id}" data-field="srDecision"
                         placeholder="Decisão que precisa ser tomada e por quem"
                         rows="2">${escapeHtml(p.srDecision||'')}</textarea>
@@ -3174,9 +3797,9 @@ function renderProjectRow(p, range) {
           </div>
 
           <div class="proj-actions">
-            <button class="secondary" data-manage-phases="${p.id}">📋 Entregas & Tarefas</button>
-            <button class="ghost" data-open-tap="${p.id}">🗂 Cadastro</button>
-            <button class="ghost" data-assign-project="${p.id}" title="Atribuir a um portfólio/programa">📁 Atribuir</button>
+            <button class="secondary" data-manage-phases="${p.id}">Entregas & Tarefas</button>
+            <button class="ghost" data-open-tap="${p.id}">TAP</button>
+            <button class="ghost" data-assign-project="${p.id}" title="Atribuir a portfólio">Atribuir</button>
 
           </div>
         </div>
@@ -3221,6 +3844,7 @@ document.addEventListener('click', (e) => {
 
 function setViewMode(mode) {
   viewMode = mode;
+  try { localStorage.setItem('sj-view-mode', mode); } catch(e) {}
   ['gantt-phases','gantt-tasks','table-phases','table-tasks'].forEach(m => {
     const btn = document.getElementById('vbtn-'+m);
     if (btn) btn.classList.toggle('active', m === mode);
@@ -3286,7 +3910,7 @@ function renderTableView() {
   }
 
   function farolSelect(p) {
-    const opts = {gray:'— —', green:'🟢 Verde', yellow:'🟡 Amarelo', red:'🔴 Vermelho'};
+    const opts = {gray:'— —', green:'Verde', yellow:'Amarelo', red:'Vermelho'};
     return `<select class="tv-farol-select" data-pid="${p.id}"
       style="font-size:11px;padding:3px 8px;border-radius:5px;border:1px solid #e2e8f0;background:#fff;cursor:pointer">
       ${Object.entries(opts).map(([v,l])=>`<option value="${v}" ${p.status===v?'selected':''}>${l}</option>`).join('')}
@@ -3429,10 +4053,12 @@ function renderTableView() {
           return;
         }
 
-        rows += `<tr class="tv-phase-row" data-phase-row="${ph.id}">
+        const _dl = deadlineStatus(ph);
+        rows += `<tr class="tv-phase-row ${_dl ? 'row-'+_dl : ''}" data-phase-row="${ph.id}">
           <td style="padding-left:28px">
             <div style="display:flex;align-items:center;gap:6px">
               <span style="width:8px;height:8px;border-radius:50%;background:${sc.color};flex-shrink:0;display:inline-block"></span>
+              ${deadlineBadge(_dl)}
               <input type="text" class="tv-inline-name tv-phase-name" data-phase="${ph.id}" value="${escapeHtml(ph.name)}"
                 style="font-weight:600;color:#1e293b;font-size:12.5px;border:1px solid transparent;background:transparent;padding:3px 5px;border-radius:3px;flex:1;min-width:0;font-family:inherit;cursor:text"
                 onfocus="this.style.borderColor='var(--yellow)';this.style.background='#fff'"
@@ -3820,7 +4446,7 @@ function buildTodayLine(range) {
           position:absolute;top:0;bottom:0;
           left:${todayPct}%;
           width:1px;
-          background:repeating-linear-gradient(to bottom,#ef4444 0,#ef4444 6px,transparent 6px,transparent 12px);
+          background:repeating-linear-gradient(to bottom,rgba(13,34,64,0.28) 0,rgba(13,34,64,0.28) 5px,transparent 5px,transparent 10px);
           opacity:0.55;
           pointer-events:none;
         "></div>
@@ -3829,7 +4455,7 @@ function buildTodayLine(range) {
           top:79px;
           left:${todayPct}%;
           transform:translateX(-50%);
-          background:#ef4444;color:#fff;
+          background:rgba(13,34,64,0.7);color:#fff;
           font-size:8px;font-weight:800;
           padding:2px 5px;border-radius:3px;
           opacity:0.75;pointer-events:none;
@@ -3874,9 +4500,9 @@ function renderBars(p, range) {
   const totalH = totalRows * ROW_H;
 
   const gridLines = weekLines.map(pct =>
-    `<div style="position:absolute;top:0;bottom:0;left:${pct}%;width:1px;background:#edf0f4;pointer-events:none"></div>`
+    `<div style="position:absolute;top:0;bottom:0;left:${pct}%;width:1px;background:rgba(0,0,0,0.04);pointer-events:none"></div>`
   ).join('') + monthLines.map(pct =>
-    `<div style="position:absolute;top:0;bottom:0;left:${pct}%;width:1px;background:#d1d8e2;pointer-events:none"></div>`
+    `<div style="position:absolute;top:0;bottom:0;left:${pct}%;width:1px;background:rgba(0,0,0,0.09);pointer-events:none"></div>`
   ).join('');
 
   const parts = [`<style>
@@ -5576,10 +6202,14 @@ window.addEventListener('resize', closeFlagPopup);
 function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  document.getElementById('panel-' + tab).classList.add('active');
-  if (tab === 'status') renderStatusReport();
-  if (tab === 'kanban') renderKanban();
+  const tabBtn = document.getElementById('tab-' + tab);
+  const panel  = document.getElementById('panel-' + tab);
+  if (tabBtn) tabBtn.classList.add('active');
+  if (panel)  panel.classList.add('active');
+  if (tab === 'dashboard') renderDashboard();
+  if (tab === 'status')    renderStatusReport();
+  if (tab === 'kanban')    renderKanban();
+  if (tab === 'roadmap')   populateRoadmapFilters();
 }
 
 // ============================================================
@@ -6603,15 +7233,7 @@ function renderSRGrid3(highlights, risks, decisions) {
 // ============================================================
 // FREEZE COLUNAS — congela projeto e entregas no scroll horizontal
 // ============================================================
-function freezeColumns() {
-  const wrap = document.getElementById('timeline-wrap');
-  if (!wrap) return;
-
-  function onScroll() {
-    const sl = wrap.scrollLeft;
-    // Congela project-info na borda esquerda
-    wrap.querySelectorAll('.project-info').forEach(el => {
-      el.style.transform = `translateX(${sl}px)`;
+px)`;
     });
     // Congela deliverables-col logo após project-info
     wrap.querySelectorAll('.deliverables-col').forEach(el => {
@@ -6629,10 +7251,6 @@ function freezeColumns() {
 // ============================================================
 // INIT
 // ============================================================
-load();
-migrateData();
-seedIfEmpty();
-
 // ============================================================
 // VERSIONS — tabela sr_versions
 // ============================================================
@@ -7662,15 +8280,389 @@ async function openTapModal(projectId) {
   }
 }
 
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// NOVOS MÓDULOS — BACKLOG 2025
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// ── VARIÁVEIS DE ESTADO NOVOS ────────────────────────────────────────────────
+let tableDensity   = 'normal';   // 'normal' | 'compact' | 'ultracompact'
+let hiddenTableCols = new Set(); // colunas ocultas na tabela
+let roadmapFilter  = { portfolio:'', status:'', company:'' };
+let tourActive     = false;
+let tourStep       = 0;
+
+// ── DASHBOARD — KPIs executivos (backlog #6) ─────────────────────────────────
+function renderDashboard() {
+  const el = document.getElementById('panel-dashboard-content');
+  if (!el) return;
+
+  const projects = state.projects || [];
+  if (!projects.length) {
+    el.innerHTML = `<div style="padding:32px;text-align:center;color:#64748b;font-size:13px">
+      Nenhum projeto cadastrado. Crie um portfólio e adicione projetos para ver os KPIs aqui.
+    </div>`;
+    return;
+  }
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  const byFarol = { green:0, yellow:0, red:0, gray:0 };
+  let totalPred = 0, totalReal = 0, projCount = 0;
+  const overduePhs = [], urgentPhs = [], upcomingMs = [];
+  let overdueCount = 0, urgentCount = 0;
+
+  projects.forEach(p => {
+    byFarol[p.status || 'gray']++;
+    const prog = projectProgress(p);
+    totalPred += prog.predicted;
+    totalReal += prog.realized;
+    projCount++;
+
+    const alerts = projectDeadlineAlerts(p);
+    overdueCount += alerts.overdue;
+    urgentCount  += alerts.urgent;
+
+    // Coletar entregas vencidas/urgentes
+    (p.phases || []).forEach(ph => {
+      if (ph.isMilestone) {
+        const d = parseDate(ph.actualStart || ph.replannedStart || ph.plannedStart);
+        if (d && d > today) {
+          const diff = Math.round((d - today) / 864e5);
+          if (diff <= 30) upcomingMs.push({ name: ph.name, proj: p.name, date: ph.plannedStart, diff });
+        }
+      } else {
+        const dl = deadlineStatus(ph);
+        if (dl === 'overdue' && overduePhs.length < 5)
+          overduePhs.push({ name: ph.name, proj: p.name, end: ph.replannedEnd || ph.plannedEnd });
+        else if (dl === 'urgent' && urgentPhs.length < 5)
+          urgentPhs.push({ name: ph.name, proj: p.name, end: ph.replannedEnd || ph.plannedEnd });
+      }
+    });
+  });
+
+  upcomingMs.sort((a,b) => a.diff - b.diff);
+  const avgReal = projCount ? Math.round(totalReal / projCount) : 0;
+  const avgPred = projCount ? Math.round(totalPred / projCount) : 0;
+
+  const kpis = [
+    { label:'Projetos', value: projCount, sub: '', accent: false },
+    { label:'Verde', value: byFarol.green, sub:'no prazo', accent: byFarol.green > 0, color:'#15803d', bg:'#f0fdf4', bd:'#86efac' },
+    { label:'Amarelo', value: byFarol.yellow, sub:'atenção', accent: byFarol.yellow > 0, color:'#b45309', bg:'#fffbeb', bd:'#fde68a' },
+    { label:'Vermelho', value: byFarol.red, sub:'crítico', accent: byFarol.red > 0, color:'#dc2626', bg:'#fef2f2', bd:'#fca5a5' },
+    { label:'Progresso', value: avgReal+'%', sub:'prev. '+avgPred+'%', accent: false },
+    { label:'Vencidas', value: overdueCount, sub:'entregas', accent: overdueCount > 0, color:'#dc2626', bg:'#fef2f2', bd:'#fca5a5' },
+    { label:'Urgentes', value: urgentCount, sub:'≤ 7 dias', accent: urgentCount > 0, color:'#b45309', bg:'#fffbeb', bd:'#fde68a' },
+  ];
+
+  const kpiHtml = kpis.map(k => `
+    <div class="dash-kpi" style="${k.accent ? `border-color:${k.bd};background:${k.bg}` : ''}">
+      <div class="dash-kpi-value" style="${k.accent && k.color ? `color:${k.color}` : ''}">${k.value}</div>
+      <div class="dash-kpi-label">${k.label}</div>
+      ${k.sub ? `<div class="dash-kpi-sub">${k.sub}</div>` : ''}
+    </div>`).join('');
+
+  const alertHtml = !overduePhs.length && !urgentPhs.length
+    ? '<div class="dash-alert-empty">Nenhuma entrega vencida ou urgente</div>'
+    : [...overduePhs.map(p => `<div class="dash-alert-row dl-overdue-row">
+        <span class="dl-badge dl-overdue">Vencida</span>
+        <span class="dash-alert-name">${escapeHtml(p.name)}</span>
+        <span class="dash-alert-proj">${escapeHtml(p.proj)}</span>
+        <span class="dash-alert-date">${fmtDate(p.end)}</span>
+      </div>`),
+      ...urgentPhs.map(p => `<div class="dash-alert-row dl-urgent-row">
+        <span class="dl-badge dl-urgent">Urgente</span>
+        <span class="dash-alert-name">${escapeHtml(p.name)}</span>
+        <span class="dash-alert-proj">${escapeHtml(p.proj)}</span>
+        <span class="dash-alert-date">${fmtDate(p.end)}</span>
+      </div>`)].join('');
+
+  const msHtml = !upcomingMs.length
+    ? '<div class="dash-alert-empty">Nenhum marco nos próximos 30 dias</div>'
+    : upcomingMs.slice(0,5).map(m => `<div class="dash-alert-row">
+        <span class="dash-ms-dot"></span>
+        <span class="dash-alert-name">${escapeHtml(m.name)}</span>
+        <span class="dash-alert-proj">${escapeHtml(m.proj)}</span>
+        <span class="dash-alert-date" style="color:#1d4ed8">${fmtDate(m.date)} (${m.diff}d)</span>
+      </div>`).join('');
+
+  el.innerHTML = `
+    <div class="dash-wrap">
+      <div class="dash-header">
+        <div>
+          <h2 class="dash-title">Visão Executiva</h2>
+          <span class="dash-date">${today.toLocaleDateString('pt-BR',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</span>
+        </div>
+        <button class="btn-goto-roadmap ghost" onclick="switchTab('roadmap')">Abrir Roadmap</button>
+      </div>
+      <div class="dash-kpis">${kpiHtml}</div>
+      <div class="dash-grid">
+        <div class="dash-card">
+          <div class="dash-card-title">Entregas Vencidas & Urgentes</div>
+          <div class="dash-card-body">${alertHtml}</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-title">Próximos Marcos (30 dias)</div>
+          <div class="dash-card-body">${msHtml}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── FILTROS DO ROADMAP (backlog #18) ─────────────────────────────────────────
+function applyRoadmapFilters() {
+  const pf = document.getElementById('rf-portfolio')?.value || '';
+  const sf = document.getElementById('rf-status')?.value    || '';
+  const cf = document.getElementById('rf-company')?.value   || '';
+  roadmapFilter = { portfolio: pf, status: sf, company: cf };
+
+  // No Gantt: oculta/mostra rows por portfólio e project-row por status/company
+  document.querySelectorAll('.portfolio-block').forEach(block => {
+    const ptId = block.dataset.portfolio;
+    if (pf && ptId !== pf && ptId !== '__none__') {
+      block.style.display = 'none';
+    } else {
+      block.style.display = '';
+    }
+  });
+
+  document.querySelectorAll('.project-row').forEach(row => {
+    const pid = row.dataset.project;
+    const p = state.projects.find(x => x.id === pid);
+    if (!p) return;
+    let show = true;
+    if (sf && p.status !== sf) show = false;
+    if (cf && (p.company || '').toLowerCase() !== cf.toLowerCase()) show = false;
+    row.style.display = show ? '' : 'none';
+  });
+
+  // Badge de filtro ativo
+  const count = [pf,sf,cf].filter(Boolean).length;
+  const badge = document.getElementById('rf-badge');
+  if (badge) {
+    badge.textContent = count ? count : '';
+    badge.style.display = count ? 'inline-flex' : 'none';
+  }
+
+  // Atualiza tableView também
+  if (viewMode && viewMode.startsWith('table')) renderTableView();
+}
+
+function clearRoadmapFilters() {
+  ['rf-portfolio','rf-status','rf-company'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  roadmapFilter = { portfolio:'', status:'', company:'' };
+  document.querySelectorAll('.portfolio-block,.project-row').forEach(el => el.style.display = '');
+  const badge = document.getElementById('rf-badge');
+  if (badge) badge.style.display = 'none';
+  if (viewMode && viewMode.startsWith('table')) renderTableView();
+}
+
+function populateRoadmapFilters() {
+  const pfSel = document.getElementById('rf-portfolio');
+  if (pfSel) {
+    pfSel.innerHTML = '<option value="">Todos os portfólios</option>' +
+      state.portfolios.map(pt => `<option value="${pt.id}">${escapeHtml(pt.name)}</option>`).join('');
+  }
+  const companies = [...new Set(state.projects.map(p => p.company).filter(Boolean))].sort();
+  const cfSel = document.getElementById('rf-company');
+  if (cfSel) {
+    cfSel.innerHTML = '<option value="">Todas as empresas</option>' +
+      companies.map(c => `<option value="${c}">${escapeHtml(c)}</option>`).join('');
+  }
+}
+
+// ── DENSIDADE DE TABELA (backlog #23) ────────────────────────────────────────
+function setTableDensity(d) {
+  tableDensity = d;
+  try { localStorage.setItem('sj-table-density', d); } catch(e) {}
+  const map = { normal:'7px', compact:'4px', ultracompact:'2px' };
+  document.documentElement.style.setProperty('--row-py', map[d] || '7px');
+  ['td-density-normal','td-density-compact','td-density-ultra'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.classList.toggle('active', id.includes(d.replace('ultracompact','ultra')));
+  });
+}
+
+// ── CONFIGURADOR DE COLUNAS (backlog #15) ────────────────────────────────────
+const TABLE_COLS = [
+  { id:'status',    label:'Status',          group:'base' },
+  { id:'plan',      label:'Planejado',       group:'datas' },
+  { id:'replan',    label:'Replanejado',     group:'datas' },
+  { id:'actual',    label:'Realizado',       group:'datas' },
+  { id:'pred',      label:'Prev. Progresso', group:'progresso' },
+  { id:'real',      label:'Real. Progresso', group:'progresso' },
+  { id:'flags',     label:'Flags',           group:'extra' },
+];
+
+function openColumnConfig() {
+  const modal = document.getElementById('col-config-modal');
+  if (!modal) return;
+  const body = document.getElementById('col-config-body');
+  if (body) {
+    body.innerHTML = TABLE_COLS.map(col => `
+      <label style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #eef1f6;cursor:pointer;font-size:12.5px;">
+        <input type="checkbox" ${hiddenTableCols.has(col.id)?'':'checked'}
+               onchange="toggleTableCol('${col.id}',this.checked)"
+               style="width:15px;height:15px;">
+        <span>${col.label}</span>
+        <span style="margin-left:auto;font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.4px">${col.group}</span>
+      </label>`).join('');
+  }
+  modal.classList.add('open');
+}
+
+function toggleTableCol(colId, visible) {
+  if (visible) hiddenTableCols.delete(colId);
+  else hiddenTableCols.add(colId);
+  try { localStorage.setItem('sj-hidden-cols', JSON.stringify([...hiddenTableCols])); } catch(e) {}
+  renderTableView();
+}
+
+function applyHiddenCols() {
+  TABLE_COLS.forEach(col => {
+    const hidden = hiddenTableCols.has(col.id);
+    document.querySelectorAll(`.tv-col-${col.id}`).forEach(el => {
+      el.style.display = hidden ? 'none' : '';
+    });
+  });
+}
+
+// ── EXPORTAR PDF (backlog #16) ────────────────────────────────────────────────
+function exportStatusReportPDF() {
+  // Abordagem: janela de impressão com CSS específico para o status report
+  const content = document.getElementById('panel-status');
+  if (!content) return;
+  const w = window.open('', '_blank');
+  w.document.write(`<!DOCTYPE html><html lang="pt-BR"><head>
+    <meta charset="UTF-8">
+    <title>Status Report — Empresas SJ</title>
+    <style>
+      * { box-sizing:border-box; margin:0; padding:0; }
+      body { font-family:'Segoe UI',system-ui,sans-serif; font-size:11px; color:#1e293b; padding:16px; }
+      .sr-wrap { max-width:100%; }
+      .sr-topbar { margin-bottom:16px; padding-bottom:10px; border-bottom:2px solid #ffc107; }
+      .sr-topbar h2 { font-size:16px; font-weight:700; color:#0d2240; }
+      table { width:100%; border-collapse:collapse; font-size:10px; margin-bottom:16px; }
+      th { background:#0d2240; color:#fff; padding:6px 8px; text-align:left; font-size:9px; text-transform:uppercase; letter-spacing:0.4px; }
+      td { padding:6px 8px; border-bottom:1px solid #eef1f6; }
+      .sr-section-title { font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:1.2px; color:#0d2240; padding-bottom:5px; border-bottom:2px solid #ffc107; margin:16px 0 8px; }
+      .sr-kpis { display:flex; gap:10px; margin-bottom:14px; }
+      .sr-kpi { flex:1; border:1px solid #e8ecf2; border-radius:6px; padding:10px 12px; }
+      .sr-kpi .kpi-value { font-size:22px; font-weight:800; color:#0d2240; }
+      .sr-kpi .kpi-label { font-size:9px; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; }
+      @media print { @page { size:A4 landscape; margin:12mm; } button { display:none; } }
+    </style>
+  </head><body>`);
+  // Copia o conteúdo do status report (sem botões)
+  const clone = content.cloneNode(true);
+  clone.querySelectorAll('button,input,select').forEach(el => el.remove());
+  w.document.write(clone.innerHTML);
+  w.document.write('</body></html>');
+  w.document.close();
+  setTimeout(() => { w.focus(); w.print(); }, 400);
+}
+
+// ── TOUR GUIADO (backlog #17) ────────────────────────────────────────────────
+const TOUR_STEPS = [
+  { target:'btn-new-portfolio', title:'1 — Crie um Portfólio', body:'Agrupe seus projetos em portfólios (ex: N2IA, Comercial, TI). Clique em "Novo Portfólio" para começar.', highlight:true },
+  { target:'btn-new-project',   title:'2 — Adicione um Projeto', body:'Cada portfólio contém projetos. Clique em "Novo Projeto" e preencha nome, empresa e patrocinador.', highlight:true },
+  { target:'vbtn-table-tasks',  title:'3 — Use a visão Tabela', body:'A visão Tabela + Tarefas mostra todas as entregas e datas de forma editável. Ideal para atualização diária.', highlight:true },
+  { target:'tab-status',        title:'4 — Status Report', body:'A aba Status Report compila automaticamente os indicadores de todos os projetos. Pronto para reuniões executivas.', highlight:true },
+  { target:'tab-kanban',        title:'5 — Kanban', body:'O Kanban mostra entregas e tarefas por status. Ótimo para o acompanhamento operacional do dia a dia.', highlight:true },
+];
+
+function startTour() {
+  if (tourActive) return;
+  tourActive = true;
+  tourStep = 0;
+  renderTourStep();
+}
+
+function renderTourStep() {
+  let overlay = document.getElementById('tour-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'tour-overlay';
+    document.body.appendChild(overlay);
+  }
+
+  if (tourStep >= TOUR_STEPS.length) {
+    endTour();
+    return;
+  }
+
+  const step = TOUR_STEPS[tourStep];
+  overlay.innerHTML = `
+    <div class="tour-backdrop"></div>
+    <div class="tour-card">
+      <div class="tour-header">
+        <span class="tour-count">${tourStep+1} / ${TOUR_STEPS.length}</span>
+        <button onclick="endTour()" class="tour-close">Pular</button>
+      </div>
+      <div class="tour-title">${step.title}</div>
+      <div class="tour-body">${step.body}</div>
+      <div class="tour-footer">
+        ${tourStep > 0 ? '<button onclick="tourPrev()" class="tour-btn tour-btn-ghost">Anterior</button>' : '<span></span>'}
+        <button onclick="tourNext()" class="tour-btn tour-btn-primary">${tourStep < TOUR_STEPS.length-1 ? 'Próximo' : 'Concluir'}</button>
+      </div>
+    </div>`;
+  overlay.style.display = 'flex';
+
+  // Destaca o elemento alvo
+  document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
+  const target = document.getElementById(step.target);
+  if (target) target.classList.add('tour-highlight');
+}
+
+function tourNext() { tourStep++; renderTourStep(); }
+function tourPrev() { tourStep = Math.max(0, tourStep-1); renderTourStep(); }
+function endTour() {
+  tourActive = false;
+  const overlay = document.getElementById('tour-overlay');
+  if (overlay) overlay.remove();
+  document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
+  try { localStorage.setItem('sj-tour-done','1'); } catch(e) {}
+}
+
+function checkFirstAccess() {
+  try {
+    const done = localStorage.getItem('sj-tour-done');
+    const hasData = state.projects.length || state.portfolios.length;
+    if (!done && !hasData) setTimeout(startTour, 800);
+  } catch(e) {}
+}
+
+// ── switchTab atualiza dashboard ao entrar nele ───────────────────────────────
+const _origSwitchTab = switchTab;
+// (redefinido abaixo sobrescrevendo o original)
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FIM DOS NOVOS MÓDULOS
+// ═══════════════════════════════════════════════════════════════════════════════
+
 load();
 migrateData();
 seedIfEmpty();
-setViewMode('table-tasks');
+// Restaura view do localStorage ou usa default
+const _savedView = (() => { try { return localStorage.getItem('sj-view-mode'); } catch(e){} return null; })();
+setViewMode(_savedView || 'table-tasks');
+// Aplica densidade de tabela
+const _savedDensity = (() => { try { return localStorage.getItem('sj-table-density'); } catch(e){} return null; })();
+if (_savedDensity) setTableDensity(_savedDensity);
 updateVersionBadge();
 initBarTooltip();
 freezeColumns();
 scrollToToday();
+populateRoadmapFilters();
+renderDashboard();
 loadFromSupabase();
+// Tour no primeiro acesso (após carregar dados)
+setTimeout(checkFirstAccess, 1500);
+
 </script>
 </body>
 </html>
