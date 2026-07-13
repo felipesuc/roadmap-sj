@@ -659,7 +659,7 @@
   .portfolio-header {
     position: sticky; top: 79px; z-index: 9;
     min-width: max-content;
-    background: linear-gradient(to right, #16304f 0%, #2a4a78 100%);
+    background: #0d2240;
     color: #fff;
     padding: 9px 16px;
     display: flex;
@@ -2398,15 +2398,182 @@
 
   /* ════════════════════════════════════════════════════════════ */
 </style>
+
+<style id="sj-design-2025">
+/* SJ Design 2025 — override visual sobre o CSS original */
+
+/* Tokens */
+:root {
+  --yellow:#ffc107; --yellow-s:#fffbeb; --yellow-d:#b45309;
+  --navy:#0d2240;   --navy-m:#18324f;
+  --border:#e8ecf2; --bg:#f5f7fb;
+  --t3:#64748b;
+  --row-py:7px;
+}
+
+/* Header limpo */
+header { height:46px; padding:0 24px; box-shadow:none; border-bottom:2px solid var(--yellow); }
+header h1 { font-size:13px; font-weight:700; }
+
+/* Abas underline style */
+.tab-btn { padding:0 14px; height:46px; border-radius:0; border-bottom:2px solid transparent;
+  color:rgba(255,255,255,.5); background:transparent; font-size:12px; font-weight:500;
+  margin-bottom:-2px; transition:color .12s, border-color .12s; }
+.tab-btn:hover { background:transparent !important; color:rgba(255,255,255,.85); border-bottom-color:rgba(255,193,7,.35); box-shadow:none !important; }
+.tab-btn.active { background:transparent !important; color:#fff; font-weight:700; border-bottom-color:var(--yellow); box-shadow:none !important; }
+
+/* Botões planos */
+button, .btn-file { box-shadow:none !important; transition:background .12s; }
+button:hover { transform:none !important; box-shadow:none !important; }
+button.ghost { background:#fff; color:#374151; border:1px solid #dde3eb; }
+button.ghost:hover { background:var(--yellow-s); color:var(--navy); border-color:var(--yellow); box-shadow:none !important; }
+button.secondary:hover { box-shadow:none !important; }
+
+/* Portfolio header flat — sem gradiente */
+.portfolio-header { background:var(--navy) !important; border-left:3px solid var(--yellow); }
+.portfolio-header:hover { filter:brightness(1.07); }
+
+/* Status pill — outline */
+.status-pill { box-shadow:none !important; border-radius:6px; font-size:9.5px; padding:3px 8px; border-width:1.5px; }
+.status-pill:hover { transform:none !important; box-shadow:none !important; }
+.status-pill .dot { box-shadow:none; background:currentColor; opacity:.85; }
+.status-pill.green  { background:#f0fdf4; color:#15803d; border-color:#86efac; box-shadow:none !important; }
+.status-pill.yellow { background:#fffbeb; color:#b45309; border-color:#fde68a; box-shadow:none !important; }
+.status-pill.red    { background:#fef2f2; color:#dc2626; border-color:#fca5a5; box-shadow:none !important; }
+.status-pill.gray   { background:#f8fafc; color:#64748b; border-color:#e2e8f0; }
+
+/* Phase bars sem borda */
+.phase-bar { border:none !important; border-radius:5px !important; }
+.phase-bar:hover { box-shadow:0 2px 6px rgba(0,0,0,.14); }
+
+/* Progress bar simples */
+.progress-bar-fill.predicted { display:none !important; }
+.progress-bar-fill.realized { height:6px; background:#2d4a7c; border-radius:3px; display:block; position:relative; }
+.progress-bar-wrap { height:6px; background:#eef1f6; border-radius:3px; }
+.progress-labels { font-size:10px; }
+
+/* Hover uniforme */
+.project-row:hover { background:#f7f9fc !important; }
+.project-row:hover .project-info { background:#f7f9fc !important; }
+.project-row:hover .deliverables-col { background:#f4f6fa !important; }
+table.items tr:hover td { background:#f7f9fc !important; }
+.tv-phase-row:hover td { background:#f7f9fc !important; }
+.tv-task-row:hover td  { background:#f4f6fa !important; }
+
+/* Sombras zeradas */
+.timeline-wrap { box-shadow:none !important; }
+.portfolio-header { box-shadow:none !important; }
+.modal { box-shadow:0 16px 40px rgba(0,0,0,.18) !important; }
+.toast { box-shadow:0 2px 8px rgba(0,0,0,.12) !important; }
+.tool-menu { box-shadow:0 6px 20px rgba(13,31,60,.12); }
+
+/* Prog toggle limpo */
+.proj-toggle { background:#f5f7fa; border:1px solid var(--border); border-radius:5px; }
+.proj-toggle:hover { background:var(--yellow-s); border-color:var(--yellow); }
+
+/* Hoje line discreta */
+/* (aplicado via JS — CSS aqui para herdar) */
+
+/* Today line — navy discreta em vez de vermelho */
+/* sobrescrita via JS buildTodayLine */
+
+/* Densidade de tabela */
+table.items td, .tv-phase-row td, .tv-task-row td { padding-top:var(--row-py); padding-bottom:var(--row-py); }
+
+/* Kanban card tipografia-first */
+.kb-card { border:1px solid var(--border); border-left:3px solid var(--border); box-shadow:none; border-radius:6px; }
+.kb-card:hover { box-shadow:0 2px 8px rgba(0,0,0,.07); transform:none !important; }
+.kb-card-name { font-size:12.5px; font-weight:600; color:var(--navy); }
+
+/* Tool menu limpo */
+.tool-menu .ghost { background:transparent; color:#334155; border:none; }
+.tool-menu .ghost:hover { background:#f8fafc; border:none; }
+
+/* Modal header */
+.modal-header { background:var(--navy); }
+
+/* Status report editorial */
+.sr-section-title { letter-spacing:1.4px; padding-bottom:7px; border-bottom:2px solid var(--yellow); margin-top:26px; }
+.sr-kpi { box-shadow:none; border-radius:8px; }
+
+/* View btn */
+.view-btn.active { background:var(--navy); color:#fff; }
+
+/* Deadline badges */
+.dl-badge { display:inline-flex; align-items:center; padding:1px 6px; border-radius:3px; font-size:8.5px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; white-space:nowrap; flex-shrink:0; }
+.dl-overdue { background:#fef2f2; color:#dc2626; border:1px solid #fca5a5; }
+.dl-urgent  { background:#fffbeb; color:#b45309; border:1px solid #fde68a; }
+.row-overdue td:first-child { border-left:3px solid #dc2626 !important; }
+.row-urgent  td:first-child { border-left:3px solid #b45309 !important; }
+
+/* Dashboard */
+.dash-wrap { padding:20px 24px; max-width:1100px; }
+.dash-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:10px; }
+.dash-title  { font-size:17px; font-weight:700; color:var(--navy); }
+.dash-date   { font-size:11px; color:var(--t3); display:block; margin-top:2px; }
+.dash-kpis   { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; }
+.dash-kpi    { background:#fff; border:1px solid var(--border); border-radius:10px; padding:14px 16px; min-width:100px; flex:1; display:flex; flex-direction:column; gap:3px; }
+.dash-kpi-value { font-size:26px; font-weight:800; color:var(--navy); line-height:1; }
+.dash-kpi-label { font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--t3); }
+.dash-kpi-sub   { font-size:10px; color:var(--t3); }
+.dash-grid  { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+@media(max-width:800px){ .dash-grid { grid-template-columns:1fr; } }
+.dash-card  { background:#fff; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+.dash-card-title { padding:10px 14px 8px; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--navy); border-bottom:1px solid var(--border); }
+.dash-card-body  { padding:6px 0; }
+.dash-alert-row  { display:flex; align-items:center; gap:8px; padding:7px 14px; border-bottom:1px solid #eef1f6; font-size:12px; }
+.dash-alert-row:last-child { border-bottom:none; }
+.dl-overdue-row  { background:#fef2f2; }
+.dl-urgent-row   { background:#fffbeb; }
+.dash-alert-name { font-weight:600; color:var(--navy); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.dash-alert-proj { font-size:10px; color:var(--t3); flex-shrink:0; }
+.dash-alert-date { font-size:10px; font-weight:600; color:var(--t3); flex-shrink:0; }
+.dash-alert-empty { padding:14px; color:#15803d; font-size:12px; font-weight:500; }
+.dash-ms-dot { width:8px; height:8px; background:var(--yellow); border:1.5px solid var(--navy); transform:rotate(45deg); display:inline-block; flex-shrink:0; }
+
+/* Filter bar */
+.filter-bar { background:#fafbfd; border-bottom:1px solid var(--border); padding:5px 20px; display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+.filter-bar label { font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--t3); }
+.filter-bar select { font-size:11.5px; padding:4px 8px; border:1px solid var(--border); border-radius:6px; background:#fff; color:#1e293b; cursor:pointer; }
+.filter-bar select:focus { outline:none; border-color:var(--yellow); }
+#rf-badge { background:var(--yellow); color:var(--navy); font-size:9px; font-weight:800; width:16px; height:16px; border-radius:50%; display:none; align-items:center; justify-content:center; }
+
+/* Density toggle */
+.density-toggle { display:flex; gap:2px; margin-left:auto; }
+.density-toggle button { padding:3px 7px; font-size:9.5px; font-weight:600; background:#fff; color:var(--t3); border:1px solid var(--border); border-radius:4px; }
+.density-toggle button:hover { background:var(--yellow-s); color:var(--navy); border-color:var(--yellow); }
+.density-toggle button.active { background:var(--navy); color:#fff; border-color:var(--navy); }
+
+/* Tour */
+#tour-overlay { position:fixed; inset:0; z-index:1000; display:none; align-items:flex-end; justify-content:center; padding-bottom:32px; pointer-events:none; }
+.tour-backdrop { position:absolute; inset:0; background:rgba(13,34,64,.4); pointer-events:all; }
+.tour-card { position:relative; z-index:1; background:#fff; border-radius:10px; border-top:3px solid var(--yellow); box-shadow:0 16px 40px rgba(0,0,0,.2); padding:20px 22px; width:380px; pointer-events:all; }
+.tour-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.tour-count  { font-size:9.5px; font-weight:700; color:var(--t3); text-transform:uppercase; letter-spacing:.5px; }
+.tour-close  { background:transparent; color:var(--t3); border:none; font-size:12px; font-weight:600; cursor:pointer; padding:2px 6px; }
+.tour-close:hover { color:var(--navy); }
+.tour-title  { font-size:14px; font-weight:700; color:var(--navy); margin-bottom:7px; }
+.tour-body   { font-size:12.5px; color:#1e293b; line-height:1.6; margin-bottom:16px; }
+.tour-footer { display:flex; justify-content:space-between; align-items:center; }
+.tour-btn    { padding:7px 16px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; border:none; font-family:inherit; }
+.tour-btn-primary { background:var(--navy); color:#fff; }
+.tour-btn-primary:hover { background:var(--navy-m); }
+.tour-btn-ghost { background:transparent; color:var(--t3); border:1px solid var(--border); }
+.tour-highlight { outline:2px solid var(--yellow) !important; outline-offset:3px; border-radius:6px; }
+
+/* Column config modal */
+#col-config-modal .modal { max-width:420px; }
+</style>
 </head>
 <body>
 <header>
   <div class="brand-tabs">
-    <h1>📍 Roadmap Empresas SJ</h1>
+    <h1>Roadmap Empresas SJ</h1>
     <nav class="tab-nav">
-      <button class="tab-btn active" id="tab-roadmap" onclick="switchTab('roadmap')">📅 Roadmap</button>
-      <button class="tab-btn" id="tab-status" onclick="switchTab('status')">📊 Status Report</button>
-      <button class="tab-btn" id="tab-kanban" onclick="switchTab('kanban')">🗂 Kanban</button>
+      <button class="tab-btn" id="tab-dashboard" onclick="switchTab('dashboard')">Visão Geral</button>
+      <button class="tab-btn active" id="tab-roadmap" onclick="switchTab('roadmap')">Roadmap</button>
+      <button class="tab-btn" id="tab-status" onclick="switchTab('status')">Status Report</button>
+      <button class="tab-btn" id="tab-kanban" onclick="switchTab('kanban')">Kanban</button>
     </nav>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
@@ -2416,6 +2583,13 @@
 
 <div id="bar-tooltip"></div>
 
+<!-- Dashboard panel -->
+<div class="tab-panel" id="panel-dashboard">
+  <div id="dash-content" style="padding:32px;text-align:center;color:#64748b">
+    Carregando dados...
+  </div>
+</div>
+
 <div class="tab-panel active" id="panel-roadmap">
 <div class="toolbar">
   <div class="tool-menu-wrap">
@@ -2423,24 +2597,24 @@
       <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><g stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="2.5" y1="3.5" x2="15.5" y2="3.5"/><line x1="2.5" y1="7.17" x2="15.5" y2="7.17"/><line x1="2.5" y1="10.83" x2="15.5" y2="10.83"/><line x1="2.5" y1="14.5" x2="15.5" y2="14.5"/></g></svg>
     </button>
     <div id="tool-menu" class="tool-menu">
-      <button id="btn-new-portfolio" class="ghost">📁 Novo Portfólio</button>
-      <button id="btn-manage-flags" class="ghost">🚩 Flags</button>
+      <button id="btn-new-portfolio" class="ghost">+ Novo Portfólio</button>
+      <button id="btn-manage-flags" class="ghost">Flags</button>
       <div class="menu-divider"></div>
-      <button id="btn-expand-all" class="ghost">⊞ Expandir todos</button>
-      <button id="btn-collapse-all" class="ghost">⊟ Recolher todos</button>
-      <button id="btn-sort-date" class="ghost">↕ Ordenar por Data</button>
-      <button id="btn-undo" class="ghost">↶ Desfazer</button>
-      <button id="btn-sync-db" class="ghost">🔄 Sincronizar banco</button>
+      <button id="btn-expand-all" class="ghost">Expandir todos</button>
+      <button id="btn-collapse-all" class="ghost">Recolher todos</button>
+      <button id="btn-sort-date" class="ghost">Ordenar por Data</button>
+      <button id="btn-undo" class="ghost">Desfazer</button>
+      <button id="btn-sync-db" class="ghost">Sincronizar banco</button>
       <div class="menu-divider"></div>
       <div class="menu-label">Visualização</div>
       <div class="view-toggle" title="Modo de visualização">
-        <button class="view-btn" id="vbtn-gantt-phases" onclick="setViewMode('gantt-phases')">📅 Gantt</button>
-        <button class="view-btn" id="vbtn-gantt-tasks" onclick="setViewMode('gantt-tasks')">+ Tarefas</button>
-        <button class="view-btn" id="vbtn-table-phases" onclick="setViewMode('table-phases')">📋 Tabela</button>
-        <button class="view-btn active" id="vbtn-table-tasks" onclick="setViewMode('table-tasks')">+ Tarefas</button>
+        <button class="view-btn" id="vbtn-gantt-phases" onclick="setViewMode('gantt-phases')">Gantt</button>
+        <button class="view-btn" id="vbtn-gantt-tasks" onclick="setViewMode('gantt-tasks')">Gantt+Tarefas</button>
+        <button class="view-btn" id="vbtn-table-phases" onclick="setViewMode('table-phases')">Tabela</button>
+        <button class="view-btn active" id="vbtn-table-tasks" onclick="setViewMode('table-tasks')">Tabela+Tarefas</button>
       </div>
       <div class="menu-divider"></div>
-      <button id="btn-download" class="secondary">⬇ Baixar Planilha</button>
+      <button id="btn-download" class="secondary">Baixar Planilha</button>
       <label class="btn-file">⬆ Carregar Planilha
         <input type="file" id="upload-file" accept=".xlsx,.xls">
       </label>
@@ -2455,7 +2629,27 @@
       </div>
     </div>
   </div>
-  <button id="btn-new-project">➕ Novo Projeto</button>
+  <button id="btn-new-project">+ Novo Projeto</button>
+</div>
+<!-- Filter bar -->
+<div id="filter-bar" class="filter-bar">
+  <label>Filtrar:</label>
+  <select id="rf-portfolio" onchange="applyRoadmapFilters()"><option value="">Todos os portfólios</option></select>
+  <select id="rf-status" onchange="applyRoadmapFilters()">
+    <option value="">Todos os farois</option>
+    <option value="green">Verde</option>
+    <option value="yellow">Amarelo</option>
+    <option value="red">Vermelho</option>
+    <option value="gray">Sem farol</option>
+  </select>
+  <select id="rf-company" onchange="applyRoadmapFilters()"><option value="">Todas as empresas</option></select>
+  <button class="ghost" onclick="clearRoadmapFilters()" style="font-size:11px;padding:3px 8px">Limpar</button>
+  <span id="rf-badge"></span>
+  <div class="density-toggle">
+    <button id="td-dn" onclick="setTableDensity('normal')"       class="active" title="Normal">N</button>
+    <button id="td-dc" onclick="setTableDensity('compact')"             title="Compacto">C</button>
+    <button id="td-du" onclick="setTableDensity('ultracompact')"        title="Ultra">U</button>
+  </div>
 </div>
 
 <main>
@@ -2496,10 +2690,10 @@
     <div class="sr-topbar">
       <h2>📊 Status Report — Portfólios SJ</h2>
       <span class="sr-date" id="sr-date-label"></span>
-      <button class="ghost" onclick="renderStatusReport()" style="font-size:11px;padding:5px 10px">↻ Atualizar</button>
-      <button class="secondary" onclick="saveStatusVersion()" style="font-size:11px;padding:5px 10px">💾 Salvar Versão</button>
+      <button class="ghost" onclick="renderStatusReport()" style="font-size:11px;padding:5px 10px">Atualizar</button>
+      <button class="secondary" onclick="saveStatusVersion()" style="font-size:11px;padding:5px 10px">Salvar Versão</button>
       <button class="sr-ver-badge" onclick="openVersionsModal()" id="sr-ver-count">🗂 Versões</button>
-      <button class="ghost" onclick="window.print()" style="font-size:11px;padding:5px 10px">🖨 Imprimir</button>
+      <button class="ghost" onclick="window.print()" style="font-size:11px;padding:5px 10px">Exportar PDF</button>
     </div>
 
     <!-- Version preview bar -->
@@ -2591,7 +2785,7 @@
           <option value="task">Só Tarefas</option>
         </select>
       </div>
-      <button class="ghost" onclick="renderKanban()" style="font-size:11px;padding:5px 10px">↻ Atualizar</button>
+      <button class="ghost" onclick="renderKanban()" style="font-size:11px;padding:5px 10px">Atualizar</button>
     </div>
     <div class="kb-board" id="kb-board"></div>
   </div>
@@ -2682,6 +2876,20 @@
   </div>
 </div>
 
+
+<!-- Column config modal -->
+<div class="modal-backdrop" id="col-config-modal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <h2>Configurar Colunas</h2>
+      <button class="close" data-close="col-config-modal">×</button>
+    </div>
+    <div class="modal-body" id="col-config-body" style="max-height:400px;overflow-y:auto"></div>
+    <div class="modal-footer">
+      <button class="ghost" data-close="col-config-modal">Fechar</button>
+    </div>
+  </div>
+</div>
 
 <!-- Custom confirm dialog (replaces window.confirm which is blocked in sandboxes) -->
 <div class="modal-backdrop" id="confirm-modal" style="z-index:999">
@@ -3356,7 +3564,7 @@ function render() {
   if (!hasAny) {
     wrap.innerHTML = `<div class="empty-state">
       <h3>Nenhum projeto ou portfólio cadastrado</h3>
-      <p>Comece criando um <strong>📁 Novo Portfólio</strong> ou um <strong>➕ Novo Projeto</strong>, ou carregue uma planilha existente.</p>
+      <p>Comece criando um <strong>+ Novo Portfólio</strong> ou um <strong>+ Novo Projeto</strong>, ou carregue uma planilha existente.</p>
     </div>`;
     updateUndoButton();
     return;
@@ -3596,9 +3804,9 @@ function renderProjectRow(p, range) {
           </div>
 
           <div class="proj-actions">
-            <button class="secondary" data-manage-phases="${p.id}">📋 Entregas & Tarefas</button>
-            <button class="ghost" data-open-tap="${p.id}">🗂 Cadastro</button>
-            <button class="ghost" data-assign-project="${p.id}" title="Atribuir a um portfólio/programa">📁 Atribuir</button>
+            <button class="secondary" data-manage-phases="${p.id}">Entregas & Tarefas</button>
+            <button class="ghost" data-open-tap="${p.id}">TAP</button>
+            <button class="ghost" data-assign-project="${p.id}" title="Atribuir a um portfólio/programa">Atribuir</button>
 
           </div>
         </div>
@@ -4531,7 +4739,7 @@ function renderPhasesModal() {
     <div class="section-title">
       Entregas, Marcos e Flags
       <button class="secondary" id="btn-add-phase">+ Adicionar Entrega</button>
-      <button class="ghost" id="btn-sort-phases" title="Ordenar fases por data planejada de início">↕ Ordenar por Data</button>
+      <button class="ghost" id="btn-sort-phases" title="Ordenar fases por data planejada de início">Ordenar por Data</button>
     </div>
     <div class="table-scroll">
       <table class="items" id="phases-table">
@@ -4740,7 +4948,7 @@ function renderTasksModal() {
     <div class="section-title">
       Tarefas da Fase
       <button class="secondary" id="btn-add-task">+ Adicionar Tarefa</button>
-      <button class="ghost" id="btn-sort-tasks" title="Ordenar tarefas por data planejada de início">↕ Ordenar por Data</button>
+      <button class="ghost" id="btn-sort-tasks" title="Ordenar tarefas por data planejada de início">Ordenar por Data</button>
     </div>
     <div class="table-scroll">
       <table class="items" id="tasks-table">
@@ -7829,7 +8037,7 @@ function exportTapWord(pid) {
     + row('Dependências', dependencia)
     + '</table>'
     + (sizeLetter ? '<div class="size-box">Tamanho do projeto: <b>'+esc(sizeLetter)+'</b> — '+esc(sizeLabel)+'</div>' : ''))
-+'</body></html>';
++'\n</body></html>';
 
   const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
   const url = URL.createObjectURL(blob);
@@ -8093,6 +8301,383 @@ initBarTooltip();
 freezeColumns();
 scrollToToday();
 loadFromSupabase();
+
+
+// ═══════════════════════════════════════════════════════════════
+// NOVOS MÓDULOS SJ 2025 — adicionados sem alterar o código original
+// ═══════════════════════════════════════════════════════════════
+
+// ── Estado dos novos módulos ─────────────────────────────────
+var sjDensity     = 'normal';
+var sjHiddenCols  = {};
+var sjFilter      = { portfolio:'', status:'', company:'' };
+var sjTourStep    = 0;
+var sjTourActive  = false;
+
+// ── Deadline detection ───────────────────────────────────────
+function sjDeadlineStatus(phase) {
+  if (phase && phase.isMilestone) return null;
+  var today = new Date(); today.setHours(0,0,0,0);
+  var endStr = (phase && (phase.actualEnd || phase.replannedEnd || phase.plannedEnd)) || null;
+  if (!endStr) return null;
+  var end = parseDate(endStr);
+  if (!end) return null;
+  if (phase.status === 'done') return null;
+  var diff = Math.round((end - today) / 864e5);
+  if (diff < 0)  return 'overdue';
+  if (diff <= 7) return 'urgent';
+  return null;
+}
+
+function sjDeadlineBadge(st) {
+  if (!st) return '';
+  if (st === 'overdue') return '<span class="dl-badge dl-overdue">Vencida</span>';
+  if (st === 'urgent')  return '<span class="dl-badge dl-urgent">Urgente</span>';
+  return '';
+}
+
+// ── Dashboard ────────────────────────────────────────────────
+function sjRenderDashboard() {
+  try {
+    var el = document.getElementById('dash-content');
+    if (!el) return;
+    var projects = (state && state.projects) ? state.projects : [];
+
+    if (!projects.length) {
+      el.innerHTML = '<div style="padding:40px;text-align:center;color:#64748b;font-size:13px">Nenhum projeto cadastrado ainda.<br><br><button onclick="switchTab(&quot;roadmap&quot;)" style="padding:8px 16px;background:#0d2240;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px">Ir para o Roadmap</button></div>';
+      return;
+    }
+
+    var today = new Date(); today.setHours(0,0,0,0);
+    var byFarol = {green:0,yellow:0,red:0,gray:0};
+    var totalPred=0, totalReal=0, overdueN=0, urgentN=0;
+    var overdueList=[], urgentList=[], msList=[];
+
+    projects.forEach(function(p) {
+      var f = p.status || 'gray';
+      if (byFarol[f] !== undefined) byFarol[f]++; else byFarol.gray++;
+      var prog = typeof projectProgress === 'function' ? projectProgress(p) : {predicted:0,realized:0};
+      totalPred += prog.predicted || 0;
+      totalReal += prog.realized  || 0;
+      (p.phases||[]).forEach(function(ph) {
+        var dl = sjDeadlineStatus(ph);
+        if (dl==='overdue') { overdueN++; if(overdueList.length<5) overdueList.push({name:ph.name,proj:p.name,end:ph.replannedEnd||ph.plannedEnd}); }
+        if (dl==='urgent')  { urgentN++;  if(urgentList.length<5)  urgentList.push({name:ph.name,proj:p.name,end:ph.replannedEnd||ph.plannedEnd}); }
+        if (ph.isMilestone) {
+          var d = parseDate(ph.actualStart||ph.replannedStart||ph.plannedStart);
+          if (d && d > today) {
+            var diff = Math.round((d-today)/864e5);
+            if (diff<=30) msList.push({name:ph.name,proj:p.name,date:ph.plannedStart,diff:diff});
+          }
+        }
+      });
+    });
+
+    msList.sort(function(a,b){return a.diff-b.diff;});
+    var avgR = projects.length ? Math.round(totalReal/projects.length) : 0;
+    var avgP = projects.length ? Math.round(totalPred/projects.length) : 0;
+
+    function kpiCard(label, value, sub, color, bg, bd) {
+      var bStyle = bd ? 'border-color:'+bd+';background:'+bg : '';
+      var vStyle = color ? 'color:'+color : '';
+      return '<div class="dash-kpi" style="'+bStyle+'">'
+        +'<div class="dash-kpi-value" style="'+vStyle+'">'+value+'</div>'
+        +'<div class="dash-kpi-label">'+label+'</div>'
+        +(sub?'<div class="dash-kpi-sub">'+sub+'</div>':'')+'</div>';
+    }
+
+    var kpis = kpiCard('Projetos',projects.length,'','','','')
+      + kpiCard('Verde',byFarol.green,'no prazo','#15803d','#f0fdf4','#86efac')
+      + kpiCard('Amarelo',byFarol.yellow,'atenção','#b45309','#fffbeb','#fde68a')
+      + kpiCard('Vermelho',byFarol.red,'crítico','#dc2626','#fef2f2','#fca5a5')
+      + kpiCard('Progresso',avgR+'%','prev. '+avgP+'%','','','')
+      + (overdueN ? kpiCard('Vencidas',overdueN,'entregas','#dc2626','#fef2f2','#fca5a5') : '')
+      + (urgentN  ? kpiCard('Urgentes',urgentN,'≤7 dias','#b45309','#fffbeb','#fde68a') : '');
+
+    function alertRows(list, cls) {
+      if (!list.length) return '<div class="dash-alert-empty">Nenhum item</div>';
+      return list.map(function(it){
+        var badge = cls==='overdue' ? '<span class="dl-badge dl-overdue">Vencida</span>' : '<span class="dl-badge dl-urgent">Urgente</span>';
+        return '<div class="dash-alert-row '+(cls==='overdue'?'dl-overdue-row':'dl-urgent-row')+'">'
+          +badge+'<span class="dash-alert-name">'+escapeHtml(it.name)+'</span>'
+          +'<span class="dash-alert-proj">'+escapeHtml(it.proj)+'</span>'
+          +'<span class="dash-alert-date">'+fmtDate(it.end)+'</span></div>';
+      }).join('');
+    }
+
+    var msRows = !msList.length
+      ? '<div class="dash-alert-empty">Nenhum marco nos próximos 30 dias</div>'
+      : msList.slice(0,5).map(function(m){
+          return '<div class="dash-alert-row">'
+            +'<span class="dash-ms-dot"></span>'
+            +'<span class="dash-alert-name">'+escapeHtml(m.name)+'</span>'
+            +'<span class="dash-alert-proj">'+escapeHtml(m.proj)+'</span>'
+            +'<span class="dash-alert-date" style="color:#1d4ed8">'+fmtDate(m.date)+' ('+m.diff+'d)</span></div>';
+        }).join('');
+
+    var dateStr = today.toLocaleDateString('pt-BR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    el.innerHTML = '<div class="dash-wrap">'
+      +'<div class="dash-header"><div><div class="dash-title">Visão Executiva</div><span class="dash-date">'+dateStr+'</span></div>'
+      +'<button class="ghost" onclick="switchTab(&quot;roadmap&quot;)" style="font-size:12px;padding:5px 12px">Abrir Roadmap</button></div>'
+      +'<div class="dash-kpis">'+kpis+'</div>'
+      +'<div class="dash-grid">'
+      +'<div class="dash-card"><div class="dash-card-title">Entregas Vencidas &amp; Urgentes</div><div class="dash-card-body">'
+      +(overdueList.length||urgentList.length ? alertRows(overdueList,'overdue')+alertRows(urgentList,'urgent') : '<div class="dash-alert-empty">Nenhuma entrega vencida ou urgente</div>')
+      +'</div></div>'
+      +'<div class="dash-card"><div class="dash-card-title">Próximos Marcos (30 dias)</div><div class="dash-card-body">'+msRows+'</div></div>'
+      +'</div></div>';
+  } catch(err) {
+    var el2 = document.getElementById('dash-content');
+    if (el2) el2.innerHTML = '<div style="padding:20px;color:#dc2626;font-size:12px">Erro ao carregar dashboard: '+err.message+'</div>';
+    console.error('sjRenderDashboard:', err);
+  }
+}
+
+// ── Filtros do Roadmap ───────────────────────────────────────
+function applyRoadmapFilters() {
+  var pf = (document.getElementById('rf-portfolio')||{}).value || '';
+  var sf = (document.getElementById('rf-status')||{}).value    || '';
+  var cf = (document.getElementById('rf-company')||{}).value   || '';
+  sjFilter = {portfolio:pf, status:sf, company:cf};
+
+  document.querySelectorAll('.portfolio-block').forEach(function(block) {
+    block.style.display = (pf && block.dataset.portfolio !== pf) ? 'none' : '';
+  });
+  document.querySelectorAll('.project-row').forEach(function(row) {
+    var pid = row.dataset.project;
+    var p = (state.projects||[]).find(function(x){return x.id===pid;});
+    if (!p) return;
+    var show = true;
+    if (sf && p.status !== sf) show = false;
+    if (cf && (p.company||'').toLowerCase() !== cf.toLowerCase()) show = false;
+    row.style.display = show ? '' : 'none';
+  });
+  var badge = document.getElementById('rf-badge');
+  var count = [pf,sf,cf].filter(Boolean).length;
+  if (badge) { badge.textContent = count||''; badge.style.display = count ? 'inline-flex' : 'none'; }
+  if (viewMode && viewMode.startsWith('table')) renderTableView();
+}
+
+function clearRoadmapFilters() {
+  ['rf-portfolio','rf-status','rf-company'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.value='';
+  });
+  sjFilter = {portfolio:'',status:'',company:''};
+  document.querySelectorAll('.portfolio-block,.project-row').forEach(function(el){el.style.display='';});
+  var badge = document.getElementById('rf-badge');
+  if (badge) badge.style.display = 'none';
+  if (viewMode && viewMode.startsWith('table')) renderTableView();
+}
+
+function sjPopulateFilters() {
+  try {
+    var pfSel = document.getElementById('rf-portfolio');
+    if (pfSel && state.portfolios) {
+      pfSel.innerHTML = '<option value="">Todos os portfólios</option>'
+        + state.portfolios.map(function(pt){return '<option value="'+pt.id+'">'+escapeHtml(pt.name)+'</option>';}).join('');
+    }
+    var companies = [];
+    (state.projects||[]).forEach(function(p){ if(p.company && companies.indexOf(p.company)<0) companies.push(p.company); });
+    companies.sort();
+    var cfSel = document.getElementById('rf-company');
+    if (cfSel) {
+      cfSel.innerHTML = '<option value="">Todas as empresas</option>'
+        + companies.map(function(c){return '<option value="'+c+'">'+escapeHtml(c)+'</option>';}).join('');
+    }
+  } catch(e) { console.warn('sjPopulateFilters:', e); }
+}
+
+// ── Densidade de tabela ──────────────────────────────────────
+function setTableDensity(d) {
+  sjDensity = d;
+  try { localStorage.setItem('sj-density', d); } catch(e){}
+  var map = {normal:'7px', compact:'4px', ultracompact:'2px'};
+  document.documentElement.style.setProperty('--row-py', map[d]||'7px');
+  ['td-dn','td-dc','td-du'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.classList.toggle('active',
+      (id==='td-dn'&&d==='normal')||(id==='td-dc'&&d==='compact')||(id==='td-du'&&d==='ultracompact'));
+  });
+}
+
+// ── Config de colunas ────────────────────────────────────────
+var SJ_COLS = [
+  {id:'status',label:'Status',group:'base'},
+  {id:'plan',label:'Planejado',group:'datas'},
+  {id:'replan',label:'Replanejado',group:'datas'},
+  {id:'actual',label:'Realizado',group:'datas'},
+  {id:'pred',label:'Progresso Previsto',group:'progresso'},
+  {id:'real',label:'Progresso Realizado',group:'progresso'},
+  {id:'flags',label:'Flags',group:'extra'},
+];
+
+function openColumnConfig() {
+  var modal = document.getElementById('col-config-modal');
+  var body  = document.getElementById('col-config-body');
+  if (!modal||!body) return;
+  body.innerHTML = SJ_COLS.map(function(col){
+    var checked = !sjHiddenCols[col.id];
+    return '<label style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #eef1f6;cursor:pointer;font-size:12.5px">'
+      +'<input type="checkbox"'+(checked?' checked':'')
+      +' onchange="sjToggleCol(\'' + col.id + '\',this.checked)"'
+      +' style="width:15px;height:15px">'
+      +'<span>'+col.label+'</span>'
+      +'<span style="margin-left:auto;font-size:9.5px;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px">'+col.group+'</span>'
+      +'</label>';
+  }).join('');
+  modal.classList.add('open');
+}
+
+function sjToggleCol(colId, visible) {
+  if (visible) delete sjHiddenCols[colId]; else sjHiddenCols[colId]=true;
+  try { localStorage.setItem('sj-hidden-cols', JSON.stringify(sjHiddenCols)); } catch(e){}
+  if (viewMode && viewMode.startsWith('table')) renderTableView();
+}
+
+// ── PDF Export ───────────────────────────────────────────────
+function exportStatusReportPDF() {
+  var content = document.getElementById('panel-status');
+  if (!content) return;
+  var w = window.open('','_blank');
+  if (!w) { alert('Permita popups para exportar PDF'); return; }
+  var clone = content.cloneNode(true);
+  clone.querySelectorAll('button,input[type=button],input[type=submit]').forEach(function(el){el.remove();});
+  w.document.write('<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">'
+    +'<title>Status Report SJ</title>'
+    +'<style>*{box-sizing:border-box}body{font-family:Arial,sans-serif;font-size:11px;color:#1e293b;padding:16px}'
+    +'table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:14px}'
+    +'th{background:#0d2240;color:#fff;padding:6px 8px;text-align:left;font-size:9px;text-transform:uppercase}'
+    +'td{padding:6px 8px;border-bottom:1px solid #eef1f6}'
+    +'h2{color:#0d2240;font-size:14px}@media print{@page{size:A4 landscape;margin:10mm}}</style>'
+    +'</head><body>'+clone.innerHTML+'</body></html>');
+  w.document.close();
+  setTimeout(function(){ w.focus(); w.print(); }, 500);
+}
+
+// ── Tour guiado ──────────────────────────────────────────────
+var SJ_TOUR = [
+  {title:'1 — Portfólio', body:'Crie um portfólio para agrupar seus projetos. Clique em "+ Novo Portfólio" no menu "Mais".'},
+  {title:'2 — Projeto',   body:'Adicione um projeto ao portfólio clicando em "+ Novo Projeto" na toolbar.'},
+  {title:'3 — Tabela',    body:'Use a visão "Tabela+Tarefas" para editar datas e status das entregas diretamente.'},
+  {title:'4 — Status',    body:'A aba "Status Report" compila automaticamente todos os indicadores do portfólio.'},
+  {title:'5 — Kanban',    body:'O Kanban organiza todas as entregas por status para acompanhamento operacional.'},
+];
+
+function startTour() {
+  sjTourActive = true; sjTourStep = 0; sjRenderTour();
+}
+function sjRenderTour() {
+  var overlay = document.getElementById('tour-overlay');
+  var card    = document.getElementById('tour-card');
+  if (!overlay||!card) return;
+  if (sjTourStep >= SJ_TOUR.length) { endTour(); return; }
+  var step = SJ_TOUR[sjTourStep];
+  card.innerHTML = '<div class="tour-header">'
+    +'<span class="tour-count">'+(sjTourStep+1)+' / '+SJ_TOUR.length+'</span>'
+    +'<button class="tour-close" onclick="endTour()">Pular</button></div>'
+    +'<div class="tour-title">'+step.title+'</div>'
+    +'<div class="tour-body">'+step.body+'</div>'
+    +'<div class="tour-footer">'
+    +(sjTourStep>0?'<button class="tour-btn tour-btn-ghost" onclick="sjTourPrev()">Anterior</button>':'<span></span>')
+    +'<button class="tour-btn tour-btn-primary" onclick="sjTourNext()">'
+    +(sjTourStep<SJ_TOUR.length-1?'Próximo':'Concluir')+'</button></div>';
+  overlay.style.display = 'flex';
+}
+function sjTourNext() { sjTourStep++; sjRenderTour(); }
+function sjTourPrev() { sjTourStep = Math.max(0,sjTourStep-1); sjRenderTour(); }
+function endTour() {
+  sjTourActive = false;
+  var el = document.getElementById('tour-overlay');
+  if (el) el.style.display = 'none';
+  try { localStorage.setItem('sj-tour-done','1'); } catch(e){}
+}
+
+// ── Patch do switchTab original para incluir dashboard ───────
+(function() {
+  var origSwitch = window.switchTab || function(){};
+  window.switchTab = function(tab) {
+    origSwitch(tab);
+    if (tab === 'dashboard') {
+      // Garante que o painel dashboard fica ativo
+      document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active');});
+      var dp = document.getElementById('panel-dashboard');
+      if (dp) dp.classList.add('active');
+      document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+      var db = document.getElementById('tab-dashboard');
+      if (db) db.classList.add('active');
+      sjRenderDashboard();
+    }
+    if (tab === 'roadmap') sjPopulateFilters();
+    if (tab === 'status')  {
+      // Garante botão PDF no topbar se não existir
+      var topbar = document.querySelector('.sr-topbar');
+      if (topbar && !document.getElementById('btn-pdf')) {
+        var btn = document.createElement('button');
+        btn.id = 'btn-pdf'; btn.className = 'ghost';
+        btn.style.cssText = 'font-size:11px;padding:5px 10px';
+        btn.textContent = 'Exportar PDF';
+        btn.onclick = exportStatusReportPDF;
+        topbar.appendChild(btn);
+      }
+    }
+  };
+})();
+
+// ── Init dos novos módulos (roda após o init original) ────────
+(function sjInit() {
+  // Restaura densidade
+  try {
+    var d = localStorage.getItem('sj-density');
+    if (d) setTableDensity(d);
+  } catch(e){}
+  // Restaura colunas ocultas
+  try {
+    var hc = localStorage.getItem('sj-hidden-cols');
+    if (hc) sjHiddenCols = JSON.parse(hc);
+  } catch(e){}
+  // Popula filtros
+  sjPopulateFilters();
+  // Tour no primeiro acesso sem dados
+  setTimeout(function(){
+    try {
+      var done = localStorage.getItem('sj-tour-done');
+      if (!done && !(state.projects.length||state.portfolios.length)) startTour();
+    } catch(e){}
+  }, 2000);
+  // Botão "Mais" no menu: adiciona itens de tour e col config
+  var menu = document.getElementById('tool-menu');
+  if (menu) {
+    var div1 = document.createElement('div'); div1.className='menu-divider'; menu.appendChild(div1);
+    function addMenuItem(text, fn) {
+      var btn = document.createElement('button'); btn.className='ghost'; btn.textContent=text;
+      btn.onclick=fn; menu.appendChild(btn);
+    }
+    addMenuItem('Iniciar Tour Guiado', startTour);
+    addMenuItem('Configurar Colunas', openColumnConfig);
+  }
+  // Patch do loadFromSupabase para atualizar filtros e dashboard após sync
+  var origLoad = window.loadFromSupabase;
+  if (origLoad) {
+    window.loadFromSupabase = async function() {
+      await origLoad();
+      sjPopulateFilters();
+      // Se na aba dashboard, re-renderiza
+      var dp = document.getElementById('panel-dashboard');
+      if (dp && dp.classList.contains('active')) sjRenderDashboard();
+    };
+  }
+})();
+
+// ═══════════════════════════════════════════════════════════════
+// FIM DOS NOVOS MÓDULOS
+// ═══════════════════════════════════════════════════════════════
 </script>
+
+<!-- Tour overlay -->
+<div id="tour-overlay">
+  <div class="tour-backdrop" onclick="endTour()"></div>
+  <div class="tour-card" id="tour-card"></div>
+</div>
 </body>
 </html>
