@@ -3543,9 +3543,20 @@ function realizedByStatus(item) {
 function taskPredictedProgress(task, today) { return predictedByDates(task, today); }
 function taskRealizedProgress(task)         { return realizedByStatus(task); }
 
-// ── ENTREGA (mesma regra da tarefa) ──
-function phasePredictedProgress(phase, today) { return predictedByDates(phase, today); }
-function phaseRealizedProgress(phase)         { return realizedByStatus(phase); }
+// ── ENTREGA: se tem tarefas filhas → média das tarefas; senão → próprias datas/status ──
+function phasePredictedProgress(phase, today) {
+  const tasks = (phase.tasks || []).filter(t => !t.isMilestone);
+  if (!tasks.length) return predictedByDates(phase, today);
+  today = today || new Date();
+  const sum = tasks.reduce((acc, t) => acc + (predictedByDates(t, today) ?? 0), 0);
+  return Math.round(sum / tasks.length);
+}
+function phaseRealizedProgress(phase) {
+  const tasks = (phase.tasks || []).filter(t => !t.isMilestone);
+  if (!tasks.length) return realizedByStatus(phase);
+  const sum = tasks.reduce((acc, t) => acc + realizedByStatus(t), 0);
+  return Math.round(sum / tasks.length);
+}
 
 // ── PROJETO: média simples das entregas (não-marco). Entrega sem datas conta 0 no previsto. ──
 function projectProgress(project) {
