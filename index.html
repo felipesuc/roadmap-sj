@@ -1204,18 +1204,29 @@
   .tv-farol-select { font-size:11px;padding:3px 8px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;cursor:pointer; }
 
   /* ===== TABLE VIEW ===== */
-  .tv-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .tv-table { width: 100%; border-collapse: collapse; font-size: 12.5px; table-layout: fixed; }
   .tv-table thead th {
     position: sticky; top: 0; z-index: 5;
     background: #0D1F3C; color: #e8edf5;
-    padding: 6px 11px; text-align: left;
+    padding: 6px 22px 6px 11px; text-align: left;
     font-size: 10.5px; font-weight: 700;
     text-transform: uppercase; letter-spacing: 0.4px;
     border-right: 1px solid rgba(255,255,255,0.08);
-    white-space: nowrap;
+    white-space: nowrap; overflow: visible;
   }
   .tv-table thead tr:first-child th { top: 0; }
   .tv-table thead tr:last-child  th { top: 26px; }
+  /* word-wrap nas células de dados da tv-table */
+  .tv-table tbody td {
+    overflow-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
+    overflow: hidden;
+  }
+  /* inputs e selects dentro da tv-table não crescem além da coluna */
+  .tv-table tbody td input[type="text"],
+  .tv-table tbody td input[type="date"],
+  .tv-table tbody td select { max-width: 100%; box-sizing: border-box; }
   .tv-portfolio-row {
     background: linear-gradient(to right,#16304f,#2a4a78);
     color: #fff;
@@ -3942,18 +3953,32 @@ function renderTableView() {
     }).join('');
   }
 
-  let html = `<table class="tv-table">
+  let html = `<table class="tv-table" id="tv-table">
+    <colgroup>
+      <col data-min="180" style="width:260px">
+      <col data-min="130" style="width:160px">
+      <col data-min="90"  style="width:110px">
+      <col data-min="90"  style="width:110px">
+      <col data-min="90"  style="width:110px">
+      <col data-min="90"  style="width:110px">
+      <col data-min="90"  style="width:110px">
+      <col data-min="90"  style="width:110px">
+      <col data-min="90"  style="width:110px">
+      <col data-min="100" style="width:130px">
+      <col data-min="90"  style="width:120px">
+      <col data-min="80"  style="width:100px">
+    </colgroup>
     <thead>
       <tr>
-        <th rowspan="2" style="min-width:260px">Entrega / Tarefa</th>
-        <th rowspan="2" style="min-width:160px">Status</th>
+        <th rowspan="2">Entrega / Tarefa</th>
+        <th rowspan="2">Status</th>
         <th colspan="2" style="text-align:center;background:#1a3a6a;border-bottom:1px solid #F5C400">Planejado</th>
         <th colspan="2" style="text-align:center;background:#1a3a6a;border-bottom:1px solid #f59e0b">Replanejado</th>
         <th colspan="2" style="text-align:center;background:#1a3a6a;border-bottom:1px solid #22c55e">Realizado</th>
-        <th rowspan="2" style="min-width:110px">% Previsto</th>
-        <th rowspan="2" style="min-width:130px">% Realizado</th>
-        <th rowspan="2" style="min-width:120px">Flags</th>
-        <th rowspan="2" style="min-width:100px">Ações</th>
+        <th rowspan="2">% Previsto</th>
+        <th rowspan="2">% Realizado</th>
+        <th rowspan="2">Flags</th>
+        <th rowspan="2">Ações</th>
       </tr>
       <tr>
         <th style="border-top:2px solid #F5C400">Início</th>
@@ -4156,6 +4181,10 @@ function renderTableView() {
 
   html += '</tbody></table>';
   tableV.innerHTML = html;
+
+  // Column resizing + word-wrap para tv-table
+  applyColumnWidths('tv-table');
+  setupColumnResizers('tv-table');
 
   // Wire up events
   // Farol select
